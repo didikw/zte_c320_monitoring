@@ -1,7 +1,7 @@
 <?php
 // php onustate.php &
 // Initialize a variable into domain name
-$domain1 = 'http://netapp.blitarkab.go.id';
+$domain1 = 'http://rrrr.go.id';
   
 // Function to get HTTP response code 
 function get_http_response_code($domain1) {
