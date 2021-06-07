@@ -3,7 +3,7 @@ Monitoring OLT device : "ZTE C320"
 
 Based On SNMP & MIB's files
 
-#Requirement
+# Requirement
 1. SNMP Agent
 2. telegraf
 3. influxdb
@@ -11,3 +11,6 @@ Based On SNMP & MIB's files
 5. sh/bash shell
 6. mysql/mariadb
 7. Query visualizer eg Grafana and Metabase
+
+# Result documented on video
+https://youtu.be/uV0ew16SuDo
