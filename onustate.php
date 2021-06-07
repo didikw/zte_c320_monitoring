@@ -15,7 +15,7 @@ $get_http_response_code = get_http_response_code($domain1);
 // Display the HTTP response code
 echo $get_http_response_code;
 
-$connlok = new PDO('mysql:host=103.139.188.138;dbname=olt', 'librenms', 'lIbrenms*!');
+$connlok = new PDO('mysql:host=xxx;dbname=olt', 'yyy', 'zzz');
 $connlok->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $lokasi = snmpwalk("10.1.2.2", "publicblitark4b", ".1.3.6.1.4.1.3902.1012.3.28.1.1.3"); 
