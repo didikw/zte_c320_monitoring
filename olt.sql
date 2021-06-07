@@ -1,17 +1,16 @@
 /*
- Navicat Premium Data Transfer
 
- Source Server         : libre on 103.139.188.138
+
+ Source Server         : yyy on xxx
  Source Server Type    : MariaDB
- Source Server Version : 100329
- Source Host           : 103.139.188.138:3306
+
+ Source Host           : xxx
  Source Schema         : olt
 
  Target Server Type    : MariaDB
  Target Server Version : 100329
  File Encoding         : 65001
 
- Date: 07/06/2021 10:34:51
 */
 
 SET NAMES utf8mb4;
