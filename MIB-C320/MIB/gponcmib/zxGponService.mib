@@ -1,0 +1,4946 @@
+-- *****************************************************************
+-- ZTE GPON MIB
+--
+-- 09-27-2006
+--
+-- Copyright(c) 2006 ZTE Corporation
+-- All rights reserved.
+-- *****************************************************************
+
+ZXGPON-SERVICE-MIB DEFINITIONS ::= BEGIN 
+    IMPORTS 
+        enterprises                      FROM RFC1155-SMI
+        RowStatus                        FROM SNMPv2-TC
+        TruthValue                       FROM SNMPv2-TC
+        Unsigned32                       FROM SNMPv2-SMI
+        Counter64                        FROM SNMPv2-SMI
+        IpAddress                        FROM SNMPv2-SMI
+        Integer32                        FROM SNMPv2-SMI
+        DateAndTime                      FROM SNMPv2-TC
+        MacAddress                       FROM SNMPv2-TC
+        TEXTUAL-CONVENTION               FROM SNMPv2-TC
+        MODULE-IDENTITY                  FROM SNMPv2-SMI
+        OBJECT-TYPE                      FROM SNMPv2-SMI
+        NOTIFICATION-TYPE                FROM SNMPv2-SMI
+        DisplayString                    FROM SNMPv2-TC
+        ifIndex                          FROM RFC1213-MIB
+        zxGponUNIIndex                   FROM ZXGPON-ONTMGMT-MIB;
+    zxEnterpriseMib   OBJECT IDENTIFIER ::= { enterprises 3902}
+    zxPON             OBJECT IDENTIFIER ::= { zxEnterpriseMib 1012}
+
+    zxGponRootMib MODULE-IDENTITY 
+        LAST-UPDATED "200609270000Z"  -- September 27, 2006"
+        ORGANIZATION 
+            "ZTE Corp."
+        CONTACT-INFO 
+            "ZTE GPON Working Group: 
+            http://www.zte.com.cn
+            e-mail:
+            guo.hongjian@zte.com.cn
+            "
+        DESCRIPTION
+            "The MIB module for defining ZXGPON base OID. OID programming:
+             zxGponRootMib 1     , index(zxGponMgmtIndex)
+             zxGponRootMib 2-5   , reserve
+             zxGponRootMib 6     , Absolut private MIB(zxGponAbsPrivate)
+             zxGponRootMib 7-9   , reserve
+             zxGponRootMib 10    , Standard global MIB(zxGponStandardGlobal)
+             zxGponRootMib 11    , Private global MIB(zxGponPrivateGlobal)
+             zxGponRootMib 12    , Standard OLT MIB(zxGponStandardOlt)
+             zxGponRootMib 13    , Private OLT MIB(zxGponPrivateOlt)
+             zxGponRootMib 14-20 , reserve
+             zxGponRootMib 21    , ONT equipment management(zxGponOntEquipMgmt)
+             zxGponRootMib 22    , ANI management(zxGponAniMgmt)
+             zxGponRootMib 23    , UNI Management(zxGponUniMgmt)
+             zxGponRootMib 24    , Connection Management(zxGponConnMgmt)
+             zxGponRootMib 25    , Traffic management(zxGponTrafficMgmt)
+             zxGponRootMib 26    , Profile management(zxGponProfileMgmt)
+             zxGponRootMib 27    , Standard ONU MIB(zxGponStandardOnu)
+             zxGponRootMib 28    , Private ONU MIB(zxGponPrivateOnu)
+             zxGponRootMib 30    , Service management MIB(zxGponServiceMgmt)
+             zxGponRootMib 45    , Private TRAP MIB(zxGponTraps)
+             zxGponRootMib 100   , Dummy MIB indicating the termination of gpon mibs(zxGponTermination)
+             
+             zxGponUniMgmt 1-5   , reserve
+             zxGponUniMgmt 6     , Video Service MIB(zxGponUniVideoService)
+             zxGponUniMgmt 7     , TDM Service MIB(zxGponUniTdmService)
+             zxGponUniMgmt 8     , Ethernet Service MIB(zxGponUniEthService)
+             zxGponUniMgmt 9     , CES MIB(zxGponUniCesService)
+            "
+   
+        REVISION    "200609270000Z"  -- September 27, 2006"
+        DESCRIPTION "Initial version, published as ZTE enterprises MIB."
+   
+        ::= { zxPON 3 }
+
+    zxGponTermination    OBJECT IDENTIFIER ::= { zxGponRootMib 100}
+    
+    zxGponTerminationDummy OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                "The dummy object indicats the termination of all gpon mibs."
+        ::= { zxGponTermination 1 }   
+
+    zxGponMgmtIndex    OBJECT IDENTIFIER ::= { zxGponRootMib 1}
+    zxAnGponRevision     OBJECT-TYPE 
+       SYNTAX           BITS 
+           {
+               gemportUpQueue(0),
+               onuSnAndPwBind(1),
+               onuSourceMacFilter(2),
+               onuOmciBandwidth(3),
+               onuEnableWithSn(4),
+               onuFec(5),
+               onuRegistration(6),
+               voipServiceProvisioningByProfile(7)
+           } 
+       MAX-ACCESS       read-only
+       STATUS           current
+       DESCRIPTION      "Module revision flag."
+       ::=  {  zxGponRootMib  2  }
+
+    OntVendorId ::= TEXTUAL-CONVENTION
+        STATUS       current
+        DESCRIPTION
+            "Represents the vendor of the ONT."
+        SYNTAX       OCTET STRING (SIZE (4))
+
+    OntVersionId ::= TEXTUAL-CONVENTION
+        STATUS       current
+        DESCRIPTION
+            "Represents the version of the ONT."
+        SYNTAX       OCTET STRING (SIZE (14))
+
+    OntSerialNumber ::= TEXTUAL-CONVENTION
+        STATUS       current
+        DESCRIPTION
+            "Represents the unique for each ONT."
+        SYNTAX       OCTET STRING (SIZE (8))
+
+    OntEquipmentId ::= TEXTUAL-CONVENTION
+        STATUS       current
+        DESCRIPTION
+            "Represents the specific type of ONT."
+        SYNTAX       OCTET STRING (SIZE (20))
+
+    ZxGponRecordName ::= TEXTUAL-CONVENTION
+        STATUS       current
+        DESCRIPTION
+            "Represents the specific type of templet."
+        SYNTAX       OCTET STRING (SIZE (0..64))
+    
+    ZxOntList ::= TEXTUAL-CONVENTION
+        STATUS      current
+        DESCRIPTION
+            "The first octet indicates one PON OLT ID number, and 
+             Each four octets indicates one ONT/ONU ID number 
+             that thses ONTs belong to the PON OLT, with from the
+             second octet to fifth octect specifying first ONT/ONU,
+             from the sixth octet to ninth octet specifying second
+             ONT/ONU, etc. example, PON OLT 1, ONT 1 ONT 100, ONT 333,
+             it is that '0100000001000000640000014D'."
+        SYNTAX      OCTET STRING(SIZE (0..256))
+
+    ZxPortIdList ::= TEXTUAL-CONVENTION
+        STATUS      current
+        DESCRIPTION
+            "The first octet indicates one PON OLT ID number, and 
+             Each four octets indicates one PortId number that thses 
+             PortIds belong to the PON OLT, with from the second octet 
+             to fifth octect specifying first PortId Number, from the 
+             sixth octet to ninth octet specifying second PortId Number,
+             etc. example, PON OLT 1, PortId 1 - PortId 3, it is that 
+             '01000000010000000200000003'."
+        SYNTAX      OCTET STRING(SIZE (0..256))
+
+    ZxIndexList ::= TEXTUAL-CONVENTION
+        STATUS      current
+        DESCRIPTION
+            "Each four octets indicates one table index number, with from
+             the first octet to fourth octect specifying first index Number,
+             from the fifth octet to eighth octet specifying second index Number,
+             etc. example, index 1, index 10000, index 245678, it is that '00000001
+             000027100003BFAE'."
+        SYNTAX      OCTET STRING(SIZE (0..256))
+
+    -- OLT and ONU Index table
+    -- Only PONC board agent
+    
+    zxGponOltOnuTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOltOnuEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "OLT and ONU table."
+        ::= { zxGponMgmtIndex 1 }
+
+    zxGponOltOnuEntry OBJECT-TYPE
+        SYNTAX      ZxGponOltOnuEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "An entry in the OLT and ONU table."
+        INDEX   { zxGponMgmtPonOltId, zxGponMgmtPonOnuId }
+        ::= { zxGponOltOnuTable 1 }
+
+    ZxGponOltOnuEntry ::=
+        SEQUENCE {
+            zxGponMgmtPonOltId               INTEGER,
+            zxGponMgmtPonOnuId               INTEGER,
+            zxGponMgmtPonEntryStatus         RowStatus
+        }
+        
+    zxGponMgmtPonOltId OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "OLT identifier, from 1 to N.
+            bit 31~28?atype(1)
+            bit 27~24?ashelf(0)
+            bit 23~16?aslotId
+            bit 16~8?aoltId
+            bit 7~0?areserved(0)"
+        ::= { zxGponOltOnuEntry 1}
+
+    zxGponMgmtPonOnuId OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "an ONU in an OLT, from 1 to M."
+        ::= { zxGponOltOnuEntry 2}
+
+    zxGponMgmtPonEntryStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltOnuEntry 3}
+        
+--zxGponPrivateGlobal.mi2
+    zxGponPrivateGlobal OBJECT IDENTIFIER ::= { zxGponRootMib 11 }
+
+    zxGponOltDevInfoTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOltDevInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponPrivateGlobal 1 }
+
+    zxGponOltDevInfoEntry OBJECT-TYPE
+        SYNTAX      ZxGponOltDevInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the zxGponOltDevInfoTable."
+        INDEX   { zxGponMgmtPonOltId }
+        ::= { zxGponOltDevInfoTable 1 }
+        
+    ZxGponOltDevInfoEntry ::=
+        SEQUENCE {
+            zxGponDbaEnable              TruthValue
+        }
+
+    zxGponDbaEnable OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+                "Enable or disable DBA on this olt ."
+        ::= { zxGponOltDevInfoEntry 1 }
+        
+    zxGponFECTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponFECEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponPrivateGlobal 3 }
+
+    zxGponFECEntry OBJECT-TYPE
+        SYNTAX      ZxGponFECEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the zxGponFECTable."
+        INDEX   { zxGponMgmtPonOltId }
+        ::= { zxGponFECTable 1 }
+        
+    ZxGponFECEntry ::=
+        SEQUENCE {
+            zxGponFECMode              INTEGER
+        }
+
+    zxGponFECMode OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    none(1),
+                    downstream(2),
+                    upstream(3),
+                    bidirection(4)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+                "Indicates the FEC mode on this olt ."
+        ::= { zxGponFECEntry 1 }
+        
+    zxGponRTDTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponRTDEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponPrivateGlobal 4 }
+
+    zxGponRTDEntry OBJECT-TYPE
+        SYNTAX      ZxGponRTDEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the zxGponRTDTable."
+        INDEX   { zxGponMgmtPonOltId, zxGponMgmtPonOnuId }
+        ::= { zxGponRTDTable 1 }
+        
+    ZxGponRTDEntry ::=
+        SEQUENCE {
+            zxGponRTDEqd              INTEGER,
+            zxGponRTDDistance         INTEGER
+        }
+
+    zxGponRTDEqd OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                "Equalized delay of onu."
+        ::= { zxGponRTDEntry 1 }
+        
+    zxGponRTDDistance OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                "Distance of onu."
+        ::= { zxGponRTDEntry 2 }
+
+    zxGponRangeTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponRangeEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponPrivateGlobal 5 }
+
+    zxGponRangeEntry OBJECT-TYPE
+        SYNTAX      ZxGponRangeEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the zxGponRangeTable."
+        INDEX   { zxGponMgmtPonOltId }
+        ::= { zxGponRangeTable 1 }
+        
+    ZxGponRangeEntry ::=
+        SEQUENCE {
+            zxGponRangeMode              INTEGER,
+            zxGponRangeBase              INTEGER,
+            zxGponRangeDiff              INTEGER,
+            zxGponRangeCapability        INTEGER
+        }
+
+    zxGponRangeMode OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    mode0(1),
+                    mode1(2),
+                    mode2(3)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+                "Indicates the range mode of this olt .
+                mode0(1): 0  - 20 km
+                mode1(2): 20 - 40 km
+                mode2(3): 40 - 60 km"
+        ::= { zxGponRangeEntry 1 }
+        
+    zxGponRangeBase OBJECT-TYPE
+        SYNTAX      INTEGER
+        UNITS       "100m"
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+                "It indicates value of the base distance of the range.
+                 The distance of the range is [zxGponRangeBase,zxGponRangeBase + zxGponRangeDiff],
+                 The max distance of the range is 60km"
+        ::= { zxGponRangeEntry 2 }
+    
+    zxGponRangeDiff OBJECT-TYPE
+        SYNTAX      INTEGER
+        UNITS       "100m"
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+                "It indicates the distance of the range coverage area."
+        ::= { zxGponRangeEntry 3 }  
+        
+    zxGponRangeCapability OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    fixed(1),
+                    step(2)
+                    }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                "Indicates the range capability.
+                fixed(1): zxGponRangeMode working,only support 0-20,20-40,40-60
+                step(2): zxGponRangeBase and zxGponRangeDiff working"
+        ::= { zxGponRangeEntry 4 }       
+               
+
+--- SCB controled
+   
+  zxGponGetValidIdxTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponGetValidIdxEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This table represents current valid index table."
+        ::= { zxGponPrivateGlobal 16 }
+
+    zxGponGetValidIdxEntry OBJECT-TYPE
+        SYNTAX      ZxGponGetValidIdxEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It provide a current valid index entry."
+        INDEX   { zxGponGetValidIdxTableNameIdx, zxGponMgmtPonOltId, zxGponMgmtPonOnuId, zxGponGemPortIdx }
+        ::= { zxGponGetValidIdxTable 1 }
+
+    ZxGponGetValidIdxEntry ::=
+        SEQUENCE {
+            zxGponGetValidIdxTableNameIdx INTEGER,
+            zxGponGetValidIdxvalue        INTEGER
+        }
+
+    zxGponGetValidIdxTableNameIdx       OBJECT-TYPE
+      SYNTAX      INTEGER
+      MAX-ACCESS  not-accessible
+      STATUS      current 
+      DESCRIPTION 
+        "It is a table name ID, specifical number denotes one table.
+         Only these tables are valid in which it is only one integer index.
+         GPON_TBLID_BWPROFILE             1
+         GPON_TBLID_THRESPROFILE          2
+         GPON_TBLID_TRAFFICPROFILE        3
+         GPON_TBLID_FLOWCLASSPROFILE      4
+         GPON_TBLID_CLASSRULEPROFILE      5
+         GPON_TBLID_TRAFFICMGMTUNIT       6
+         GPON_TBLID_GEMPORT               7
+         GPON_TBLID_FLOW                  8
+         GPON_TBLID_VOIPMEDIAPROFILE      9
+         GPON_TBLID_DIALPLANTABLE         10
+         GPON_TBLID_FILTERRULE            11
+         GPON_TBLID_TREATRULE             12
+         GPON_TBLID_PWPROFILE             13
+         GPON_TBLID_SCHPROFILE            14
+         GPON_TBLID_IGMPPROFILE           15
+         "
+      REFERENCE   "N/A"
+      ::= { zxGponGetValidIdxEntry 1 }
+
+    zxGponGetValidIdxvalue       OBJECT-TYPE
+      SYNTAX      INTEGER
+      MAX-ACCESS  read-only
+      STATUS      current 
+      DESCRIPTION 
+        "It is a valid in the table."
+      REFERENCE   "N/A"
+      ::= { zxGponGetValidIdxEntry 2 }
+   
+       zxGponSlotOpticalDetectInfoTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponSlotOpticalDetectInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponPrivateGlobal 25}
+
+    zxGponSlotOpticalDetectInfoEntry OBJECT-TYPE
+        SYNTAX      ZxGponSlotOpticalDetectInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonSlotId }
+        ::= {zxGponSlotOpticalDetectInfoTable 1 }
+
+    ZxGponSlotOpticalDetectInfoEntry ::=
+          SEQUENCE {
+            zxGponMgmtPonSlotId          INTEGER,
+              zxGponSlotOpticalDetect           TruthValue
+              }
+       
+      zxGponMgmtPonSlotId       OBJECT-TYPE
+      SYNTAX      INTEGER
+      MAX-ACCESS  not-accessible
+      STATUS      current 
+      DESCRIPTION 
+        "slot id(1-6,9-14)"
+      REFERENCE   "N/A"
+      ::= { zxGponSlotOpticalDetectInfoEntry 1 }
+          
+    zxGponSlotOpticalDetect       OBJECT-TYPE
+      SYNTAX      TruthValue
+      MAX-ACCESS  read-write
+      STATUS      current 
+      DESCRIPTION 
+        "enable/disable pon Optical-Always-On detection."
+      REFERENCE   "N/A"
+      ::= { zxGponSlotOpticalDetectInfoEntry 2 }
+
+  
+--zxGponStandardOlt.mi2
+    zxGponStandardOlt OBJECT IDENTIFIER ::= { zxGponRootMib 12 }
+
+    zxGponOltStatisticInfoTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOltStatisticInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            ""
+        ::= { zxGponStandardOlt 2 }
+
+    zxGponOltStatisticInfoEntry OBJECT-TYPE
+        SYNTAX      ZxGponOltStatisticInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId }
+        ::= { zxGponOltStatisticInfoTable 1 }
+
+    ZxGponOltStatisticInfoEntry ::=
+        SEQUENCE {
+            zxGponOltStatisticInfoSuperframeCounter Counter64,
+            zxGponOltStatisticInfoBIPCounter        Counter64
+        }
+
+   zxGponOltStatisticInfoSuperframeCounter OBJECT-TYPE
+        SYNTAX      Counter64
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "To provide error tolerance, the OLT must implement a local superframe counter"
+        ::= { zxGponOltStatisticInfoEntry 1}
+
+   zxGponOltStatisticInfoBIPCounter OBJECT-TYPE
+        SYNTAX      Counter64
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The received BIP8 is compared with the calculated BIP8 on the received stream. In case 
+             of a difference ERR counter is incremented"
+        ::= { zxGponOltStatisticInfoEntry 2}
+
+    zxGponFindOnuTimerTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponFindOnuTimerEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            ""
+        ::= { zxGponStandardOlt 7 }
+
+    zxGponFindOnuTimerEntry OBJECT-TYPE
+        SYNTAX      ZxGponFindOnuTimerEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId }
+        ::= { zxGponFindOnuTimerTable 1 }
+
+    ZxGponFindOnuTimerEntry ::=
+        SEQUENCE {
+            zxGPonFindOnuTimerNewOnt          INTEGER,
+            zxGponFindOnuTimerMissingOnt      INTEGER,
+            zxGPonFindOnuTimerOpenWindowFrame INTEGER
+        }
+
+   zxGPonFindOnuTimerNewOnt OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponFindOnuTimerEntry 1}
+
+   zxGponFindOnuTimerMissingOnt OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponFindOnuTimerEntry 2}
+
+   zxGPonFindOnuTimerOpenWindowFrame OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponFindOnuTimerEntry 3}
+
+  zxGponOltPmStatisRealtimeInfoTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOltPmStatisRealtimeInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            ""
+        ::= { zxGponStandardOlt 13 }
+
+    zxGponOltPmStatisRealtimeInfoEntry OBJECT-TYPE
+        SYNTAX      ZxGponOltPmStatisRealtimeInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId }
+        ::= { zxGponOltPmStatisRealtimeInfoTable 1 }
+
+    ZxGponOltPmStatisRealtimeInfoEntry ::=
+        SEQUENCE {
+            zxGponOltPmStatisInfoCorrectNonIdleGemFramesUpstream     Unsigned32,
+            zxGponOltPmStatisInfoCorrectIdleGemFramesUpstream        Unsigned32,
+            zxGponOltPmStatisInfoErroredGemFramesUpstream            Unsigned32,
+            zxGponOltPmStatisInfoGemPayloadBytesUpstream             Unsigned32,
+            zxGponOltPmStatisInfoCorrectEthernetFramesUpstream       Unsigned32,
+            zxGponOltPmStatisInfoErroredEthernetFramesUpstream       Unsigned32,
+            zxGponOltPmStatisInfoTotalOmciFramesUpstream             Unsigned32,
+            zxGponOltPmStatisInfoERR                                 Unsigned32,
+            zxGponOltPmStatisInfoREI                                 Unsigned32,
+            zxGponOltPmStatisInfoValidEthernetPacketDownstream       Unsigned32,
+            zxGponOltPmStatisInfoCpuPacketDownstream                 Unsigned32,
+            zxGponOltPmStatisInfoPloamDownstream                     Unsigned32,
+            zxGponOltPmStatisInfoPloamUpstream                       Unsigned32,
+            zxGponOltPmStatisInfoInvalidPacketUpstream               Unsigned32,
+            zxGponOltPmFecCorrectedBytes                             Unsigned32,
+            zxGponOltPmFecCorrectedWords                             Unsigned32,
+            zxGponOltPmFecUncorrectedWords                           Unsigned32,
+            zxGponOltPmFecTotalRxWords                               Unsigned32,
+            zxGponOltPmBipErrBits                                    Unsigned32,
+            zxGponOltPmCrcErrPkts                                    Unsigned32
+        }
+
+   zxGponOltPmStatisInfoCorrectNonIdleGemFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 1}
+
+   zxGponOltPmStatisInfoCorrectIdleGemFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 2}
+
+   zxGponOltPmStatisInfoErroredGemFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 3}
+
+   zxGponOltPmStatisInfoGemPayloadBytesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 4}
+
+   zxGponOltPmStatisInfoCorrectEthernetFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 5}
+
+   zxGponOltPmStatisInfoErroredEthernetFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 6}
+
+   zxGponOltPmStatisInfoTotalOmciFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 7}
+
+   zxGponOltPmStatisInfoERR OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 8}
+
+   zxGponOltPmStatisInfoREI OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 9}
+
+   zxGponOltPmStatisInfoValidEthernetPacketDownstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 10}
+
+   zxGponOltPmStatisInfoCpuPacketDownstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 11}
+
+   zxGponOltPmStatisInfoPloamDownstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 12}
+
+   zxGponOltPmStatisInfoPloamUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 13}
+
+   zxGponOltPmStatisInfoInvalidPacketUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 14}
+        
+   zxGponOltPmFecCorrectedBytes OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Errored bytes which have been corrected by FEC on PON port."
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 15}
+    
+   zxGponOltPmFecCorrectedWords  OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Errored codewords which have been corrected by FEC on PON port."
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 16}
+        
+    zxGponOltPmFecUncorrectedWords  OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+          "Errored codewords which haven't been corrected by FEC on PON port."
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 17}
+
+   zxGponOltPmFecTotalRxWords OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Received codewords by FEC on PON port."
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 18}
+        
+   zxGponOltPmBipErrBits OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Errored bits by BIP on PON port."
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 19}   
+        
+   zxGponOltPmCrcErrPkts OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Errored packets by CRC on PON port."
+        ::= { zxGponOltPmStatisRealtimeInfoEntry 20}    
+
+    zxGponOltPmStatisHistoryInfoTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOltPmStatisHistoryInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            ""
+        ::= { zxGponStandardOlt 14 }
+
+    zxGponOltPmStatisHistoryInfoEntry OBJECT-TYPE
+        SYNTAX      ZxGponOltPmStatisHistoryInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId }
+        ::= { zxGponOltPmStatisHistoryInfoTable 1 }
+
+    ZxGponOltPmStatisHistoryInfoEntry ::=
+        SEQUENCE {
+            zxGponOltPmStatisHistoryInfoCorrectNonIdleGemFramesUpstream                Unsigned32,
+            zxGponOltPmStatisHistoryInfoCorrectIdleGemFramesUpstream         Unsigned32,
+            zxGponOltPmStatisHistoryInfoErroredGemFramesUpstream       Unsigned32,
+            zxGponOltPmStatisHistoryInfoGemPayloadBytesUpstream             Unsigned32,
+            zxGponOltPmStatisHistoryInfoCorrectEthernetFramesUpstream          Unsigned32,
+            zxGponOltPmStatisHistoryInfoErroredEthernetFramesUpstream                Unsigned32,
+            zxGponOltPmStatisHistoryInfoTotalOmciFramesUpstream             Unsigned32,
+            zxGponOltPmStatisHistoryInfoERR             Unsigned32,
+            zxGponOltPmStatisHistoryInfoREI               Unsigned32,
+            zxGponOltPmStatisHistoryInfoValidEthernetPacketDownstream               Unsigned32,
+            zxGponOltPmStatisHistoryInfoCpuPacketDownstream            Unsigned32,
+            zxGponOltPmStatisHistoryInfoPloamDownstream            Unsigned32,
+            zxGponOltPmStatisHistoryInfoPloamUpstream                    Unsigned32,
+            zxGponOltPmStatisHistoryInfoInvalidPacketUpstream                 Unsigned32
+        }
+
+   zxGponOltPmStatisHistoryInfoCorrectNonIdleGemFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisHistoryInfoEntry 1}
+
+   zxGponOltPmStatisHistoryInfoCorrectIdleGemFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisHistoryInfoEntry 2}
+
+   zxGponOltPmStatisHistoryInfoErroredGemFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisHistoryInfoEntry 3}
+
+   zxGponOltPmStatisHistoryInfoGemPayloadBytesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisHistoryInfoEntry 4}
+
+   zxGponOltPmStatisHistoryInfoCorrectEthernetFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisHistoryInfoEntry 5}
+
+   zxGponOltPmStatisHistoryInfoErroredEthernetFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisHistoryInfoEntry 6}
+
+   zxGponOltPmStatisHistoryInfoTotalOmciFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisHistoryInfoEntry 7}
+
+   zxGponOltPmStatisHistoryInfoERR OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisHistoryInfoEntry 8}
+
+   zxGponOltPmStatisHistoryInfoREI OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisHistoryInfoEntry 9}
+
+   zxGponOltPmStatisHistoryInfoValidEthernetPacketDownstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisHistoryInfoEntry 10}
+
+   zxGponOltPmStatisHistoryInfoCpuPacketDownstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisHistoryInfoEntry 11}
+
+   zxGponOltPmStatisHistoryInfoPloamDownstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisHistoryInfoEntry 12}
+
+   zxGponOltPmStatisHistoryInfoPloamUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisHistoryInfoEntry 13}
+
+   zxGponOltPmStatisHistoryInfoInvalidPacketUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPmStatisHistoryInfoEntry 14}
+
+--zxGponPrivateOlt.mi2
+    VlanId ::= TEXTUAL-CONVENTION
+        STATUS      current
+        DESCRIPTION
+            "A 12-bit VLAN ID used in the VLAN Tag header."
+        SYNTAX      INTEGER (1..4094)
+
+    zxGponPrivateOlt OBJECT IDENTIFIER ::= { zxGponRootMib 13 }
+
+    zxGponOltPonInfoTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOltPonInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            "G.984.3"
+        ::= { zxGponPrivateOlt 1 }
+
+    zxGponOltPonInfoEntry OBJECT-TYPE
+        SYNTAX      ZxGponOltPonInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId }
+        ::= { zxGponOltPonInfoTable 1 }
+
+    ZxGponOltPonInfoEntry ::=
+        SEQUENCE {
+            zxGponOltPonName             OCTET STRING,
+            zxGponOltPonDescription      OCTET STRING,
+            zxGPonOltPonOntDefaultState  INTEGER,
+            zxGPonOltPonOntDefaultPwMode INTEGER,
+            zxGPonOltPonOntDefaultPw     OCTET STRING,
+            zxGPonOltPonOntAuthMode      INTEGER,
+            zxGPonOltPonOntSnAuthMode    INTEGER,
+            zxGPonOltPonOntSnMask        OCTET STRING,
+            zxGponOltPonOmccPortBase     INTEGER,
+            zxGPonOltPonAdminState       INTEGER,
+            zxGPonOltPonOperState        INTEGER,
+            zxGponOltPonSupportMaxOnts   INTEGER,
+            zxGponOltPonRealLegalOnts    INTEGER,
+            zxGponOltPonRealIllegalOnts  INTEGER,
+            zxGponOltPonSupportMaxTConts  INTEGER,
+            zxGponOltPonRealUsedTConts   INTEGER,
+            zxGponOltPonAgingTime           INTEGER,
+            zxGponOltPonUnauthOnuAgingTime  INTEGER
+        }
+
+   zxGponOltPonName OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(128))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPonInfoEntry 1}
+
+   zxGponOltPonDescription OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(127))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The definition size of description does not include the termination."
+        ::= { zxGponOltPonInfoEntry 2}
+
+   zxGPonOltPonOntDefaultState OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    deactive(1),
+                    omciready(2)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPonInfoEntry 3}
+
+   zxGPonOltPonOntDefaultPwMode OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    nonePw(1),
+                    force(2)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPonInfoEntry 4}
+
+   zxGPonOltPonOntDefaultPw OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(10))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPonInfoEntry 5}
+
+   zxGPonOltPonOntAuthMode OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    sn(1),
+                    regid(2)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPonInfoEntry 6}
+
+   zxGPonOltPonOntSnAuthMode OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    learn(1),
+                    provision(2)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPonInfoEntry 7}
+
+   zxGPonOltPonOntSnMask OBJECT-TYPE
+        SYNTAX      OCTET STRING (SIZE (8))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPonInfoEntry 8}
+
+   zxGponOltPonOmccPortBase OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPonInfoEntry 9}
+
+   zxGPonOltPonAdminState OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    enable(1),
+                    disable(2)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        DEFVAL { disable }
+        ::= { zxGponOltPonInfoEntry 10}
+    
+   zxGPonOltPonOperState OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    enable(1),
+                    disable(2)
+                    }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        DEFVAL { disable }
+        ::= { zxGponOltPonInfoEntry 11}
+
+   zxGponOltPonSupportMaxOnts OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPonInfoEntry 12}
+
+   zxGponOltPonRealLegalOnts OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPonInfoEntry 13}
+
+   zxGponOltPonRealIllegalOnts OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPonInfoEntry 14}
+    
+   zxGponOltPonSupportMaxTConts OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPonInfoEntry 15}
+
+   zxGponOltPonRealUsedTConts OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPonInfoEntry 16}
+
+   zxGponOltPonAgingTime OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltPonInfoEntry 17}
+
+    zxGponOltPonUnauthOnuAgingTime OBJECT-TYPE
+        SYNTAX      INTEGER(2..3600)
+        UNITS        "seconds"
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The aging time of unauthorized ONU. 
+             When the online time of unauthorized ONU for more than
+              'zxGponOltPonUnauthOnuAgingTime', the OLT will delete
+              the unauthorized ONU record from the unauthorized ONU table."
+        DEFVAL {300}
+        ::= { zxGponOltPonInfoEntry 21}        
+
+    zxGponOltMgmtOperTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOltMgmtOperEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            "G.984.3"
+        ::= { zxGponPrivateOlt 2 }
+
+    zxGponOltMgmtOperEntry OBJECT-TYPE
+        SYNTAX      ZxGponOltMgmtOperEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId }
+        ::= { zxGponOltMgmtOperTable 1 }
+
+    ZxGponOltMgmtOperEntry ::=
+        SEQUENCE {
+            zxGponOltReset                  TruthValue,
+            zxGponOltOff                    TruthValue,
+            zxGponOltOpticalDetectOnce      TruthValue
+        }
+
+   zxGponOltReset OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltMgmtOperEntry 1}
+
+   zxGponOltOff OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltMgmtOperEntry 2}
+   
+   zxGponOltOpticalDetectOnce OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "excute olt Optical-Always-ON detect once."
+        ::= { zxGponOltMgmtOperEntry 3}
+
+
+
+    zxGponUnCfgSnOntInfoTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponUnCfgSnOntInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            "G.984.3"
+        ::= { zxGponPrivateOlt 3 }
+
+    zxGponUnCfgSnOntInfoEntry OBJECT-TYPE
+        SYNTAX      ZxGponUnCfgSnOntInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId, zxGponUnCfgSnIdx }
+        ::= { zxGponUnCfgSnOntInfoTable 1 }
+
+    ZxGponUnCfgSnOntInfoEntry ::=
+        SEQUENCE {
+            zxGponUnCfgSnIdx       INTEGER,
+            zxGponUnCfgSnOntSN     OntSerialNumber,
+            zxGponUnCfgSnOntRID    OCTET STRING,
+            zxGponUnCfgSnOntRtd    INTEGER,
+            zxGponUnCfgSnOntPsw    OCTET STRING,
+            zxGponUnCfgSnOntState  INTEGER,
+            zxGponUnCfgSnOntTime   DateAndTime
+        }
+
+   zxGponUnCfgSnIdx OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponUnCfgSnOntInfoEntry 1}
+    
+   zxGponUnCfgSnOntSN OBJECT-TYPE
+        SYNTAX      OntSerialNumber(SIZE (8))
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponUnCfgSnOntInfoEntry 2}
+    
+   zxGponUnCfgSnOntRID OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(4))
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The register ID of the unconfigured ONT."
+        ::= { zxGponUnCfgSnOntInfoEntry 3}
+
+   zxGponUnCfgSnOntRtd OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The RTD after ranging."
+        ::= { zxGponUnCfgSnOntInfoEntry 4}
+
+   zxGponUnCfgSnOntPsw OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(10))
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The password reported by the ONT."
+        ::= { zxGponUnCfgSnOntInfoEntry 5}
+        
+   zxGponUnCfgSnOntState OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    o1-initial(1),
+                    o2-standby(2),
+                    o3-powersetup(3),
+                    o4-serialnumber(4),
+                    o5-ranging(5),
+                    o6-operation(6),
+                    o7-popup(7)
+                    }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponUnCfgSnOntInfoEntry 6}
+
+   zxGponUnCfgSnOntTime OBJECT-TYPE
+        SYNTAX      DateAndTime(SIZE(8))
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponUnCfgSnOntInfoEntry 7}
+
+   zxGponOltScbPortTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOltScbPortEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Configure SCB PORTID table." 
+        ::= { zxGponPrivateOlt 18 }
+
+    zxGponOltScbPortEntry OBJECT-TYPE
+        SYNTAX      ZxGponOltScbPortEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId }
+        ::= { zxGponOltScbPortTable 1 }
+
+    ZxGponOltScbPortEntry ::=
+        SEQUENCE {
+            zxGponScbPort   INTEGER
+          }
+
+   zxGponScbPort OBJECT-TYPE
+        SYNTAX      INTEGER(65..4095)
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOltScbPortEntry 1} 
+
+   
+   zxGponOltEthSwitchTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOltEthSwitchEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "ETH SWITCH PROTECT STATE table." 
+        ::= { zxGponPrivateOlt 15 }
+
+    zxGponOltEthSwitchEntry OBJECT-TYPE
+        SYNTAX      ZxGponOltEthSwitchEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId }
+        ::= { zxGponOltEthSwitchTable 1 }
+
+    ZxGponOltEthSwitchEntry ::=
+        SEQUENCE {
+            zxGponEthSwitchProtectState   INTEGER
+          }
+
+   zxGponEthSwitchProtectState OBJECT-TYPE
+        SYNTAX      INTEGER(0..1)
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "0:DISABLE 1:ENABLE"
+        ::= { zxGponOltEthSwitchEntry 1}
+   
+--zxGponOntEquipMgmt.mi2
+    zxGponOntEquipMgmt OBJECT IDENTIFIER ::= { zxGponRootMib 21 }
+
+
+
+    zxGponOntAlarmTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOntAlarmEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This alarm is used to notify the managed system when a
+             failure has been detected or cleared."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        ::= { zxGponOntEquipMgmt 2 }
+
+    zxGponOntAlarmEntry OBJECT-TYPE
+        SYNTAX      ZxGponOntAlarmEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "An entry in the ONT equipment alarm information table."
+        INDEX   { zxGponMgmtPonOltId, zxGponMgmtPonOnuId }
+        ::= { zxGponOntAlarmTable 1 }
+
+    ZxGponOntAlarmEntry ::=
+        SEQUENCE {
+            zxGponOntEquipmentAlarm              TruthValue,
+            zxGponOntEquipmentAlarmMask          TruthValue,
+            zxGponOntPoweringAlarm               TruthValue,
+            zxGponOntPoweringAlarmMask           TruthValue,
+            zxGponOntBatteryMissing              TruthValue,
+            zxGponOntBatteryMissingMask          TruthValue,
+            zxGponOntBatteryFailure              TruthValue,
+            zxGponOntBatteryFailureMask          TruthValue,
+            zxGponOntBatteryLow                  TruthValue,
+            zxGponOntBatteryLowMask              TruthValue,
+            zxGponOntPhysicalIntrusionAlarm      TruthValue,
+            zxGponOntPhysicalIntrusionAlarmMask  TruthValue,
+            zxGponOntONTSelfTestFailure          TruthValue,
+            zxGponOntONTSelfTestFailureMask      TruthValue
+        }
+
+    zxGponOntEquipmentAlarm OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "It is used to Indicate a functional failure on an internal interface.
+             When this is true(1) the failure exists; When false(2), the failure is
+             not exist."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        ::= { zxGponOntAlarmEntry 1}
+
+    zxGponOntEquipmentAlarmMask OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Indicates whether the occurence of zxGponOntEquipmentAlarm alarm
+             should result in NE generated by the agent layer. When this is false(2) 
+             it should be generated; When true(1), not generated."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        DEFVAL  { false }
+        ::= { zxGponOntAlarmEntry 2}
+
+    zxGponOntPoweringAlarm OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "It is used to Indicate Loss of external power.
+             When this is true(1) the failure exists; When false(2), the failure is
+             not exist."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        ::= { zxGponOntAlarmEntry 3}
+
+    zxGponOntPoweringAlarmMask OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Indicates whether the occurence of zxGponOntPoweringAlarm alarm
+             should result in NE generated by the agent layer. When this is false(2) 
+             it should be generated; When true(1), not generated."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        DEFVAL  { false }
+        ::= { zxGponOntAlarmEntry 4}
+
+    zxGponOntBatteryMissing OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "It is used to Indicate Battery is provisioned but missing.
+             When this is true(1) the failure exists; When false(2), the failure is
+             not exist."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        ::= { zxGponOntAlarmEntry 5}
+
+    zxGponOntBatteryMissingMask OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Indicates whether the occurence of zxGponOntBatteryMissing alarm
+             should result in NE generated by the agent layer. When this is false(2) 
+             it should be generated; When true(1), not generated."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        DEFVAL  { false }
+        ::= { zxGponOntAlarmEntry 6}
+
+    zxGponOntBatteryFailure OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "It is used to Indicate Battery is provisioned and present but cannot recharge.
+             When this is true(1) the failure exists; When false(2), the failure is
+             not exist."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        ::= { zxGponOntAlarmEntry 7}
+
+    zxGponOntBatteryFailureMask OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Indicates whether the occurence of zxGponOntBatteryFailure alarm
+             should result in NE generated by the agent layer. When this is false(2) 
+             it should be generated; When true(1), not generated."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        DEFVAL  { false }
+        ::= { zxGponOntAlarmEntry 8}
+
+    zxGponOntBatteryLow OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "It is used to Indicate battery is provisioned and present but its voltage is too low.
+             When this is true(1) the failure exists; When false(2), the failure is
+             not exist."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        ::= { zxGponOntAlarmEntry 9}
+
+    zxGponOntBatteryLowMask OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Indicates whether the occurence of zxGponOntBatteryLow alarm
+             should result in NE generated by the agent layer. When this is false(2) 
+             it should be generated; When true(1), not generated."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        DEFVAL  { false }
+        ::= { zxGponOntAlarmEntry 10}
+
+    zxGponOntPhysicalIntrusionAlarm OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "It is used to Indicate Applies if the ONT is supported with detection such as door or box open.
+             When this is true(1) the failure exists; When false(2), the failure is
+             not exist."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        ::= { zxGponOntAlarmEntry 11}
+
+    zxGponOntPhysicalIntrusionAlarmMask OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Indicates whether the occurence of zxGponOntPhysicalIntrusionAlarm alarm
+             should result in NE generated by the agent layer. When this is false(2) 
+             it should be generated; When true(1), not generated."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        DEFVAL  { false }
+        ::= { zxGponOntAlarmEntry 12}
+
+    zxGponOntONTSelfTestFailure OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "It is used to Indicate ONT has failed autonomous self test.
+             When this is true(1) the failure exists; When false(2), the failure is
+             not exist."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        ::= { zxGponOntAlarmEntry 13}
+
+    zxGponOntONTSelfTestFailureMask OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Indicates whether the occurence of zxGponOntONTSelfTestFailure alarm
+             should result in NE generated by the agent layer. When this is false(2) 
+             it should be generated; When true(1), not generated."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        DEFVAL  { false }
+        ::= { zxGponOntAlarmEntry 14}
+
+    zxGponOntActionsTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOntActionsEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Acts the ONT table."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        ::= { zxGponOntEquipMgmt 3 }
+
+    zxGponOntActionsEntry OBJECT-TYPE
+        SYNTAX      ZxGponOntActionsEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "An entry in the ONT equipment Actions table."
+        INDEX   { zxGponMgmtPonOltId, zxGponMgmtPonOnuId }
+        ::= { zxGponOntActionsTable 1 }
+
+    ZxGponOntActionsEntry ::=
+        SEQUENCE {
+            zxGponOntReboot     INTEGER,
+            zxGponOntTest       INTEGER,
+            zxGponOntSyncTime   INTEGER,
+            zxGponOntMibReset   INTEGER,
+            zxGponOntTestResult INTEGER
+        }
+
+    zxGponOntReboot OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    reboot(1)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It is used to Reboot the ONT."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        ::= { zxGponOntActionsEntry 1}
+
+    zxGponOntTest OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    test(1)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It is used to initiate an ONT self test. Test outcome is 'Pass' or 'Fail'."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        ::= { zxGponOntActionsEntry 2}
+
+    zxGponOntSyncTime OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    synctime(1)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It is used to synchronize the start time of all Monitoring managed entities
+             of the ONT with the reference time of the OLT and to reset the registers of 
+             the Monitoring managed entities. The effect of this action is that all counters 
+             of all Monitoring managed entities are set to 0x00 and restart counting. 
+             Also, the value of the Interval End Time attribute of the Monitoring managed 
+             entities is set to 0x00 and restarts counting."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        ::= { zxGponOntActionsEntry 3}
+
+    zxGponOntMibReset OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    mibRest(1)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Reset the MIB data sync attributes to 0x00 and reset the MIB of the ONT to its default
+             state. This default MIB consists of one instance of the ONT(ONTB)-PON managed entity, one 
+             instance of the ONT Data managed entity, two instances of the Software Image managed 
+             entity, zero or more instances of the Subscriber Line Cardholder managed entity, zero 
+             or more instances of the PON IF Line Cardholder, and zero or more instances of the 
+             Priority QueueG-PON(B-PON) managed entity (for the priority queues that reside in the ONT)."
+        REFERENCE
+            "G.983.2 Section 7.1.2"
+        ::= { zxGponOntActionsEntry 4}
+        
+    zxGponOntTestResult OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Test outcome is 'Pass' or 'Fail'."
+        REFERENCE
+            "G.984.4 Section 9.1.1"
+        ::= { zxGponOntActionsEntry 5}
+--zxGponProfileMgmt.mi2
+    zxGponProfileMgmt OBJECT IDENTIFIER ::= { zxGponRootMib 26 }
+
+    zxGponBandwidthProfileTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponBandwidthProfileEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Bandwidth allocation for one T-CONT in some ONT.
+             these bandwidths as following:
+             fixed bandwidth        ab. FBW
+             assured bandwidth      ab. ABW
+             non-assured bandwidth  ab. NABW
+             best effort bandwidth  ab. BEBW
+             additional bandwidth   ab. AddBW
+             guaranteed bandwidth   ab. GBW
+             maximum bandwidth      ab. MaxBW
+             minimum bandwidth      ab. MinBW
+             AddBW = NABW + BEBW
+             GBW   = FBW  + ABW
+             MaxBW = GBW  + AddBW
+             MinBW = FBW?
+             NABW, BEBW, FBW and ABWare able to participate in DBA
+             "
+        ::= { zxGponProfileMgmt 1 }
+
+    zxGponBandwidthProfileEntry OBJECT-TYPE
+        SYNTAX      ZxGponBandwidthProfileEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "An entry in the Bandwidth profile table."
+        INDEX   { zxGponBWProfileIndex }
+        ::= { zxGponBandwidthProfileTable 1 }
+
+    ZxGponBandwidthProfileEntry ::=
+        SEQUENCE {
+            zxGponBWProfileIndex       INTEGER,
+            zxGponBWProfileName        ZxGponRecordName,
+            zxGponBWProfileFixed       INTEGER,
+            zxGponBWProfileAssured     INTEGER,
+            zxGponBWProfileMaximum     INTEGER,
+            zxGponBWProfileType        INTEGER,
+            zxGponBWProfileRefCnt      INTEGER,
+            zxGponBWProfileEntryStatus RowStatus
+        }
+
+    zxGponBWProfileIndex OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "An arbitrary(unique) integer for identifiying an entry
+             in the line card, from 1 to M, M is equal to 512."
+        ::= { zxGponBandwidthProfileEntry 1}
+
+    zxGponBWProfileName OBJECT-TYPE
+        SYNTAX      ZxGponRecordName(SIZE (0..64))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The Bandwidth Profile Name.It may be created/read/written/modified.
+             Writing or modifing can be done all the time."
+        ::= { zxGponBandwidthProfileEntry 2}
+
+    zxGponBWProfileFixed OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The Fixed Bandwidth is entirely reserved and cyclically allocated in order
+             to achieve a low traffic transfer delay.The unit of kbps.It may be created
+             /read/written/modified. Guaranteed Bandwidth is the summation of Assured 
+             Bandwidth and Fixed Bandwidth. Writing or modifing can be done when the 
+             entry SHOULD NOT be used by any other entry."
+        ::= { zxGponBandwidthProfileEntry 3}
+
+    zxGponBWProfileAssured OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The Assured Bandwidth is bandwidth that is always available to the ONU/ONT if
+             the T-CONT buffer is expected to have traffic to transmit. If the T-CONT buffer 
+             does not have traffic to transmit, this bandwidth may be used by other T-CONTs.
+             The unit of kbps. It may be created/read/written/modified. Guaranteed Bandwidth
+             is the summation of Assured Bandwidth and Fixed Bandwidth. Writing or modifing 
+             can be done when the entry SHOULD NOT be used by any other entry."
+        ::= { zxGponBandwidthProfileEntry 4}
+
+    zxGponBWProfileMaximum OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The Maximum Bandwidth.The unit of kbps.It may be created/read/written/modified. 
+             Writing or modifing can be done when the entry SHOULD NOT be used by any other entry."
+        ::= { zxGponBandwidthProfileEntry 5}
+
+    zxGponBWProfileType OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    type1(1),
+                    type2(2),
+                    type3(3),
+                    type4(4),
+                    type5(5)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Type 1 is characterized by Fixed bandwidth only;
+             Type 2 is characterized by Assured bandwidth only;
+             Type 3 has Assured bandwidth and Non-assured bandwidth;
+             Type 4 has Best-effort bandwidth only and does not have any Guaranteed bandwidth;
+             Type 5 is the super set of all of types."
+        ::= { zxGponBandwidthProfileEntry 6}
+        
+    zxGponBWProfileRefCnt OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Indicate the reference count of this BW profile."
+        ::= { zxGponBandwidthProfileEntry 7}
+
+    zxGponBWProfileEntryStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The control that allows creation and deletion of entries. Deleting can be done
+             when the entry SHOULD NOT be used by any other entry."
+        ::= { zxGponBandwidthProfileEntry 8}
+
+    zxGponTrafficProfileTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponTrafficProfileEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "Rate configuration for one traffic.
+             As following:
+             sustainable information rate      ab. SIR
+             peak information rate             ab. PIR
+             "
+        ::= { zxGponProfileMgmt 2 }
+
+    zxGponTrafficProfileEntry OBJECT-TYPE
+        SYNTAX      ZxGponTrafficProfileEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "An entry in the Traffic profile table."
+        INDEX   { zxGponTrafficProfileIndex }
+        ::= { zxGponTrafficProfileTable 1 }
+
+    ZxGponTrafficProfileEntry ::=
+        SEQUENCE {
+            zxGponTrafficProfileIndex       INTEGER,
+            zxGponTrafficProfileName        ZxGponRecordName,
+            zxGponTrafficProfileSir         INTEGER,
+            zxGponTrafficProfilePir         INTEGER,
+            zxGponTrafficProfileRefCnt      INTEGER,
+            zxGponTrafficProfileEntryStatus RowStatus
+        }
+
+    zxGponTrafficProfileIndex OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "An arbitrary(unique) integer for identifiying an entry
+             in the line card, from 1 to M, M is equal to 512."
+        ::= { zxGponTrafficProfileEntry 1}
+
+    zxGponTrafficProfileName OBJECT-TYPE
+        SYNTAX      ZxGponRecordName(SIZE (0..64))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The Traffic Profile Name.It may be created/read/written/modified.
+             Writing or modifing can be done all the time."
+        ::= { zxGponTrafficProfileEntry 2}
+
+    zxGponTrafficProfileSir OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The SIR is sustainable rate of the traffic. Writing or modifing can be done when the 
+             entry SHOULD NOT be used by any other entry."
+        ::= { zxGponTrafficProfileEntry 3}
+
+    zxGponTrafficProfilePir OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The PIR is peak rate of the traffic. Writing or modifing can be done when the 
+             entry SHOULD NOT be used by any other entry."
+        ::= { zxGponTrafficProfileEntry 4}
+        
+    zxGponTrafficProfileRefCnt OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The reference count of this profile."
+        ::= { zxGponTrafficProfileEntry 5}
+
+    zxGponTrafficProfileEntryStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The control that allows creation and deletion of entries. Deleting can be done
+             when the entry SHOULD NOT be used by any other entry."
+        ::= { zxGponTrafficProfileEntry 6}
+    
+    zxGponThresholdDataProfileTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponThresholdDataProfileEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It represents threshold values for the performance monitoring parameters."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponProfileMgmt 3 }
+
+    zxGponThresholdDataProfileEntry OBJECT-TYPE
+        SYNTAX      ZxGponThresholdDataProfileEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It provide a Threshold Data pointer."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        INDEX   { zxGponThresholdDataProfileIndex }
+        ::= { zxGponThresholdDataProfileTable 1 }
+
+    ZxGponThresholdDataProfileEntry ::=
+        SEQUENCE {
+            zxGponThresholdDataProfileIndex       INTEGER,
+            zxGponThresholdDataProfileName        ZxGponRecordName,
+            zxGponThresholdDataProfileVal1        Unsigned32,
+            zxGponThresholdDataProfileVal2        Unsigned32,
+            zxGponThresholdDataProfileVal3        Unsigned32,
+            zxGponThresholdDataProfileVal4        Unsigned32,
+            zxGponThresholdDataProfileVal5        Unsigned32,
+            zxGponThresholdDataProfileVal6        Unsigned32,
+            zxGponThresholdDataProfileVal7        Unsigned32,
+            zxGponThresholdDataProfileVal8        Unsigned32,
+            zxGponThresholdDataProfileVal9        Unsigned32,
+            zxGponThresholdDataProfileVal10       Unsigned32,
+            zxGponThresholdDataProfileVal11       Unsigned32,
+            zxGponThresholdDataProfileVal12       Unsigned32,
+            zxGponThresholdDataProfileVal13       Unsigned32,
+            zxGponThresholdDataProfileVal14       Unsigned32,
+            zxGponThresholdDataProfileRefCnt       INTEGER,
+            zxGponThresholdDataProfileEntryStatus RowStatus
+        }
+
+    zxGponThresholdDataProfileIndex OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "An arbitrary(unique) integer for identifiying an entry in the Threshold Data,
+             from 1 to M, M is equal to 128."
+        ::= { zxGponThresholdDataProfileEntry 1}
+
+    zxGponThresholdDataProfileName OBJECT-TYPE
+        SYNTAX      ZxGponRecordName(SIZE (0..64))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The Threshold Data Templet Name.It may be created/read/written/modified.
+             Writing or modifing can be done all the time."
+        ::= { zxGponThresholdDataProfileEntry 2}
+
+    zxGponThresholdDataProfileVal1 OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It provides the associated threshold value for the 1st thresholded counter in the
+             History Data type managed entity. It may be created/read/written/modified.Writing or 
+             modifing can be done when the entry SHOULD NOT be used by any other entry."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponThresholdDataProfileEntry 3}
+
+    zxGponThresholdDataProfileVal2 OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It provides the associated threshold value for the 2nd thresholded counter in the
+             History Data type managed entity. It may be created/read/written/modified.Writing or 
+             modifing can be done when the entry SHOULD NOT be used by any other entry."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponThresholdDataProfileEntry 4}
+
+    zxGponThresholdDataProfileVal3 OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It provides the associated threshold value for the 3rd thresholded counter in the
+             History Data type managed entity. It may be created/read/written/modified.Writing or 
+             modifing can be done when the entry SHOULD NOT be used by any other entry."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponThresholdDataProfileEntry 5}
+
+    zxGponThresholdDataProfileVal4 OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It provides the associated threshold value for the 4th thresholded counter in the
+             History Data type managed entity. It may be created/read/written/modified.Writing or 
+             modifing can be done when the entry SHOULD NOT be used by any other entry."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponThresholdDataProfileEntry 6}
+
+    zxGponThresholdDataProfileVal5 OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It provides the associated threshold value for the 5th thresholded counter in the
+             History Data type managed entity. It may be created/read/written/modified.Writing or 
+             modifing can be done when the entry SHOULD NOT be used by any other entry."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponThresholdDataProfileEntry 7}
+
+    zxGponThresholdDataProfileVal6 OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It provides the associated threshold value for the 6th thresholded counter in the
+             History Data type managed entity. It may be created/read/written/modified.Writing or 
+             modifing can be done when the entry SHOULD NOT be used by any other entry."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponThresholdDataProfileEntry 8}
+
+    zxGponThresholdDataProfileVal7 OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It provides the associated threshold value for the 7st thresholded counter in the
+             History Data type managed entity. It may be created/read/written/modified.Writing or 
+             modifing can be done when the entry SHOULD NOT be used by any other entry."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponThresholdDataProfileEntry 9}
+
+    zxGponThresholdDataProfileVal8 OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It provides the associated threshold value for the 8th thresholded counter in the
+             History Data type managed entity. It may be created/read/written/modified.Writing or 
+             modifing can be done when the entry SHOULD NOT be used by any other entry."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponThresholdDataProfileEntry 10}
+
+    zxGponThresholdDataProfileVal9 OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It provides the associated threshold value for the 9th thresholded counter in the
+             History Data type managed entity. It may be created/read/written/modified.Writing or 
+             modifing can be done when the entry SHOULD NOT be used by any other entry."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponThresholdDataProfileEntry 11}
+
+    zxGponThresholdDataProfileVal10 OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It provides the associated threshold value for the 10th thresholded counter in the
+             History Data type managed entity. It may be created/read/written/modified.Writing or 
+             modifing can be done when the entry SHOULD NOT be used by any other entry."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponThresholdDataProfileEntry 12}
+
+    zxGponThresholdDataProfileVal11 OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It provides the associated threshold value for the 11th thresholded counter in the
+             History Data type managed entity. It may be created/read/written/modified.Writing or 
+             modifing can be done when the entry SHOULD NOT be used by any other entry."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponThresholdDataProfileEntry 13}
+
+    zxGponThresholdDataProfileVal12 OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It provides the associated threshold value for the 12th thresholded counter in the
+             History Data type managed entity. It may be created/read/written/modified.Writing or 
+             modifing can be done when the entry SHOULD NOT be used by any other entry."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponThresholdDataProfileEntry 14}
+
+    zxGponThresholdDataProfileVal13 OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It provides the associated threshold value for the 13th thresholded counter in the
+             History Data type managed entity. It may be created/read/written/modified.Writing or 
+             modifing can be done when the entry SHOULD NOT be used by any other entry."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponThresholdDataProfileEntry 15}
+
+    zxGponThresholdDataProfileVal14 OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It provides the associated threshold value for the 14th thresholded counter in the
+             History Data type managed entity. It may be created/read/written/modified.Writing or 
+             modifing can be done when the entry SHOULD NOT be used by any other entry."
+        REFERENCE
+            "G.984.4 Section 9.1.8 Threshold Data 1 and Section 9.1.9 Threshold Data 2"
+        ::= { zxGponThresholdDataProfileEntry 16}
+        
+    zxGponThresholdDataProfileRefCnt OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The reference count of this profile."
+        REFERENCE
+            ""
+        ::= { zxGponThresholdDataProfileEntry 17}
+
+    zxGponThresholdDataProfileEntryStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The control that allows creation and deletion of entries. Deleting can be done
+             when the entry SHOULD NOT be used by any other entry."
+        ::= { zxGponThresholdDataProfileEntry 18}
+
+---
+--- DA(48 bits) SA(48 bits) TYPE/LEN(16 bits) RSVD(1bit) PRI(3 bits) VLAN(12 bits) ... ...
+--- multicast and VLAN from 10 - 100, the rule as flow:
+--- 1st bit = 7,   1st len = 1,  min val = 1,  max val = 1
+--- 2nd bit = 116, 2nd len = 12, min val = 10, max val = 100
+---
+ --zxGponStandardOnu.mi2
+    zxGponStandardOnu OBJECT IDENTIFIER ::= { zxGponRootMib 27 }
+    
+    zxGponPortIdEncryptTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponPortIdEncryptEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            "G.984.3"
+        ::= { zxGponStandardOnu 4 }
+
+    zxGponPortIdEncryptEntry OBJECT-TYPE
+        SYNTAX      ZxGponPortIdEncryptEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId, zxGponMgmtPonOnuId, zxGponGemPortIdx }
+        ::= { zxGponPortIdEncryptTable 1 }
+
+    ZxGponPortIdEncryptEntry ::=
+        SEQUENCE {
+            zxGponPortIdEncryptEnable TruthValue
+        }
+
+     zxGponPortIdEncryptEnable OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponPortIdEncryptEntry 1}
+  
+--zxGponPrivateOnu.mi2
+    zxGponPrivateOnu OBJECT IDENTIFIER ::= { zxGponRootMib 28 }
+
+    zxGponOntDevMgmtTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOntDevMgmtEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            "G.984.3"
+        ::= { zxGponPrivateOnu 1 }
+
+    zxGponOntDevMgmtEntry OBJECT-TYPE
+        SYNTAX      ZxGponOntDevMgmtEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId, zxGponMgmtPonOnuId }
+        ::= { zxGponOntDevMgmtTable 1 }
+
+    ZxGponOntDevMgmtEntry ::=
+        SEQUENCE {
+            zxGponOntDevMgmtTypeName            OCTET STRING,
+            zxGponOntDevMgmtName                OCTET STRING,
+            zxGponOntDevMgmtDescription         OCTET STRING,
+            zxGponOntDevMgmtRegisterId          OCTET STRING,
+            zxGponOntDevMgmtProvisionSn         OntSerialNumber,
+            zxGponOntDevMgmtPwMode              INTEGER,
+            zxGponOntDevMgmtPassword            OCTET STRING,
+            zxGponOntTargetState                INTEGER,
+            zxGponOntDevMgmtEntryStatus         RowStatus,
+            zxGponOntVportMode                  INTEGER,
+            zxGponOntIsAutoUpdate               TruthValue,
+            zxGponOntRegMode                    INTEGER,
+            zxGponOntRegId                      OCTET STRING,            
+            zxGponOntDbaOperateMode             INTEGER, 
+            zxGponOntUpdateSnAction             INTEGER,              
+            zxGponOntOmciBwProfilePtr           Integer32,
+            zxGponOntEnableWithSn               TruthValue,
+            zxGponOntCustomAuthPassControl      INTEGER,
+            zxGponOntUpstreamFecEnable          TruthValue,
+            zxGponOntIsSnBound                  TruthValue
+        }
+
+   zxGponOntDevMgmtTypeName OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(0..64))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntDevMgmtEntry 1}
+
+   zxGponOntDevMgmtName OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(0..128))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntDevMgmtEntry 2}
+
+   zxGponOntDevMgmtDescription OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(127))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The definition size of description does not include the termination."
+        ::= { zxGponOntDevMgmtEntry 3}
+
+   zxGponOntDevMgmtRegisterId OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(4))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Reserved. use in the future."
+        ::= { zxGponOntDevMgmtEntry 4}
+
+     zxGponOntDevMgmtProvisionSn OBJECT-TYPE
+        SYNTAX      OntSerialNumber(SIZE (8))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "SN configed by Olt for the purpose of register"
+        ::= { zxGponOntDevMgmtEntry 5}
+
+   zxGponOntDevMgmtPwMode OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    nonePw(1),
+                    force(2)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntDevMgmtEntry 6}
+
+   zxGponOntDevMgmtPassword OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(12))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Password configed by Olt for the purpose of registration.
+             This attribute is valid when zxGponOntRegMode is following value:
+                     regModePw(2)--10 Bytes,
+                     regModeSnPlusPw(3)--10 Bytes,
+                     regModeTefPw(7)--7 Bytes(hex),
+                     regModeSnPlusTefPw(8)--7 Bytes(hex),
+                     regModeLoidPlusPw(10)--12 Bytes
+            "
+        ::= { zxGponOntDevMgmtEntry 7}
+        
+    zxGponOntTargetState OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    deactive(1),
+                    omciready(2)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntDevMgmtEntry 8}
+
+   zxGponOntDevMgmtEntryStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntDevMgmtEntry 9}
+        
+   zxGponOntVportMode OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    gemport(1),
+                    onu(2),
+                    manul(3)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntDevMgmtEntry 10}
+
+    zxGponOntIsAutoUpdate OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntDevMgmtEntry 11}
+        
+    zxGponOntRegMode OBJECT-TYPE
+        SYNTAX      INTEGER{
+                     regModeSn(1),
+                     regModePw(2),
+                     regModeSnPlusPw(3),
+                     regModeRegisterId(4),
+                     regModeRegisterIdPlus8021x(5),
+                     regModeRegisterIdPlusMutual(6),
+                     regModeTefPw(7),
+                     regModeSnPlusTefPw(8),
+                     regModeLoid(9),
+                     regModeLoidPlusPw(10)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute indicates the onu registration mode.
+             regModeSn: GPON/XGPON -- G.984 G.987 -- 8bytes
+             regModePw: GPON -- G.984 -- 10Bytes
+             regModeSnPlusPw: GPON -- G.984 -- 8+10Bytes
+             regModeRegisterId: GPON/XGPON -- G.984 G.987 -- 36Bytes(XPON)
+             regModeRegisterIdPlus8021x: XGPON -- G.987 -- 36Bytes
+             regModeRegisterIdPlusMutual: XGPON -- G.987 -- 36Bytes
+             regModeTefPw: GPON--Telefonica Password format--7Bytes(hex,fixed)
+             regModeSnPlusTefPw: GPON--Telefonica SN+Password format
+                                       --8+7Bytes(hex,fixed)             
+             regModeLoid: GPON/XGPON -- CTC format -- 24Bytes
+             regModeLoidPlusPw: GPON/XGPON -- CTC format -- 24+12Bytes
+             The attribute is also used to define the registration mode
+             in zxGponOnuRegistrationInfo."
+        ::= { zxGponOntDevMgmtEntry 12}
+        
+   zxGponOntRegId OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(64))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "ID configed by Olt for the purpose of register.
+             This attribute is valid when zxGponOntRegMode is following value:
+                regModeRegisterId(4) --36 Bytes,
+                regModeRegisterIdPlus8021x(5)--36 Bytes,
+                regModeRegisterIdPlusMutual(6)--36 Bytes,
+                regModeLoid(9)--24 Bytes,
+                regModeLoidPlusPw(10)--24 Bytes
+                "                
+        ::= { zxGponOntDevMgmtEntry 13}
+                  
+    zxGponOntDbaOperateMode OBJECT-TYPE
+        SYNTAX      INTEGER{
+                     sr(1),
+                     nsr(2)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "In DBA operations, there are two modes: SR (Status Reporting)-DBA, 
+            and NSR (Non Status Reporting)-DBA in every T-CONT."
+        ::= { zxGponOntDevMgmtEntry 14}   
+     
+          
+   zxGponOntUpdateSnAction OBJECT-TYPE
+        SYNTAX      INTEGER{
+                     updateSn(1)                     
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "if onu registration-mode is 'regModePwAutoBindSn' , when requires to update onu's  serial number 
+           then will execute this action for updating. "
+        ::= { zxGponOntDevMgmtEntry 15}        
+        
+           
+    zxGponOntOmciBwProfilePtr OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This object indicates the onu omci channel bandwidth profile,
+             value '0' indicates using the system default bandwidth."
+        ::= { zxGponOntDevMgmtEntry 16}   
+        
+    zxGponOntEnableWithSn OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "Disable Option: Moves The ONU To The Emergency Stop State. 
+             The ONU Cannot Respond To Upstream Bandwidth Allocations.
+             Enable Option: Moves The ONU To The Standby State. 
+             The ONU Restarts The Activation Process"
+        DEFVAL { true }
+        ::= { zxGponOntDevMgmtEntry 17} 
+  
+    zxGponOntCustomAuthPassControl OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This variable indicates the ONU authentication successful 
+            forwarding actions.The zxGponOntCustomAuthPassControl is a bitmap
+            represented as a sum, therefore, it can represent multiple 
+            forwarding action.The various bit positions are:
+                     1     CNC mode  1:enable,0:disable
+                     2     to define      
+                     4     to define      
+                   ... 
+            note: if all bit is 0,OLT will not report zxGponOntAuthPass 
+            notification to NMS."
+        ::= { zxGponOntDevMgmtEntry 18}    
+
+    zxGponOntUpstreamFecEnable OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute enables the ONU upstream FEC function ."
+        REFERENCE   "G.984.3.13"            
+        ::= { zxGponOntDevMgmtEntry 22}        
+        
+    zxGponOntIsSnBound OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute indicates whether the ONU need to be bound SN.
+             When zxGponOntRegMode is the following values, then this 
+             attribute is valid.
+                     regModeRegisterId(4)
+                     regModeRegisterIdPlus8021x(5)
+                     regModeRegisterIdPlusMutual(6)
+                     regModeTefPw(7)                     
+                     regModeLoid(9)
+                     regModeLoidPlusPw(10) 
+            "
+        DEFVAL { true }
+        ::= { zxGponOntDevMgmtEntry 23}         
+   --              
+    zxGponOntStateTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOntStateEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            "G.984.3"
+        ::= { zxGponPrivateOnu 2 }
+
+    zxGponOntStateEntry OBJECT-TYPE
+        SYNTAX      ZxGponOntStateEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId, zxGponMgmtPonOnuId }
+        ::= { zxGponOntStateTable 1 }
+
+    ZxGponOntStateEntry ::=
+        SEQUENCE {
+            zxGponOntAdminState          INTEGER,
+            zxGponOntOmccState           TruthValue,
+            zxGponOntO1O7State           INTEGER,
+            zxGponOntPhaseState          INTEGER,
+            zxGponOnuLastOnlineTime      DisplayString,
+            zxGponOnuLastOfflineTime     DisplayString
+        }
+
+   zxGponOntAdminState OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    enable(1),
+                    disable(2)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntStateEntry 1}
+
+   zxGponOntOmccState OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntStateEntry 2}
+
+   zxGponOntO1O7State OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    unknown(0),
+                    o1-initial(1),
+                    o2-standby(2),
+                    o3-powersetup(3),
+                    o4-serialnumber(4),
+                    o5-ranging(5),
+                    o6-operation(6),
+                    o7-popup(7)
+                    }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "
+            Unknown(DyingGasp),
+            Initial-state(O1),
+            Standby-state(O2),
+            Power-Setup-state(O3),
+            Serial-Number-state(O4),
+            Ranging-state(O5),
+            Operation-state(O6),
+            POPUP-state(O7)
+            "
+        ::= { zxGponOntStateEntry 3}
+
+   zxGponOntPhaseState OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    logging(0),
+                    los(1),
+                    syncMib(2),
+                    working(3),
+                    dyinggasp(4),
+                    authFailed(5),
+                    offline(6)
+                    }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntStateEntry 4}
+        
+   zxGponOnuLastOnlineTime OBJECT-TYPE
+        SYNTAX      DisplayString  ( SIZE ( 1 .. 19  ) )
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "ONU last online time.The format is yyyy-mm-dd HH:MM:SS.
+            For example,2010-12-30 13:06:30."
+        ::= { zxGponOntStateEntry 5}
+        
+   zxGponOnuLastOfflineTime OBJECT-TYPE
+        SYNTAX      DisplayString  ( SIZE ( 1 .. 19  ) )
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "ONU last offline time.The format is yyyy-mm-dd HH:MM:SS.
+            For example,2010-12-30 13:06:30."
+        ::= { zxGponOntStateEntry 6}
+
+   zxGponOntDevInfoTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOntDevInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            "G.984.3"
+        ::= { zxGponPrivateOnu 3 }
+
+    zxGponOntDevInfoEntry OBJECT-TYPE
+        SYNTAX      ZxGponOntDevInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId, zxGponMgmtPonOnuId }
+        ::= { zxGponOntDevInfoTable 1 }
+
+    ZxGponOntDevInfoEntry ::=
+        SEQUENCE {
+            zxGponOntDevInfoSupportTcontNum  INTEGER,
+            zxGponOntDevInfoCurUsedTcontNum  INTEGER,
+            zxGponOntDevInfoSupportPortIdNum INTEGER,
+            zxGponOntDevInfoCurUsedPortIdNum INTEGER,
+            zxGponOntDevInfoPqNum            INTEGER,
+            zxGponOntDevInfoTsNum            INTEGER,
+            zxGponOntDevInfoServiceType      INTEGER,
+            zxGponOntDevInfoRealOnuId        INTEGER
+        }
+
+   zxGponOntDevInfoSupportTcontNum OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntDevInfoEntry 1}
+
+   zxGponOntDevInfoCurUsedTcontNum OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntDevInfoEntry 2}
+
+   zxGponOntDevInfoSupportPortIdNum OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Reserved. used in the future."
+        ::= { zxGponOntDevInfoEntry 3}
+
+   zxGponOntDevInfoCurUsedPortIdNum OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntDevInfoEntry 4}
+
+   zxGponOntDevInfoPqNum OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntDevInfoEntry 5}
+        
+   zxGponOntDevInfoTsNum OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntDevInfoEntry 6}
+
+   zxGponOntDevInfoServiceType OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Reserved. used in the future."
+        ::= { zxGponOntDevInfoEntry 7}
+        
+   zxGponOntDevInfoRealOnuId OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntDevInfoEntry 8}
+          
+   zxGponOntPmStatisRealtimeInfoTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOntPmStatisRealtimeInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            "G.984.3"
+        ::= { zxGponPrivateOnu 6 }
+
+    zxGponOntPmStatisRealtimeInfoEntry OBJECT-TYPE
+        SYNTAX      ZxGponOntPmStatisRealtimeInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId, zxGponMgmtPonOnuId }
+        ::= { zxGponOntPmStatisRealtimeInfoTable 1 }
+
+    ZxGponOntPmStatisRealtimeInfoEntry ::=
+        SEQUENCE {
+            zxGponOntPmStatisInfoCorrectNonIdleGemFramesUpstream     Unsigned32,
+            zxGponOntPmStatisInfoCorrectIdleGemFramesUpstream        Unsigned32,
+            zxGponOntPmStatisInfoErroredGemFramesUpstream            Unsigned32,
+            zxGponOntPmStatisInfoGemPayloadBytesUpstream             Unsigned32,
+            zxGponOntPmStatisInfoCorrectEthernetFramesUpstream       Unsigned32,
+            zxGponOntPmStatisInfoErroredEthernetFramesUpstream       Unsigned32,
+            zxGponOntPmStatisInfoTotalOmciFramesUpstream             Unsigned32,
+            zxGponOntPmStatisInfoERRi                                Unsigned32,
+            zxGponOntPmStatisInfoREIi                                Unsigned32,
+            zxGponOntPmStatisInfoUnreceivedBurstsUpstream            Unsigned32,
+            zxGponOntPmStatisInfoBipErrorUpstream                    Unsigned32,
+            zxGponOntPmStatisInfoCorrectedBitsUpstream               Unsigned32,
+            zxGponOntPmStatisInfoNotCorrectedWordsUpstream           Unsigned32,
+            zxGponOntPmStatisInfoLostBurst                           Unsigned32,
+            zxGponOntTxCorrectNonIdleGemFrms                         Unsigned32,
+            zxGponOntTxCorrectIdleGemFrms                            Unsigned32,
+            zxGponOntTxOmciFrms                                      Unsigned32,
+            zxGponOntTxPloamFrms                                     Unsigned32,
+            zxGponOntRxPloamFrms                                     Unsigned32,
+            zxGponOntLofiAlarms                                      Unsigned32,
+            zxGponOntPmFecCorrectedBytes                             Unsigned32,
+            zxGponOntPmFecCorrectedWords                             Unsigned32,
+            zxGponOntPmFecUncorrectedWords                           Unsigned32,
+            zxGponOntPmFecTotalRxWords                               Unsigned32,
+            zxGponOntPmBipErrBits                                    Unsigned32,
+            zxGponOntPmCrcErrPkts                                    Unsigned32
+        }
+
+   zxGponOntPmStatisInfoCorrectNonIdleGemFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 1}
+
+   zxGponOntPmStatisInfoCorrectIdleGemFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 2}
+
+   zxGponOntPmStatisInfoErroredGemFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 3}
+
+   zxGponOntPmStatisInfoGemPayloadBytesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 4}
+
+   zxGponOntPmStatisInfoCorrectEthernetFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 5}
+
+   zxGponOntPmStatisInfoErroredEthernetFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 6}
+
+   zxGponOntPmStatisInfoTotalOmciFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 7}
+
+   zxGponOntPmStatisInfoERRi OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 8}
+
+   zxGponOntPmStatisInfoREIi OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 9}
+
+   zxGponOntPmStatisInfoUnreceivedBurstsUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 10}
+
+   zxGponOntPmStatisInfoBipErrorUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 11}
+
+   zxGponOntPmStatisInfoCorrectedBitsUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 12}
+
+   zxGponOntPmStatisInfoNotCorrectedWordsUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 13}
+
+   zxGponOntPmStatisInfoLostBurst OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 14}
+        
+   zxGponOntTxCorrectNonIdleGemFrms OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "OLT sent to ONU correct non-idle GEM frames."
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 15}
+        
+   zxGponOntTxCorrectIdleGemFrms OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "OLT sent to ONU correct idle GEM frames."
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 16}
+        
+   zxGponOntTxOmciFrms OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "OLT sent to ONU OMCI frames."
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 17}
+        
+   zxGponOntTxPloamFrms OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "OLT sent to ONU Ploam frames."
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 18}
+        
+   zxGponOntRxPloamFrms OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "OLT received from ONU Ploam frames."
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 19}
+        
+   zxGponOntLofiAlarms OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The real time statistics of lofi alarm times."
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 20}
+        
+   zxGponOntPmFecCorrectedBytes OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Errored bytes which have been corrected by FEC on ONU side."
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 21}
+    
+   zxGponOntPmFecCorrectedWords OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Errored codewords which have been corrected by FEC on ONU side."
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 22}
+        
+   zxGponOntPmFecUncorrectedWords OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+          "Errored codewords which haven't been corrected by FEC on ONU side."
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 23}
+
+   zxGponOntPmFecTotalRxWords OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Received codewords by FEC on ONU side."
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 24}
+        
+   zxGponOntPmBipErrBits OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Errored bits by BIP on ONU side."
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 25}
+        
+   zxGponOntPmCrcErrPkts OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "Errored packets by CRC on ONU side."
+        ::= { zxGponOntPmStatisRealtimeInfoEntry 26}
+                                     
+   zxGponOntPmStatisHistoryInfoTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOntPmStatisHistoryInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            "G.984.3"
+        ::= { zxGponPrivateOnu 7 }
+
+    zxGponOntPmStatisHistoryInfoEntry OBJECT-TYPE
+        SYNTAX      ZxGponOntPmStatisHistoryInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId, zxGponMgmtPonOnuId }
+        ::= { zxGponOntPmStatisHistoryInfoTable 1 }
+
+    ZxGponOntPmStatisHistoryInfoEntry ::=
+        SEQUENCE {
+            zxGponOntPmStatisHistoryInfoCorrectNonIdleGemFramesUpstream      Unsigned32,
+            zxGponOntPmStatisHistoryInfoCorrectIdleGemFramesUpstream         Unsigned32,
+            zxGponOntPmStatisHistoryInfoErroredGemFramesUpstream             Unsigned32,
+            zxGponOntPmStatisHistoryInfoGemPayloadBytesUpstream              Unsigned32,
+            zxGponOntPmStatisHistoryInfoCorrectEthernetFramesUpstream        Unsigned32,
+            zxGponOntPmStatisHistoryInfoErroredEthernetFramesUpstream        Unsigned32,
+            zxGponOntPmStatisHistoryInfoTotalOmciFramesUpstream              Unsigned32,
+            zxGponOntPmStatisHistoryInfoERRi                                 Unsigned32,
+            zxGponOntPmStatisHistoryInfoREIi                                 Unsigned32,
+            zxGponOntPmStatisHistoryInfoUnreceivedBurstsUpstream             Unsigned32,
+            zxGponOntPmStatisHistoryInfoBipErrorUpstream                     Unsigned32,
+            zxGponOntPmStatisHistoryInfoCorrectedBitsUpstream                Unsigned32,
+            zxGponOntPmStatisHistoryInfoNotCorrectedWordsUpstream            Unsigned32,
+            zxGponOntPmStatisHistoryInfoLostBurst                            Unsigned32,
+            zxGponOntTxHisCrctNonIdleGemFrms                   Unsigned32,
+            zxGponOntTxHisCrctIdleGemFrms                      Unsigned32,
+            zxGponOntTxHisOmciFrms                             Unsigned32,
+            zxGponOntTxHisPloamFrms                            Unsigned32,
+            zxGponOntRxHisPloamFrms                            Unsigned32,
+            zxGponOntHisLofiAlarms                             Unsigned32
+        }
+
+   zxGponOntPmStatisHistoryInfoCorrectNonIdleGemFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisHistoryInfoEntry 1}
+
+   zxGponOntPmStatisHistoryInfoCorrectIdleGemFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisHistoryInfoEntry 2}
+
+   zxGponOntPmStatisHistoryInfoErroredGemFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisHistoryInfoEntry 3}
+
+   zxGponOntPmStatisHistoryInfoGemPayloadBytesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisHistoryInfoEntry 4}
+
+   zxGponOntPmStatisHistoryInfoCorrectEthernetFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisHistoryInfoEntry 5}
+
+   zxGponOntPmStatisHistoryInfoErroredEthernetFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisHistoryInfoEntry 6}
+
+   zxGponOntPmStatisHistoryInfoTotalOmciFramesUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisHistoryInfoEntry 7}
+
+   zxGponOntPmStatisHistoryInfoERRi OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisHistoryInfoEntry 8}
+
+   zxGponOntPmStatisHistoryInfoREIi OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisHistoryInfoEntry 9}
+
+   zxGponOntPmStatisHistoryInfoUnreceivedBurstsUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisHistoryInfoEntry 10}
+
+   zxGponOntPmStatisHistoryInfoBipErrorUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisHistoryInfoEntry 11}
+
+   zxGponOntPmStatisHistoryInfoCorrectedBitsUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisHistoryInfoEntry 12}
+
+   zxGponOntPmStatisHistoryInfoNotCorrectedWordsUpstream OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisHistoryInfoEntry 13}
+        
+   zxGponOntPmStatisHistoryInfoLostBurst OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntPmStatisHistoryInfoEntry 14}
+        
+   zxGponOntTxHisCrctNonIdleGemFrms OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "OLT sent to ONU historical correct non-idle GEM frames." 
+        ::= { zxGponOntPmStatisHistoryInfoEntry 15}
+        
+   zxGponOntTxHisCrctIdleGemFrms OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "OLT sent to ONU historical correct idle GEM frames."
+        ::= { zxGponOntPmStatisHistoryInfoEntry 16}
+        
+   zxGponOntTxHisOmciFrms OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "OLT sent to ONU historical OMCI frames."
+        ::= { zxGponOntPmStatisHistoryInfoEntry 17}
+        
+   zxGponOntTxHisPloamFrms OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "OLT sent to ONU historical Ploam frames."
+        ::= { zxGponOntPmStatisHistoryInfoEntry 18}
+        
+   zxGponOntRxHisPloamFrms OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "OLT received from ONU historical Ploam frames."
+        ::= { zxGponOntPmStatisHistoryInfoEntry 19}
+        
+   zxGponOntHisLofiAlarms OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The historical statistics of LOFi alarm times."
+        ::= { zxGponOntPmStatisHistoryInfoEntry 20}
+   
+   zxGponOntBpInfoTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOntBpInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            ""
+        ::= { zxGponPrivateOnu 10 }
+
+    zxGponOntBpInfoEntry OBJECT-TYPE
+        SYNTAX      ZxGponOntBpInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   {zxGponMgmtPonOltId, zxGponMgmtPonOnuId,zxGponMgmtPonOnuBpIndex}
+        ::= { zxGponOntBpInfoTable 1 }
+
+    ZxGponOntBpInfoEntry ::=
+        SEQUENCE {
+            zxGponMgmtPonOnuBpIndex          INTEGER,
+            zxGponOntBpName                  OCTET STRING,
+            zxGponMgmtPonOnuBpMapType        INTEGER,
+            zxGponOntBpInfotEntryStatus      RowStatus
+        }
+   
+   zxGponMgmtPonOnuBpIndex OBJECT-TYPE
+        SYNTAX      INTEGER(1..256)
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "An arbitrary(unique) integer for identifiying an entry
+             in the table, from 1 to 256."
+        ::= { zxGponOntBpInfoEntry 1}
+        
+    zxGponOntBpName OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(0..128))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntBpInfoEntry 2}
+        
+   zxGponMgmtPonOnuBpMapType OBJECT-TYPE
+        SYNTAX      INTEGER{
+                                cos(1),
+                    vlan(2),
+                    cosPlusVlan(3),
+                    oneToOne(4)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "1:cos 2:vlan 3:cos+vlan 4: 1:1"
+        ::= { zxGponOntBpInfoEntry 3}
+   
+   zxGponOntBpInfotEntryStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntBpInfoEntry 4}
+
+zxGponOntBpMapInfoTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponOntBpMapInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            ""
+        ::= { zxGponPrivateOnu 11 }
+
+    zxGponOntBpMapInfoEntry OBJECT-TYPE
+        SYNTAX      ZxGponOntBpMapInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   {zxGponMgmtPonOltId, zxGponMgmtPonOnuId,zxGponMgmtPonOnuBpIndex,zxGponBpMapGemPortIdx}
+        ::= { zxGponOntBpMapInfoTable 1 }
+
+    ZxGponOntBpMapInfoEntry ::=
+        SEQUENCE {
+                zxGponBpMapGemPortIdx                    INTEGER,    
+            zxGponOntBpMapInfoCos          INTEGER,
+            zxGponOntBpMapInfoVlanId       VlanId,
+            zxGponOntBpMapInfotEntryStatus         RowStatus
+        }
+   
+   zxGponBpMapGemPortIdx OBJECT-TYPE
+        SYNTAX      INTEGER(1..256)
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is equal to the 'zxGponGemPortIdx' of 'zxGponGemPortTable'."
+        ::= { zxGponOntBpMapInfoEntry 1}
+   zxGponOntBpMapInfoCos OBJECT-TYPE
+        SYNTAX      INTEGER(0..7)
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "a cos value(0..7) referenced by a gemport mapped to a Bp."
+        ::= { zxGponOntBpMapInfoEntry 2}
+   zxGponOntBpMapInfoVlanId OBJECT-TYPE
+        SYNTAX      VlanId
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+             "a vlanid(1..4094) value referenced by a gemport mapped to a Bp."
+        ::= { zxGponOntBpMapInfoEntry 3}
+   zxGponOntBpMapInfotEntryStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponOntBpMapInfoEntry 4}
+        
+   zxGponVportStatInfoTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponVportStatInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            "G.984.3"
+        ::= { zxGponPrivateOnu 12 }
+            
+
+    zxGponVportStatInfoEntry OBJECT-TYPE
+        SYNTAX      ZxGponVportStatInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX   { zxGponMgmtPonOltId, zxGponMgmtPonOnuId, zxGponVportId,zxGponVportStatMode, zxGponVportStatInstance }
+        ::= { zxGponVportStatInfoTable 1 }
+
+    ZxGponVportStatInfoEntry ::=
+        SEQUENCE {
+            zxGponVportId                                          Unsigned32,
+            zxGponVportStatMode                                    INTEGER,
+            zxGponVportStatInstance                                Unsigned32,
+            zxGponVportStatInfoPassedPktsUpstream                  Counter64,
+            zxGponVportStatInfoDropPktsUpstream                    Counter64,
+            zxGponVportStatInfoPassedPktsDownstream                Counter64,
+            zxGponVportStatInfoDropPktsDownstream                  Counter64,
+            zxGponVportStatInfoPassedBcPktsDownstream              Counter64,
+            zxGponVportStatInfoDropBcPktsDownstream                Counter64
+        }
+
+   zxGponVportId OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "an vport in an onu, from 1 to M."
+        ::= { zxGponVportStatInfoEntry 1}
+        
+   zxGponVportStatMode OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    gemport(0),
+                    vlan(1),
+                    none(2)
+                    }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponVportStatInfoEntry 2}
+        
+   zxGponVportStatInstance OBJECT-TYPE
+        SYNTAX      Unsigned32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "According to statistic mode, it menas a gemport or a vlan id."
+        ::= { zxGponVportStatInfoEntry 3}
+        
+   zxGponVportStatInfoPassedPktsUpstream OBJECT-TYPE
+        SYNTAX      Counter64
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponVportStatInfoEntry 4}
+        
+   zxGponVportStatInfoDropPktsUpstream OBJECT-TYPE
+        SYNTAX      Counter64
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponVportStatInfoEntry 5}
+        
+   zxGponVportStatInfoPassedPktsDownstream OBJECT-TYPE
+        SYNTAX      Counter64
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponVportStatInfoEntry 6}
+        
+   zxGponVportStatInfoDropPktsDownstream OBJECT-TYPE
+        SYNTAX      Counter64
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponVportStatInfoEntry 7}
+        
+   zxGponVportStatInfoPassedBcPktsDownstream OBJECT-TYPE
+        SYNTAX      Counter64
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponVportStatInfoEntry 8}
+        
+   zxGponVportStatInfoDropBcPktsDownstream OBJECT-TYPE
+        SYNTAX      Counter64
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            ""
+        ::= { zxGponVportStatInfoEntry 9}
+
+--zxGponServiceMgmt.mi2
+    zxGponServiceMgmt OBJECT IDENTIFIER ::= { zxGponRootMib 30 }
+
+    zxOnuTrafficMgmtUnitTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxOnuTrafficMgmtUnitEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This table represents ONU's traffic management unit information including T-CONT and
+            user bandwidth management unit."
+        ::= { zxGponServiceMgmt 1 }
+
+    zxOnuTrafficMgmtUnitEntry OBJECT-TYPE
+        SYNTAX      ZxOnuTrafficMgmtUnitEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the zxOnuTrafficMgmtUnitTable."
+        INDEX   { zxGponMgmtPonOltId, zxGponMgmtPonOnuId, zxOnuTrafficMgmtUnitTcontIdx }
+        ::= { zxOnuTrafficMgmtUnitTable 1 }
+
+    ZxOnuTrafficMgmtUnitEntry ::=
+        SEQUENCE {
+            zxOnuTrafficMgmtUnitTcontIdx          INTEGER,
+            zxOnuTrafficMgmtUnitName              ZxGponRecordName,
+            zxOnuTrafficMgmtUnitTcontUpBWIdxPtr   INTEGER,
+            zxOnuTrafficMgmtUnitAllocId           INTEGER,
+            zxOnuTrafficMgmtUnitUsedPortIdNum     INTEGER,
+            zxOnuTrafficMgmtUnitUsedFlowNum       INTEGER,
+            zxOnuTrafficMgmtUnitUsedCos           INTEGER,
+            zxOnuTrafficMgmtUnitEntryStatus       RowStatus,
+            zxOnuTrafficMgmtUnitDbaGapMode        INTEGER
+            
+        }
+
+    zxOnuTrafficMgmtUnitTcontIdx OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "An arbitrary(unique) integer for identifiying an entry
+             in the table, from 1 to N."
+        ::= { zxOnuTrafficMgmtUnitEntry 1}
+
+    zxOnuTrafficMgmtUnitName       OBJECT-TYPE
+      SYNTAX      ZxGponRecordName(SIZE (0..64))
+      MAX-ACCESS  read-write
+      STATUS      current 
+      DESCRIPTION 
+        ""
+      REFERENCE   "N/A"
+      ::= { zxOnuTrafficMgmtUnitEntry 2 }
+
+    zxOnuTrafficMgmtUnitTcontUpBWIdxPtr       OBJECT-TYPE
+      SYNTAX      INTEGER
+      MAX-ACCESS  read-write
+      STATUS      current 
+      DESCRIPTION 
+        "This attribute is the index of templet used by T-CONT BW configuration."
+      REFERENCE   "N/A"
+      ::= { zxOnuTrafficMgmtUnitEntry 3 }
+
+    zxOnuTrafficMgmtUnitAllocId       OBJECT-TYPE
+      SYNTAX      INTEGER
+      MAX-ACCESS  read-write
+      STATUS      current 
+      DESCRIPTION 
+        "This attribute is the allocid of tcont,value range is [256..4095]."
+      REFERENCE   "N/A"
+      ::= { zxOnuTrafficMgmtUnitEntry 4 }
+      
+    zxOnuTrafficMgmtUnitUsedPortIdNum     OBJECT-TYPE
+      SYNTAX      INTEGER
+      MAX-ACCESS  read-only
+      STATUS      current 
+      DESCRIPTION 
+        "The number of portId using this BW management unit."
+      REFERENCE   "N/A"
+      ::= { zxOnuTrafficMgmtUnitEntry 5 }
+      
+    zxOnuTrafficMgmtUnitUsedFlowNum     OBJECT-TYPE
+      SYNTAX      INTEGER
+      MAX-ACCESS  read-only
+      STATUS      current 
+      DESCRIPTION 
+        "The number of flow using this BW management unit."
+      REFERENCE   "N/A"
+      ::= { zxOnuTrafficMgmtUnitEntry 6 }
+
+    zxOnuTrafficMgmtUnitUsedCos     OBJECT-TYPE
+      SYNTAX      INTEGER
+      MAX-ACCESS  read-only
+      STATUS      current 
+      DESCRIPTION 
+        "The integer in binary mode indicates the used COS(0-3)."
+      REFERENCE   "N/A"
+      ::= { zxOnuTrafficMgmtUnitEntry 7 }
+      
+    zxOnuTrafficMgmtUnitEntryStatus       OBJECT-TYPE
+      SYNTAX      RowStatus
+      MAX-ACCESS  read-create
+      STATUS      current 
+      DESCRIPTION 
+        "This entry can be create modified and delete."
+      REFERENCE   "N/A"
+      ::= { zxOnuTrafficMgmtUnitEntry 8 }
+            
+    zxOnuTrafficMgmtUnitDbaGapMode OBJECT-TYPE
+        SYNTAX     INTEGER{
+                   mode1(1),
+                   mode2(2),
+                   mode3(3),
+                   mode4(4)
+                   }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the DBA gap mode. 
+             For GPON ONU,the explanations of these modes as follows:
+               mode1 is one frame, 
+               mode2 is two frames, 
+               mode3 is four frames, 
+               mode4 is eight frames.
+             For example,'two frames' indicates that T-CONT will perform DBA 
+             in a gap of two data frames.              
+             "
+        ::= { zxOnuTrafficMgmtUnitEntry 9 }
+      
+
+    zxGponGemPortTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponGemPortEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This table represents ONU side  configuration."
+        ::= { zxGponServiceMgmt 2 }
+
+    zxGponGemPortEntry OBJECT-TYPE
+        SYNTAX      ZxGponGemPortEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the table zxGponGemPortTable."
+        INDEX   { zxGponMgmtPonOltId, zxGponMgmtPonOnuId, zxGponGemPortIdx }
+        ::= { zxGponGemPortTable 1 }
+
+    ZxGponGemPortEntry ::=
+        SEQUENCE {
+            zxGponGemPortIdx               INTEGER,
+            zxGponGemPortName              ZxGponRecordName,
+            zxGponGemPortType              INTEGER,
+            zxGponGemPortTcontIdx          INTEGER,
+            zxGponGemPortDirection         INTEGER,
+            zxGponGemPortUpTrafficPtr      INTEGER,
+            zxGponGemPortDownTrafficPtr    INTEGER,
+            zxGponGemPortPortId            INTEGER,
+            zxGponGemPortDefaultCosType    INTEGER,
+            zxGponGemPortEntryStatus       RowStatus,
+            zxGponGemPortEnable            TruthValue,
+            zxGponGemPortDownQueueMapId    INTEGER,
+            zxGponGemPortUpQueueMapId      INTEGER
+        }
+
+    zxGponGemPortIdx OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "An arbitrary(unique) integer for identifiying an entry
+             in the table. It is the virtual portid index"
+        ::= { zxGponGemPortEntry 1}
+
+    zxGponGemPortName       OBJECT-TYPE
+      SYNTAX      ZxGponRecordName(SIZE (0..64))
+      MAX-ACCESS  read-write
+      STATUS      current 
+      DESCRIPTION 
+        "This attribute specifies the name of the GEM port."
+      REFERENCE   ""
+      ::= { zxGponGemPortEntry 2 }
+
+    zxGponGemPortType OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    unicast(1),
+                    multicast(2)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the type of the GEM port. Only 'unicast' is supported at present."
+        ::= { zxGponGemPortEntry 3}
+
+    zxGponGemPortTcontIdx OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "It is equal to the 'zxOnuTrafficMgmtUnitTcontIdx' of 'zxOnuTrafficMgmtUnitTable'."
+        ::= { zxGponGemPortEntry 4}
+
+    zxGponGemPortDirection OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    up(1),
+                    down(2),
+                    bidirection(3)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the type of the direction of GEM port. Default value is 'bidirection'."
+        ::= { zxGponGemPortEntry 5}
+
+    zxGponGemPortUpTrafficPtr OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The GEM PORT upstream traffic descriptor profile."
+        ::= { zxGponGemPortEntry 6}
+
+    zxGponGemPortDownTrafficPtr OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The GEM PORT downstream traffic descriptor profile."
+        ::= { zxGponGemPortEntry 7}
+
+    zxGponGemPortPortId OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "portid of gemport([65..1023])."
+        ::= { zxGponGemPortEntry 8}
+
+    zxGponGemPortDefaultCosType OBJECT-TYPE
+        SYNTAX      INTEGER{
+                     cos0(1),
+                     cos1(2),
+                     cos2(3),
+                     cos3(4)
+                     }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The default COS."
+        ::= { zxGponGemPortEntry 9}
+        
+
+    zxGponGemPortEntryStatus       OBJECT-TYPE
+      SYNTAX      RowStatus
+      MAX-ACCESS  read-create
+      STATUS      current 
+      DESCRIPTION 
+        "This entry can be create modified and delete."
+      REFERENCE   "N/A"
+      ::= { zxGponGemPortEntry 10 }
+                              
+    zxGponGemPortEnable OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Active/deactive GEM Port."
+        ::= { zxGponGemPortEntry 11}      
+    zxGponGemPortDownQueueMapId OBJECT-TYPE
+        SYNTAX      INTEGER(0..7)
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The queue map id."
+        ::= { zxGponGemPortEntry 12}    
+        
+    zxGponGemPortUpQueueMapId OBJECT-TYPE
+        SYNTAX      INTEGER(0..1)
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The queue map id."
+        ::= { zxGponGemPortEntry 13}             
+   
+    zxGponGemPortLimitRateTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxGponGemPortLimitRateEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This table represents ONU gemport limit rate configuration."
+        ::= { zxGponServiceMgmt 3 }
+
+    zxGponGemPortLimitRateEntry OBJECT-TYPE
+        SYNTAX      ZxGponGemPortLimitRateEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the table zxGponGemPortLimitRateTable."
+        INDEX   { zxGponMgmtPonOltId, zxGponMgmtPonOnuId, zxGponGemPortIdx }
+        ::= { zxGponGemPortLimitRateTable 1 }
+
+    ZxGponGemPortLimitRateEntry ::=
+        SEQUENCE {            
+            zxGponGemPortLimitUpTrafficPtr      INTEGER,
+            zxGponGemPortLimitDownTrafficPtr    INTEGER
+        }
+   
+    
+    zxGponGemPortLimitUpTrafficPtr OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The GEM PORT upstream traffic descriptor profile."
+        ::= { zxGponGemPortLimitRateEntry 1}
+
+    zxGponGemPortLimitDownTrafficPtr OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The GEM PORT downstream traffic descriptor profile."
+        ::= { zxGponGemPortLimitRateEntry 2}
+           
+        
+   zxGponTraps          OBJECT IDENTIFIER ::= { zxGponRootMib 45}    
+      
+  zxGponTrapsBindVar          OBJECT IDENTIFIER ::= { zxGponTraps 1}    
+
+    zxGponOltRxPowerAlarmiReason OBJECT-TYPE
+        SYNTAX      INTEGER
+                        {
+                        toohigh(1),
+                        toolow(2)
+                        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                ""
+        ::= { zxGponTrapsBindVar 1 }   
+
+    zxGponOltRxPowerAbnormalInformiReason OBJECT-TYPE
+        SYNTAX      INTEGER
+                        {
+                        toohigh(1),
+                        toolow(2)
+                        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                ""
+        ::= { zxGponTrapsBindVar 2 }   
+
+    zxGponOltTxPowerAlarmReason OBJECT-TYPE
+        SYNTAX      INTEGER
+                        {
+                        toohigh(1),
+                        toolow(2)
+                        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                ""
+        ::= { zxGponTrapsBindVar 3 }   
+
+    zxGponOltTxPowerAbnormalInformReason OBJECT-TYPE
+        SYNTAX      INTEGER
+                        {
+                        toohigh(1),
+                        toolow(2)
+                        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                ""
+        ::= { zxGponTrapsBindVar 4 }   
+
+    zxGponTrapEventString OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE (0..255))
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                "GPON trap event string."
+        ::= { zxGponTrapsBindVar 5 }
+        
+        
+    zxGponOnuActType OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(0..128))
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                "GPON ONU Actual type"
+        ::= { zxGponTrapsBindVar 6 }
+        
+    zxGponOnuIpMacAntiSpoofingMac OBJECT-TYPE
+        SYNTAX      MacAddress
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The spoofing MAC of packets."
+        ::= { zxGponTrapsBindVar 7 }  
+        
+    zxGponOnuIpMacAntiSpoofingIp OBJECT-TYPE
+        SYNTAX      IpAddress
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The spoofing IP of packets."
+        ::= { zxGponTrapsBindVar 8 }  
+        
+    zxGponOnuIpMacAntiSpoofingIndex OBJECT-TYPE
+        SYNTAX      INTEGER(1..256)
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                "A unique value, greater than zero, for each interface. 
+                This value indicate This value identifies the interface
+                which occurred IP/MAC spoofing."
+        ::= { zxGponTrapsBindVar 9 }
+        
+    zxGponOnuRegistrationInfo OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE (0..255))
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "ONU registration information.
+             This attribute is made up of registration mode and registration
+             values. Commas are used to separate registration mode
+             and registration values. A number is used to represent
+             registration mode of the attribute. The number's value is 
+             on the list of zxGponOntRegMode defined values. 
+             Correspondingly, the registration values' formats are also
+             defined in zxGponOntRegMode's description.
+             
+             The valid ONU registration information formats are as follows:
+                 1,sn
+                 2,password
+                 3,sn,password
+                 4,register Id
+                 5,register Id,8021x
+                 6,register Id,mutual
+                 7,telefonica password
+                 8,sn,telefonica password
+                 9,loid
+                 10,loid,password"
+        ::= { zxGponTrapsBindVar 10 }
+        
+    zxGponOltLOSi        NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS  current
+        DESCRIPTION 
+            "LOSi is Loss of signal for ONUi. Generate notification."
+        ::={zxGponTraps 101}             
+         
+    zxGponOltLosiRestore  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS  current
+        DESCRIPTION 
+            "LOSi is Loss of signal for ONUi.When the OLT receives 
+            a valid optical signal from ONUi, Alarm is restored"
+        ::={zxGponTraps 102} 
+          
+    zxGponOltLOFi        NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS  current
+        DESCRIPTION 
+            "LOFi is Loss of Frame of ONUi. Send 3 times 
+            Deactivate_ONU-ID messages. Generate Loss_of_phy_layer_I 
+            notification."
+        ::={zxGponTraps 103}
+        
+    zxGponOltLOFiRestore        NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS  current
+        DESCRIPTION 
+            "LOFi is Loss of Frame of ONUi. When frame delineation 
+            for ONUi is achieved in the operating state."
+        ::={zxGponTraps 104}
+                
+    zxGponOltDOWi        NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS  current
+        DESCRIPTION 
+            "DOWi is Drift of Window of ONUi. Send modified EqD to the ONUi."
+        ::={zxGponTraps 105}
+                
+    zxGponOltDOWiRestore   NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+        "DOWi is Drift of Window of ONUi. When the OLT 
+        receives the ONUi Transmission in the correct position."
+        ::={zxGponTraps 106}
+             
+    zxGponOltSFi        NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "SFi is Signal Fail of ONUi. Send 3 times 
+            Deactivate_ONU-ID messages. Generate Loss_of_phy_layer_I 
+            notification."
+        ::={zxGponTraps 107}
+                
+    zxGponOltSFiRestore  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "SFi is Signal Fail of ONUi.When the upstream 
+            BER of ONUi becomes <10?y+1, this state is cleared."
+        ::={zxGponTraps 108}
+        
+    zxGponOltSDi       NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "SDi is Signal Degraded of ONUi."
+        ::={zxGponTraps 109}
+        
+    zxGponOltSDiRestore  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+        "SDi is Signal Degraded of ONUi. When the upstream 
+        BER of ONUi becomes <10?X+1, this state is cleared."
+        ::={zxGponTraps 110}
+        
+    zxGponOltLCDAi     NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "LCDAi is Loss of ATM channel delineation. 
+            Send 3 times Deactivate_ONU-ID messages Generate
+            Loss_of_phy_layer_I notification."
+        ::={zxGponTraps 111}
+            
+    zxGponOltLCDAiRestore  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "LCDAi is Loss of ATM channel delineation. When 
+            cell delineation for ONUi is achieved."
+        ::={zxGponTraps 112}
+        
+    zxGponOltLCDGi    NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "LCDGi is Loss of GEM channel delineation. 
+            Send 3 times Deactivate_ONU-ID messages Generate
+            Loss_of_phy_layer_I notification."
+        ::={zxGponTraps 113}
+        
+    zxGponOltLCDGiRestore    NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "LCDGi is Loss of GEM channel delineation. When 
+            GEM channel delineation for ONUi is achieved."
+        ::={zxGponTraps 114}
+              
+    zxGponOltRDIi    NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "RDIi is Remote Defect Indication of ONUi."
+        ::={zxGponTraps 115}
+            
+    zxGponOltRDIiRestore   NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "RDIi is Remote Defect Indication of ONUi. When the RDI field of 
+            ONUi is de-asserted."
+        ::={zxGponTraps 116}
+             
+    zxGponOltSUFi  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "SUFi is Start-up Failure of ONUi. Send 3 times Deactivate_ONU-ID messages."
+        ::={zxGponTraps 117}
+                
+    zxGponOltSUFiRestore   NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "SUFi is Start-up Failure of ONUi. The ONU is ranged successfully."
+        ::={zxGponTraps 118}        
+        
+    zxGponOltDFi  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "DFi is Deactivate Failure of ONUi."
+        ::={zxGponTraps 119}
+                
+    zxGponOltDFiRestore  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "DFi is Deactivate Failure of ONUi. Cancelled by the operator."
+        ::={zxGponTraps 120}
+                
+    zxGponOltLOAi  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "LOAi is Loss of Acknowledge with ONUi. Send 3 times 
+            Deactivate_ONU-ID messages. Generate Loss_of_phy_layer_I 
+            notification."
+        ::={zxGponTraps 121}
+        
+    zxGponOltLOAiRestore  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "LOAi is Loss of Acknowledge with ONUi. When the OLT 
+            receives an acknowledgement from the ONU."
+        ::={zxGponTraps 122}        
+            
+    zxGponOltDGi  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "DGi is Receive Dying-Gasp of ONUi. Ignore received 
+            alarms from this ONU. Generate Loss_of_phy_layer_I 
+            notification."
+        ::={zxGponTraps 123}
+                
+    zxGponOltDGiRestore  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "DGi is Receive Dying-Gasp of ONUi. When the OLT receives
+             a PLOAM message during ranging process."
+        ::={zxGponTraps 124}
+        
+    zxGponOltLOAMi  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "LOAMi is Loss of PLOAM for ONUi. Send 3 times 
+            Deactivate_ONU-ID messages. Generate Loss_of_phy_layer_I 
+            notification."
+        ::={zxGponTraps 125}
+                
+    zxGponOltLOAMiRestore  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "LOAMi is Loss of PLOAM for ONUi. When the OLT receives 
+            a PLOAM message corresponding to its PLOAM flag in the 
+            Operating state."
+        ::={zxGponTraps 126}
+                
+    zxGponOltMEMi  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "MEMi is Message_Error Message from ONUi."
+        ::={zxGponTraps 127}
+                
+    zxGponOltMEMiRestore  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "MEMi is Message_Error Message from ONUi. When 
+            the operator is informed."
+        ::={zxGponTraps 128}
+                
+    zxGponOltMISi  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "Misi is Link Mismatch of ONUi."
+        ::={zxGponTraps 129}
+                
+    zxGponOltMISiRestore  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "MISi is Link Mismatch of ONUi. The OLT detects 
+            that received PSTi and the transmitted PST are the same."
+        ::={zxGponTraps 130}
+                
+    zxGponOltPEEi  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "PEEi is Physical Equipment Error of ONUi. 
+            Generate Loss_of_physical_layer_I notification."
+        ::={zxGponTraps 131}
+              
+    zxGponOltPEEiRestore  NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "PEEi is Physical Equipment Error of ONUi. When 
+            the OLT doesn¡¯t receive a PEE message from the ONUi in 3 s."
+        ::={zxGponTraps 132}
+                
+    zxGponOntLOS    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "LOS is Loss Of Signal. Switch off laser. Generate 
+            Loss_of_phy_layer notification. Move to Initial- State."
+        ::={zxGponTraps 133}
+                
+    zxGponOntLOSRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "LOS is Loss Of Signal. Valid optical signal."
+        ::={zxGponTraps 134}
+                
+    zxGponOntLOF    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "LOF is Loss of Frame. Switch off laser. Generate 
+            Loss_of_phy_layer notification. Move to Initial- State."
+        ::={zxGponTraps 135}
+                
+    zxGponOntLOFRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "LOF is Loss of Frame. When 2 consecutive frames 
+            have correct PSYNC."
+        ::={zxGponTraps 136}
+                
+    zxGponOntTF    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "TF is Transmitter Failure."
+        ::={zxGponTraps 137}
+                
+    zxGponOntTFRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "TF is Transmitter Failure."
+        ::={zxGponTraps 138}
+                
+    zxGponOntSF    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "SF is Signal Failed."
+        ::={zxGponTraps 139}
+                
+    zxGponOntSFRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "SF is Signal Failed. Set inactive when 
+            the downstream BER is <10?(y+1)."
+        ::={zxGponTraps 140}
+                
+    zxGponOntSD    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "SD is Signal Degraded."
+        ::={zxGponTraps 141}
+                
+    zxGponOntSDRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "SD is Signal Degraded. Set inactive 
+            when the downstream BER is <10?(x+1)."
+        ::={zxGponTraps 142}
+                
+    zxGponOntLCDA    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "LCDA is Loss of ATM channel delineation. 
+            Switch off laser. Generate Loss_of_phy_layer 
+            notification."
+        ::={zxGponTraps 143}
+                
+    zxGponOntLCDARestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "LCDA is Loss of ATM channel delineation. 
+        When cell delineation is achieved."
+        ::={zxGponTraps 144}
+              
+    zxGponOntLCDG    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "LCDG is Loss of GEM channel delineation. 
+        Switch off laser. Generate Loss_of_phy_layer 
+        notification."
+        ::={zxGponTraps 145}
+                
+    zxGponOntLCDGRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "LCDG is Loss of GEM channel delineation. 
+        When GEM delineation is achieved."
+        ::={zxGponTraps 146}
+                
+    zxGponOntRDI    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "RDI is Remote Defect Indication in ONU. Set RDI status bit in PLOu."
+        ::={zxGponTraps 147}
+                
+    zxGponOntRDIRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "RDI is Remote Defect Indication in ONU. When the OLT transmission defect is resolved."
+        ::={zxGponTraps 148}           
+        
+    zxGponOntSUF    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "SUF is Start-up Failure."
+        ::={zxGponTraps 149}
+                
+    zxGponOntSUFRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "SUF is Start-up Failure. When ranging is successful."
+        ::={zxGponTraps 150}
+                
+    zxGponOntMEM    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "MEM is Message Error Message."
+        ::={zxGponTraps 151}
+                
+    zxGponOntMEMRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "MEM is Message Error Message."
+        ::={zxGponTraps 152}
+               
+    zxGponOntDACT    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "DACT is Deactivate ONU-ID. Switch off the 
+            laser and go to Standby-State. Generate 
+            Loss_of_phy_layer notification."
+        ::={zxGponTraps 153}
+                
+    zxGponOntDACTRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "DACT is Deactivate ONU-ID.Reception of Upstream_overhead message."
+        ::={zxGponTraps 154}
+                
+    zxGponOntDIS    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "DIS is Disabled ONU. Switch off laser. Go to 
+            Emergency-Stop State Generate Loss_of_phy_layer 
+            notification."
+        ::={zxGponTraps 155}
+        
+    zxGponOntDISRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "DIS is Disabled ONU. When the ONU receives a Disable_Serial_Number
+            message with Enable flag=0x0F or when it receives a Disable_Serial_Number 
+            message with it¡¯s own serial number and the enable flag=0x00."
+        ::={zxGponTraps 156}
+                
+    zxGponOntMIS    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "MIS is Link Mismatching."
+        ::={zxGponTraps 157}
+        
+    zxGponOntMISRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "MIS is Link Mismatching. The ONU detects that the received 
+            PST and transmitted PST are the same."
+        ::={zxGponTraps 158}
+                
+    zxGponOntPee    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "Pee is Physical Equipment Error. Generate Loss_of_physical_layer notification."
+        ::={zxGponTraps 159}
+                
+    zxGponOntPeeRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "Pee is Physical Equipment Error. When the ONU doesn¡¯t receive a PEE message in 3 s."
+        ::={zxGponTraps 160}
+        
+    zxGponOltLOS    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "LOS is Loss Of Signal. Switch off laser. Generate 
+            Loss_of_phy_layer notification. Move to Initial- State."
+        ::={zxGponTraps 161}
+        
+    zxGponOltLOSRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "LOS is Loss Of Signal. Valid optical signal."
+        ::={zxGponTraps 162}
+        
+    zxGponOltLOF    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "LOF is Loss of Frame. Switch off laser. Generate 
+            Loss_of_phy_layer notification. Move to Initial- State."
+        ::={zxGponTraps 163}
+        
+    zxGponOltLOFRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "LOF is Loss of Frame. When 2 consecutive frames"
+        ::={zxGponTraps 164}
+                
+    zxGponOntRegister  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex 
+                }
+        STATUS current
+        DESCRIPTION 
+            " "
+        ::={zxGponTraps 165}
+                
+    zxGponOntUnregister  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 166}
+            
+    zxGponOntAuthPass  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxGponOntCustomAuthPassControl
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 167}
+        
+    zxGponOntAuthFailed  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 168} 
+
+    zxPonFanOffLine    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 171}
+        
+    zxPonFanOffLineRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 172}
+
+    zxGponLinkOntDyingGasp    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 173}
+        
+    zxGponLinkOntDyingGaspRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 174}
+
+    zxGponOltRxPowerAlarmi    NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOltRxPowerAlarmiReason,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 175}
+        
+    zxGponOltRxPowerAlarmiRestore    NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOltRxPowerAlarmiReason,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 176}
+
+    zxGponOltRxPowerAbnormalInformi    NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOltRxPowerAbnormalInformiReason,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 177}
+        
+    zxGponOltRxPowerNormalInformi    NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 178}
+
+    zxGponOltTxPowerAlarm    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxGponOltTxPowerAlarmReason
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 179}
+        
+    zxGponOltTxPowerAlarmRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxGponOltTxPowerAlarmReason
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 180}
+    
+    zxGponOltTxPowerAbnormalInform    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxGponOltTxPowerAbnormalInformReason
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 181}
+        
+    zxGponOltTxPowerNormalInform    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxGponOntDevMgmtName,zxGponOntDevMgmtTypeName,zxGponOntDevMgmtDescription
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxGponTraps 182}
+
+    zxGponOltFakedSN    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxGponTrapEventString,zxGponOntDevMgmtName,zxGponOntDevMgmtTypeName,zxGponOntDevMgmtDescription
+                }
+        STATUS current
+        DESCRIPTION 
+            "OLT detects a faked SN event."
+        ::={zxGponTraps 183}
+        
+    zxGponOnuConstantOptical    NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "It  indicate ONU constant optical."
+        ::={zxGponTraps 184}
+        
+    zxGponOnuConstantOpticalRestore    NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "It  indicate ONU constant optical restore."
+        ::={zxGponTraps 185}
+        
+    zxGponOnuFiberBending    NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "It  indicate ONU constant optical."
+        ::={zxGponTraps 186}
+        
+    zxGponOnuFiberBendingRestore    NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "It  indicate ONU constant optical restore."
+        ::={zxGponTraps 187}        
+
+    zxGponOnuOpticalTransceiverLos  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxGponOntDevMgmtName,zxGponOntDevMgmtTypeName,zxGponOntDevMgmtDescription
+                }
+        STATUS current
+        DESCRIPTION 
+            "It  indicate ONU constant optical."
+        ::={zxGponTraps 188}
+        
+    zxGponOnuOpticalTransceiverLosRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxGponOntDevMgmtName,zxGponOntDevMgmtTypeName,zxGponOntDevMgmtDescription
+                }
+        STATUS current
+        DESCRIPTION 
+            "It  indicate ONU constant optical restore."
+        ::={zxGponTraps 189}
+        
+    zxGponMacSpoofing    NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponSpoofingPort,
+            zxGponSpoofingMac,
+            zxGponSpoofingVlan,
+            zxGponSpoofingConflictPort,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "It  indicate Gpon port mac spoolfing."
+        ::={zxGponTraps 190}
+        
+    zxGponUnauthOnuOnline  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxGponOntDevMgmtTypeName,zxGponUnCfgSnOntSN,zxGponUnCfgSnOntRID,zxGponUnCfgSnOntPsw,zxGponUnCfgSnOntRtd
+                }
+        STATUS current
+        DESCRIPTION 
+            "It  indicate ONU constant optical."
+        ::={zxGponTraps 191}
+ 
+     zxGponOltTF    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "TF is Transmitter Failure."
+        ::={zxGponTraps 192}
+                
+    zxGponOltTFRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS current
+        DESCRIPTION 
+            "TF is Transmitter Failure."
+        ::={zxGponTraps 193}
+    
+    zxGponOltFakedPassword    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxGponTrapEventString
+                }
+        STATUS current
+        DESCRIPTION 
+            "OLT detects a faked password event."
+        ::={zxGponTraps 194}
+            
+    zxGponOnuAutoAuthSuccess   NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuActType,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "It occurred when the ONU is automatically added and entering working status."
+        ::={zxGponTraps 195}
+        
+    zxGponOltLoei   NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxGponOntDevMgmtProvisionSn,zxGponMgmtPonOnuId
+                }
+        STATUS current
+        DESCRIPTION 
+            "It occurred when the ONU disabled, 
+            then turn off and reboot ONU, the ONU not on POPUP-state(O7)."
+        ::={zxGponTraps 196}
+   
+    zxGponOnuIpMacAntiSpoofing   NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuIpMacAntiSpoofingIndex,
+            zxGponOnuIpMacAntiSpoofingMac,
+            zxGponOnuIpMacAntiSpoofingIp,
+            zxGponOnuRegistrationInfo
+        }
+        STATUS current
+        DESCRIPTION 
+            "It occurred when received illegal ip or mac package.
+            "
+        ::={zxGponTraps 197}
+        
+    zxGponOnuUniLoopbackAlarm   NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponUNIIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo        
+        }
+        STATUS current
+        DESCRIPTION 
+            "It occurred when when ONU ethernet
+             port loopback."
+        ::={zxGponTraps 198}
+        
+    zxGponOnuUniLoopbackRestore   NOTIFICATION-TYPE
+        OBJECTS {
+            ifIndex,
+            zxGponUNIIndex,
+            zxGponOntDevMgmtName,
+            zxGponOntDevMgmtTypeName,
+            zxGponOntDevMgmtDescription,
+            zxGponOnuRegistrationInfo        
+        }
+        STATUS current
+        DESCRIPTION 
+            "It occurred when ONU ethernet
+             port loopback was restore."
+        ::={zxGponTraps 199}
+
+END

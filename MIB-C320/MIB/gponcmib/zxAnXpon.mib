@@ -1,0 +1,3814 @@
+-- *****************************************************************
+-- ZTE XPON MANAGEMENT MIB
+--
+-- 08-09-2007
+--
+-- Copyright(c) 2007 ZTE Corporation
+-- All rights reserved.
+-- *****************************************************************
+
+ZXANXPON-MIB DEFINITIONS ::= BEGIN
+    IMPORTS
+        enterprises                      FROM RFC1155-SMI
+        RowStatus                        FROM SNMPv2-TC
+        TruthValue                       FROM SNMPv2-TC
+        IpAddress                        FROM SNMPv2-SMI
+        Unsigned32                       FROM SNMPv2-SMI
+        Counter64                        FROM SNMPv2-SMI
+        MacAddress                       FROM SNMPv2-TC
+        TEXTUAL-CONVENTION               FROM SNMPv2-TC
+        MODULE-IDENTITY                  FROM SNMPv2-SMI
+        OBJECT-TYPE                      FROM SNMPv2-SMI
+        NOTIFICATION-TYPE                FROM SNMPv2-SMI
+        ifIndex                          FROM RFC1213-MIB
+        DisplayString                    FROM RFC1213-MIB
+        Integer32                        FROM SNMPv2-SMI
+        zxAnPonMib                       FROM ZTE-MASTER-MIB
+        InetAddress,InetAddressType      FROM INET-ADDRESS-MIB
+        ZxAnIfindex                      FROM ZTE-AN-TC-MIB;
+
+zxAnXpon        MODULE-IDENTITY
+    LAST-UPDATED "200702020000Z"  -- Feb 2, 2007"
+    ORGANIZATION "ZTE Corp."
+    CONTACT-INFO
+        "ZTE GPON Working Group:
+        http://www.zte.com.cn
+        e-mail:
+        guo.hongjian@zte.com.cn
+        "
+    DESCRIPTION
+        ""
+    ::= { zxAnPonMib 5 }
+    
+zxAnXponTrap    OBJECT IDENTIFIER ::= { zxAnXpon 100}
+zxAnXponOnuVersionMgmt    OBJECT IDENTIFIER ::= { zxAnXpon 30}
+zxAnXponCfgDataMgmt       OBJECT IDENTIFIER ::= { zxAnXpon 40}
+zxAnXponOnuCfgMgmt        OBJECT IDENTIFIER ::= { zxAnXpon 41}
+zxAnXponOnuCfmMgmt           OBJECT IDENTIFIER ::= { zxAnXpon 50}
+zxAnXponOnuProtocolMgmt      OBJECT IDENTIFIER ::= { zxAnXpon 51}
+zxAnXponOnuVoipMgmt       OBJECT IDENTIFIER ::= { zxAnXpon 52}
+zxAnXponOnuOtdrMgmt       OBJECT IDENTIFIER ::= { zxAnXpon 53}
+zxAnXponTermination       OBJECT IDENTIFIER ::= { zxAnXpon 65535}
+
+zxAnXponTerminationDummy OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "The dummy object indicats the termination of all xpon mibs."
+    ::= { zxAnXponTermination 1 }
+
+zxAnXponOnuTypeTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF ZxAnXponOnuTypeEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+        ""
+    ::= { zxAnXpon 1 }
+
+zxAnXponOnuTypeEntry OBJECT-TYPE
+    SYNTAX      ZxAnXponOnuTypeEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            ""
+    INDEX   { zxAnXponOnuTypeName }
+    ::= { zxAnXponOnuTypeTable 1 }
+
+ZxAnXponOnuTypeEntry ::=
+    SEQUENCE {
+        zxAnXponOnuTypeName                           OCTET STRING,
+        zxAnXponOnuTypePonType                        INTEGER,
+        zxAnXponOnuTypeDesc                           OCTET STRING,
+        zxAnXponOnuTypeAttr1                          INTEGER,
+        zxAnXponOnuTypeAttr2                          INTEGER,
+        zxAnXponOnuTypeAttr3                          INTEGER,
+        zxAnXponOnuTypeAttr4                          INTEGER,
+        zxAnXponOnuTypeAttr5                          INTEGER,
+        zxAnXponOnuTypeAttr6                          INTEGER,
+        zxAnXponOnuTypeAttr7                          INTEGER,
+        zxAnXponOnuTypeAttr8                          INTEGER,
+        zxAnXponOnuTypeAttr9                          INTEGER,
+        zxAnXponOnuTypeAttr10                         INTEGER,
+        zxAnXponOnuTypeRefCnt                         INTEGER,
+        zxAnXponOnuTypeEntryStatus                    RowStatus
+    }
+
+zxAnXponOnuTypeName OBJECT-TYPE
+    SYNTAX      OCTET STRING(SIZE(1..63))
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        ""
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 1 }
+
+zxAnXponOnuTypePonType OBJECT-TYPE
+    SYNTAX      INTEGER{
+                epon(1),
+                gpon(2)
+                }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        ""
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 2 }
+
+zxAnXponOnuTypeDesc OBJECT-TYPE
+    SYNTAX      OCTET STRING(SIZE(0..63))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        ""
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 3 }
+
+zxAnXponOnuTypeAttr1 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of XPON onu."
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 4 }
+
+zxAnXponOnuTypeAttr2 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "It is indicates maximum gemport number for GPON, 
+        also indicates ONU config speed type for EPON. In the EPON case, there
+        are four types, upDownstream1G(1), upDownstream10G(2), 
+        upstream1GAndDownstream10G(3), autoAdaptive(4).The NE can automatic 
+        config ONU speed type according to maximum capacity of ONU when under 
+        auto-adaptive."
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 5 }
+
+zxAnXponOnuTypeAttr3 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of XPON onu."
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 6 }
+
+zxAnXponOnuTypeAttr4 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of XPON onu."
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 7 }
+
+zxAnXponOnuTypeAttr5 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of XPON onu."
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 8 }
+
+zxAnXponOnuTypeAttr6 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of XPON onu."
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 9 }
+
+zxAnXponOnuTypeAttr7 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of XPON onu."
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 10 }
+
+zxAnXponOnuTypeAttr8 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of XPON onu."
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 11 }
+
+zxAnXponOnuTypeAttr9 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of XPON onu."
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 12 }
+
+zxAnXponOnuTypeAttr10 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of XPON onu."
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 13 }
+
+zxAnXponOnuTypeRefCnt OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "If reference count does not equal 0, deletion is forbidden."
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 14 }
+
+zxAnXponOnuTypeEntryStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        ""
+    REFERENCE   ""
+    ::= { zxAnXponOnuTypeEntry 15 }
+
+
+zxAnXponOnuIfAttrTable    OBJECT-TYPE
+    SYNTAX      SEQUENCE OF ZxAnXponOnuIfAttrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        ""
+    REFERENCE   ""
+    ::= { zxAnXpon 2 }
+
+zxAnXponOnuIfAttrEntry OBJECT-TYPE
+    SYNTAX      ZxAnXponOnuIfAttrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        ""
+    INDEX   { zxAnXponOnuTypeName, zxAnXponOnuIfId }
+    ::= { zxAnXponOnuIfAttrTable 1 }
+
+ZxAnXponOnuIfAttrEntry ::=
+    SEQUENCE {
+        zxAnXponOnuIfId                             INTEGER,
+        zxAnXponOnuIfAttr1                          INTEGER,
+        zxAnXponOnuIfAttr2                          INTEGER,
+        zxAnXponOnuIfAttr3                          INTEGER,
+        zxAnXponOnuIfAttr4                          INTEGER,
+        zxAnXponOnuIfAttr5                          INTEGER,
+        zxAnXponOnuIfAttr6                          INTEGER,
+        zxAnXponOnuIfAttr7                          INTEGER,
+        zxAnXponOnuIfAttr8                          INTEGER,
+        zxAnXponOnuIfAttr9                          INTEGER,
+        zxAnXponOnuIfAttr10                         INTEGER,
+        zxAnXponOnuIfAttrRefCnt                     INTEGER,
+        zxAnXponOnuIfEntryStatus                    RowStatus
+    }
+
+zxAnXponOnuIfId OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "
+        The most significant 16 bits indicate the type of this interface;
+        The least significant 16 bits indicate the id of this interface.
+        "
+    REFERENCE   ""
+    ::= { zxAnXponOnuIfAttrEntry 1 }
+
+zxAnXponOnuIfAttr1 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of this interface."
+    REFERENCE   ""
+    ::= { zxAnXponOnuIfAttrEntry 2 }
+
+zxAnXponOnuIfAttr2 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of this interface."
+    REFERENCE   ""
+    ::= { zxAnXponOnuIfAttrEntry 3 }
+
+zxAnXponOnuIfAttr3 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of this interface."
+    REFERENCE   ""
+    ::= { zxAnXponOnuIfAttrEntry 4 }
+
+zxAnXponOnuIfAttr4 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of this interface."
+    REFERENCE   ""
+    ::= { zxAnXponOnuIfAttrEntry 5 }
+
+zxAnXponOnuIfAttr5 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of this interface."
+    REFERENCE   ""
+    ::= { zxAnXponOnuIfAttrEntry 6 }
+
+zxAnXponOnuIfAttr6 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of this interface."
+    REFERENCE   ""
+    ::= { zxAnXponOnuIfAttrEntry 7 }
+
+zxAnXponOnuIfAttr7 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of this interface."
+    REFERENCE   ""
+    ::= { zxAnXponOnuIfAttrEntry 8 }
+
+zxAnXponOnuIfAttr8 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of this interface."
+    REFERENCE   ""
+    ::= { zxAnXponOnuIfAttrEntry 9 }
+
+zxAnXponOnuIfAttr9 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of this interface."
+    REFERENCE   ""
+    ::= { zxAnXponOnuIfAttrEntry 10 }
+
+zxAnXponOnuIfAttr10 OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reserved for attributes of this interface."
+    REFERENCE   ""
+    ::= { zxAnXponOnuIfAttrEntry 11 }
+
+zxAnXponOnuIfAttrRefCnt OBJECT-TYPE
+    SYNTAX      INTEGER
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "If reference count does not equal 0, deletion is forbidden."
+    REFERENCE   ""
+    ::= { zxAnXponOnuIfAttrEntry 12 }
+
+zxAnXponOnuIfEntryStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        ""
+    REFERENCE   ""
+    ::= { zxAnXponOnuIfAttrEntry 13 }
+
+zxAnXponOnuAutoDispatchSetTable OBJECT-TYPE
+        SYNTAX         SEQUENCE OF ZxAnXponOnuAutoDispatchSetObjectEntry
+        MAX-ACCESS     not-accessible
+        STATUS         current
+        DESCRIPTION
+            "PON Onu Auto Dispatch Set"
+        ::= { zxAnXpon 3 }
+
+zxAnXponOnuAutoDispatchSetObjectEntry OBJECT-TYPE
+            SYNTAX         ZxAnXponOnuAutoDispatchSetObjectEntry
+            MAX-ACCESS     not-accessible
+            STATUS         current
+            DESCRIPTION
+            "PON Onu Auto Dispatch Set"
+            INDEX    { zxAnXponOnuTypeName }
+            ::= { zxAnXponOnuAutoDispatchSetTable 1}
+
+ZxAnXponOnuAutoDispatchSetObjectEntry ::=
+        SEQUENCE {
+                 onuAutoDispatchSetStatus          INTEGER
+                 }
+onuAutoDispatchSetStatus OBJECT-TYPE
+        SYNTAX       INTEGER{
+                        enable(1),
+                        disable(2)
+                        }
+        MAX-ACCESS   read-write
+        STATUS       current
+        DESCRIPTION
+            "Onu Auto Dispatch Set Status"
+        ::= { zxAnXponOnuAutoDispatchSetObjectEntry 1 }
+
+zxAnXponOltIfStatTable OBJECT-TYPE
+        SYNTAX         SEQUENCE OF ZxAnXponOltIfStatEntry
+        MAX-ACCESS     not-accessible
+        STATUS         current
+        DESCRIPTION
+            "xPON interface statistics table"
+        ::= { zxAnXpon 4 }
+
+zxAnXponOltIfStatEntry OBJECT-TYPE
+            SYNTAX         ZxAnXponOltIfStatEntry
+            MAX-ACCESS     not-accessible
+            STATUS         current
+            DESCRIPTION
+            ""
+            INDEX    { zxAnXponOltIfIndex }
+            ::= { zxAnXponOltIfStatTable 1}
+
+ZxAnXponOltIfStatEntry ::=
+        SEQUENCE {
+         zxAnXponOltIfIndex                  INTEGER,
+                 zxAnXponOltIfRxOctes                Counter64,
+                 zxAnXponOltIfRxPkts                 Counter64,
+                 zxAnXponOltIfRxOctesV               INTEGER,
+                 zxAnXponOltIfRxPktsV                INTEGER,
+                 zxAnXponOltIfRxOctesPeak            INTEGER,
+                 zxAnXponOltIfRxPktsPeak             INTEGER,
+                 zxAnXponOltIfRxUniPkts              Counter64,
+                 zxAnXponOltIfRxNonUniPkts           Counter64,
+                 zxAnXponOltIfRxMultPkts             Counter64,
+                 zxAnXponOltIfRxBroadPkts            Counter64,
+                 zxAnXponOltIfRxPktsDiscard          Counter64,
+                 zxAnXponOltIfRxPktsErr              Counter64,
+                 zxAnXponOltIfRxBWThoughput          DisplayString,
+                 zxAnXponOltIfRxPDR                  DisplayString,
+                 zxAnXponOltIfRxPER                  DisplayString,
+                 zxAnXponOltIfTxOctes                Counter64,
+                 zxAnXponOltIfTxPkts                 Counter64,
+                 zxAnXponOltIfTxOctesV               INTEGER,
+                 zxAnXponOltIfTxPktsV                INTEGER,
+                 zxAnXponOltIfTxOctesPeak            INTEGER,
+                 zxAnXponOltIfTxPktsPeak             INTEGER,
+                 zxAnXponOltIfTxUniPkts              Counter64,
+                 zxAnXponOltIfTxNonUniPkts           Counter64,
+                 zxAnXponOltIfTxMultPkts             Counter64,
+                 zxAnXponOltIfTxBroadPkts            Counter64,
+                 zxAnXponOltIfTxPktsDiscard          Counter64,
+                 zxAnXponOltIfTxPktsErr              Counter64,
+                 zxAnXponOltIfTxBWThoughput          DisplayString,
+                 zxAnXponOltIfTxPDR                  DisplayString,
+                 zxAnXponOltIfTxPER                  DisplayString,
+                 zxAnXponOltIfRxCRCAlignErrors       Counter64,
+                 zxAnXponOltIfRxUndersizePkts        Counter64,
+                 zxAnXponOltIfRxOversizePkts         Counter64,          
+                 zxAnXponOltIfRx64OctetPkts          Counter64,
+                 zxAnXponOltIfTx64OctetPkts          Counter64,
+                 zxAnXponOltIfRx65To127OctetPkts     Counter64,
+                 zxAnXponOltIfTx65To127OctetPkts     Counter64,
+                 zxAnXponOltIfRx128To255OctetPkts    Counter64,
+                 zxAnXponOltIfTx128To255OctetPkts    Counter64,
+                 zxAnXponOltIfRx256To511OctetPkts    Counter64,
+                 zxAnXponOltIfTx256To511OctetPkts    Counter64,
+                 zxAnXponOltIfRx512To1023OctPkts     Counter64, 
+                 zxAnXponOltIfTx512To1023OctPkts     Counter64,
+                 zxAnXponOltIfRx1024To1518OctPkts    Counter64,
+                 zxAnXponOltIfTx1024To1518OctPkts    Counter64,
+                 zxAnXponOltIfTxMulticastRate        Integer32,
+                 zxAnXponOltIfRxAvgBwUtilization     Integer32,
+                 zxAnXponOltIfTxAvgBwUtilization     Integer32,       
+                 zxAnXponOltIfStatus                 INTEGER
+                 }
+zxAnXponOltIfIndex OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   not-accessible
+        STATUS       current
+        DESCRIPTION
+            "Olt interface index."
+        ::= {zxAnXponOltIfStatEntry 1 }
+
+zxAnXponOltIfRxOctes OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 2 }
+
+zxAnXponOltIfRxPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 3 }
+
+zxAnXponOltIfRxOctesV OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "Bytes per second"
+        ::= {zxAnXponOltIfStatEntry 4 }
+
+zxAnXponOltIfRxPktsV OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "Pkts per second"
+        ::= {zxAnXponOltIfStatEntry 5 }
+
+zxAnXponOltIfRxOctesPeak OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 6 }
+
+zxAnXponOltIfRxPktsPeak OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 7 }
+
+zxAnXponOltIfRxUniPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 8 }
+
+zxAnXponOltIfRxNonUniPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 9 }
+
+zxAnXponOltIfRxMultPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 10 }
+
+zxAnXponOltIfRxBroadPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 11 }
+        
+zxAnXponOltIfRxPktsDiscard OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 12 }
+        
+zxAnXponOltIfRxPktsErr OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 13 }
+        
+zxAnXponOltIfRxBWThoughput OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(1..32))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 14 }
+
+zxAnXponOltIfRxPDR OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(1..32))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 15 }
+
+zxAnXponOltIfRxPER OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(1..32))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 16 }
+
+zxAnXponOltIfTxOctes OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 17 }
+
+zxAnXponOltIfTxPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 18 }
+
+zxAnXponOltIfTxOctesV OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 19 }
+
+zxAnXponOltIfTxPktsV OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 20 }
+
+zxAnXponOltIfTxOctesPeak OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 21 }
+
+zxAnXponOltIfTxPktsPeak  OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 22 }
+
+zxAnXponOltIfTxUniPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 23 }
+
+zxAnXponOltIfTxNonUniPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 24 }
+
+zxAnXponOltIfTxMultPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 25 }
+
+zxAnXponOltIfTxBroadPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 26 }
+        
+zxAnXponOltIfTxPktsDiscard OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 27 }
+        
+zxAnXponOltIfTxPktsErr OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 28 }
+        
+zxAnXponOltIfTxBWThoughput OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(1..32))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 29 }
+
+zxAnXponOltIfTxPDR OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(1..32))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 30 }
+
+zxAnXponOltIfTxPER OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(1..32))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 31 }
+        
+zxAnXponOltIfRxCRCAlignErrors OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "The total number of packets received that
+              had a length (excluding framing bits, but
+              including FCS octets) of between 64 and 1518
+              octets, inclusive, but but had either a bad
+              Frame Check Sequence (FCS) with an integral
+              number of octets (FCS Error) or a bad FCS with
+              a non-integral number of octets (Alignment Error)."
+        ::= {zxAnXponOltIfStatEntry 32 }
+        
+zxAnXponOltIfRxUndersizePkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+             "The total number of packets received that were
+              less than 64 octets long (excluding framing bits,
+              but including FCS octets) and were otherwise well
+              formed."
+        ::= {zxAnXponOltIfStatEntry 33 }
+    
+zxAnXponOltIfRxOversizePkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+              "The total number of packets received that were
+               longer than 1518 octets (excluding framing bits,
+               but including FCS octets) and were otherwise
+               well formed."
+        ::= {zxAnXponOltIfStatEntry 34 }     
+        
+zxAnXponOltIfRx64OctetPkts      OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+                  "The total number of packets (including bad
+                  packets) received that were 64 octets in length
+                  (excluding framing bits but including FCS octets)."
+        ::= {zxAnXponOltIfStatEntry 35 }
+        
+zxAnXponOltIfTx64OctetPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+                  "The total number of packets (including bad
+                  packets) sent that were 64 octets in length
+                  (excluding framing bits but including FCS octets)."
+        ::= {zxAnXponOltIfStatEntry 36 }
+        
+zxAnXponOltIfRx65To127OctetPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "The total number of packets (including bad
+            packets) received that were between 65 and 127 octets 
+            in length (excluding framing bits but including FCS octets)."
+        ::= {zxAnXponOltIfStatEntry 37 }
+        
+zxAnXponOltIfTx65To127OctetPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "The total number of packets 
+             sent that were between 65 and 127 octets in length."
+        ::= {zxAnXponOltIfStatEntry 38 }
+        
+zxAnXponOltIfRx128To255OctetPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+       DESCRIPTION
+             "The total number of packets (including bad
+             packets) received that were between 128 and 255 octets 
+             in length (excluding framing bits but including FCS octets)."
+        ::= {zxAnXponOltIfStatEntry 39 }
+        
+zxAnXponOltIfTx128To255OctetPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "The total number of packets 
+             sent that were between 128 and 255 octets in length."
+        ::= {zxAnXponOltIfStatEntry 40}
+        
+zxAnXponOltIfRx256To511OctetPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "The total number of packets (including bad
+            packets) received that were between 256 and 511 octets in length
+            (excluding framing bits but including FCS octets)."
+        ::= {zxAnXponOltIfStatEntry 41 }
+        
+zxAnXponOltIfTx256To511OctetPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "The total number of packets 
+             sent that were between 256 and 511 octets in length."
+        ::= {zxAnXponOltIfStatEntry 42 }
+        
+zxAnXponOltIfRx512To1023OctPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "The total number of packets (including bad
+            packets) received that were between 512 and 1023 octets in length
+            (excluding framing bits but including FCS octets)."
+        ::= {zxAnXponOltIfStatEntry 43 }
+        
+zxAnXponOltIfTx512To1023OctPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "The total number of packets 
+             sent that were between 512 and 1023 octets in length."
+        ::= {zxAnXponOltIfStatEntry 44 }
+        
+zxAnXponOltIfRx1024To1518OctPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+             "The total number of packets (including bad
+             packets) received that were between 1024 and 1518 octets in length
+             (excluding framing bits but including FCS octets)."
+        ::= {zxAnXponOltIfStatEntry 45 }
+        
+zxAnXponOltIfTx1024To1518OctPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "The total number of packets 
+             sent that were between 1024 and 1518 octets in length."
+        ::= {zxAnXponOltIfStatEntry 46 }
+        
+zxAnXponOltIfTxMulticastRate OBJECT-TYPE
+        SYNTAX       Integer32
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "The statistics of multicast rate, unit is kbps."
+        ::= {zxAnXponOltIfStatEntry 47 }
+        
+zxAnXponOltIfRxAvgBwUtilization OBJECT-TYPE
+        SYNTAX       Integer32 (0..100)
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "Received average bandwidth utilization."
+        ::= {zxAnXponOltIfStatEntry 48 }
+        
+zxAnXponOltIfTxAvgBwUtilization OBJECT-TYPE
+        SYNTAX       Integer32 (0..100)
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "Sent average bandwidth utilization."
+        ::= {zxAnXponOltIfStatEntry 49 }        
+
+zxAnXponOltIfStatus  OBJECT-TYPE
+        SYNTAX       INTEGER
+                                    {
+                                        reset(1)
+                                    }
+        MAX-ACCESS   read-write
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOltIfStatEntry 100 }
+        
+zxAnXponOnuIfStatTable OBJECT-TYPE
+        SYNTAX         SEQUENCE OF ZxAnXponOnuIfStatEntry
+        MAX-ACCESS     not-accessible
+        STATUS         current
+        DESCRIPTION
+            "xPON interface statistics table"
+        ::= { zxAnXpon 5 }
+
+zxAnXponOnuIfStatEntry OBJECT-TYPE
+            SYNTAX         ZxAnXponOnuIfStatEntry
+            MAX-ACCESS     not-accessible
+            STATUS         current
+            DESCRIPTION
+            ""
+            INDEX    { zxAnXponOnuIfIndex }
+            ::= { zxAnXponOnuIfStatTable 1}
+
+ZxAnXponOnuIfStatEntry ::=
+        SEQUENCE {
+         zxAnXponOnuIfIndex                  INTEGER,
+                 zxAnXponOnuIfRxOctes                Counter64,
+                 zxAnXponOnuIfRxPkts                 Counter64,
+                 zxAnXponOnuIfRxOctesV               INTEGER,
+                 zxAnXponOnuIfRxPktsV                INTEGER,
+                 zxAnXponOnuIfRxOctesPeak            INTEGER,
+                 zxAnXponOnuIfRxPktsPeak             INTEGER,
+                 zxAnXponOnuIfRxUniPkts              Counter64,
+                 zxAnXponOnuIfRxNonUniPkts           Counter64,
+                 zxAnXponOnuIfRxMultPkts             Counter64,
+                 zxAnXponOnuIfRxBroadPkts            Counter64,
+                 zxAnXponOnuIfRxPktsDiscard          Counter64,
+                 zxAnXponOnuIfRxPktsErr              Counter64,
+                 zxAnXponOnuIfRxBWThoughput          DisplayString,
+                 zxAnXponOnuIfRxPDR                  DisplayString,
+                 zxAnXponOnuIfRxPER                  DisplayString,
+                 zxAnXponOnuIfTxOctes                Counter64,
+                 zxAnXponOnuIfTxPkts                 Counter64,
+                 zxAnXponOnuIfTxOctesV               INTEGER,
+                 zxAnXponOnuIfTxPktsV                INTEGER,
+                 zxAnXponOnuIfTxOctesPeak            INTEGER,
+                 zxAnXponOnuIfTxPktsPeak             INTEGER,
+                 zxAnXponOnuIfTxUniPkts              Counter64,
+                 zxAnXponOnuIfTxNonUniPkts           Counter64,
+                 zxAnXponOnuIfTxMultPkts             Counter64,
+                 zxAnXponOnuIfTxBroadPkts            Counter64,
+                 zxAnXponOnuIfTxPktsDiscard          Counter64,
+                 zxAnXponOnuIfTxPktsErr              Counter64,
+                 zxAnXponOnuIfTxBWThoughput          DisplayString,
+                 zxAnXponOnuIfTxPDR                  DisplayString,
+                 zxAnXponOnuIfTxPER                  DisplayString,
+                 zxAnXponOnuIfStatus                 INTEGER
+                 }
+zxAnXponOnuIfIndex OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   not-accessible
+        STATUS       current
+        DESCRIPTION
+            "ONU interface index."
+        ::= {zxAnXponOnuIfStatEntry 1 }
+
+zxAnXponOnuIfRxOctes OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 2 }
+
+zxAnXponOnuIfRxPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 3 }
+
+zxAnXponOnuIfRxOctesV OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "Bytes per second"
+        ::= {zxAnXponOnuIfStatEntry 4 }
+
+zxAnXponOnuIfRxPktsV OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "Pkts per second"
+        ::= {zxAnXponOnuIfStatEntry 5 }
+
+zxAnXponOnuIfRxOctesPeak OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 6 }
+
+zxAnXponOnuIfRxPktsPeak OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 7 }
+
+zxAnXponOnuIfRxUniPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 8 }
+
+zxAnXponOnuIfRxNonUniPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 9 }
+
+zxAnXponOnuIfRxMultPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 10 }
+
+zxAnXponOnuIfRxBroadPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 11 }
+        
+zxAnXponOnuIfRxPktsDiscard OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 12 }
+        
+zxAnXponOnuIfRxPktsErr OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 13 }
+        
+zxAnXponOnuIfRxBWThoughput OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(1..32))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 14 }
+
+zxAnXponOnuIfRxPDR OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(1..32))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 15 }
+
+zxAnXponOnuIfRxPER OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(1..32))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 16 }
+
+zxAnXponOnuIfTxOctes OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 17 }
+
+zxAnXponOnuIfTxPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 18 }
+
+zxAnXponOnuIfTxOctesV OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 19 }
+
+zxAnXponOnuIfTxPktsV OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 20 }
+
+zxAnXponOnuIfTxOctesPeak OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 21 }
+
+zxAnXponOnuIfTxPktsPeak  OBJECT-TYPE
+        SYNTAX       INTEGER
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 22 }
+
+zxAnXponOnuIfTxUniPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 23 }
+
+zxAnXponOnuIfTxNonUniPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 24 }
+
+zxAnXponOnuIfTxMultPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 25 }
+
+zxAnXponOnuIfTxBroadPkts OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 26 }
+        
+zxAnXponOnuIfTxPktsDiscard OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 27 }
+        
+zxAnXponOnuIfTxPktsErr OBJECT-TYPE
+        SYNTAX       Counter64
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 28 }
+        
+zxAnXponOnuIfTxBWThoughput OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(1..32))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 29 }
+
+zxAnXponOnuIfTxPDR OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(1..32))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 30 }
+
+zxAnXponOnuIfTxPER OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(1..32))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 31 }
+
+zxAnXponOnuIfStatus  OBJECT-TYPE
+        SYNTAX       INTEGER
+                                    {
+                                        reset(1)
+                                    }
+        MAX-ACCESS   read-write
+        STATUS       current
+        DESCRIPTION
+            ""
+        ::= {zxAnXponOnuIfStatEntry 100 }
+ 
+ 
+   zxAnXponIpPoolTable OBJECT-TYPE 
+        SYNTAX         SEQUENCE OF ZxAnXponIpPoolEntry
+        MAX-ACCESS     not-accessible 
+        STATUS         current 
+        DESCRIPTION 
+            "xPON IP Pool,IP pool to be bound to a PON port"        
+        ::= { zxAnXpon 6}
+              
+   zxAnXponIpPoolEntry OBJECT-TYPE
+            SYNTAX         ZxAnXponIpPoolEntry 
+            MAX-ACCESS     not-accessible 
+            STATUS         current 
+            DESCRIPTION 
+            "xPON IP Pool"        
+            INDEX    { zxAnXponIpPoolName } 
+            ::= { zxAnXponIpPoolTable 1}
+            
+    ZxAnXponIpPoolEntry ::= 
+        SEQUENCE {  
+        zxAnXponIpPoolName          OCTET STRING,
+        zxAnXponIpPoolIpBegin                     IpAddress,
+        zxAnXponIpPoolIpEnd                     IpAddress,
+        zxAnXponIpPoolIpMask                     IpAddress,
+        zxAnXponIpPoolPriority                 INTEGER,
+        zxAnXponIpPoolCVlan                     INTEGER,
+        zxAnXponIpPoolSVlan                     INTEGER,
+        zxAnXponIpPoolNetworkIp          IpAddress,
+        zxAnXponIpPoolNetworkMask         IpAddress,
+        zxAnXponIpPoolNetworkGateway     IpAddress,
+        zxAnXponIpPoolUsage                 Integer32,
+        zxAnXponIpPoolRowStatus              RowStatus
+                } 
+                
+    zxAnXponIpPoolName OBJECT-TYPE 
+        SYNTAX       OCTET STRING(SIZE(1..63))                  
+        MAX-ACCESS   not-accessible 
+        STATUS       current 
+        DESCRIPTION
+            "xPON IP Pool Name"        
+        ::= { zxAnXponIpPoolEntry 1 }
+        
+    zxAnXponIpPoolIpBegin OBJECT-TYPE 
+        SYNTAX       IpAddress                
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            "xPON IP Pool begin Address"        
+        ::= { zxAnXponIpPoolEntry 2 }    
+            
+    zxAnXponIpPoolIpEnd OBJECT-TYPE 
+        SYNTAX       IpAddress                
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            "xPON IP Pool end Address"        
+        ::= { zxAnXponIpPoolEntry 3 }    
+        
+    zxAnXponIpPoolIpMask OBJECT-TYPE 
+        SYNTAX       IpAddress                
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            "xPON IP Pool Mask"        
+        ::= { zxAnXponIpPoolEntry 4 } 
+        
+    zxAnXponIpPoolPriority OBJECT-TYPE 
+        SYNTAX       INTEGER(0..7)       
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            "xPON IP Pool Priority"     
+        ::= { zxAnXponIpPoolEntry 5 }
+        
+    zxAnXponIpPoolCVlan OBJECT-TYPE 
+        SYNTAX       INTEGER(1..4094)                
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            "xPON IP Pool VLAN"        
+        ::= { zxAnXponIpPoolEntry 6 }
+        
+     zxAnXponIpPoolSVlan OBJECT-TYPE 
+        SYNTAX       INTEGER(1..4094)                
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            "xPON IP Pool VLAN"        
+        ::= { zxAnXponIpPoolEntry 7 }
+               
+    zxAnXponIpPoolNetworkIp OBJECT-TYPE 
+        SYNTAX       IpAddress            
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            "xPON IP Pool Net IP"        
+        ::= { zxAnXponIpPoolEntry 8 }
+        
+    zxAnXponIpPoolNetworkMask OBJECT-TYPE 
+        SYNTAX       IpAddress             
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            "xPON IP Pool Net Mask"        
+        ::= { zxAnXponIpPoolEntry 9 }
+        
+    zxAnXponIpPoolNetworkGateway OBJECT-TYPE 
+        SYNTAX       IpAddress            
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            "xPON IP Pool Gateway"        
+        ::= { zxAnXponIpPoolEntry 10 }
+        
+     zxAnXponIpPoolUsage OBJECT-TYPE 
+        SYNTAX          Integer32
+        UNITS           "percent"
+        MAX-ACCESS      read-only
+        STATUS          current
+        DESCRIPTION     "The current usage of this IP Pool."
+        ::=  {zxAnXponIpPoolEntry  11  }   
+        
+    zxAnXponIpPoolRowStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "xPON IP Pool RowStatus" 
+        ::= { zxAnXponIpPoolEntry 50}    
+   
+    
+    zxAnXponIpPoolConjPonTable OBJECT-TYPE 
+        SYNTAX         SEQUENCE OF ZxAnXponIpPoolConjPonEntry
+        MAX-ACCESS     not-accessible 
+        STATUS         current 
+        DESCRIPTION 
+            "xPON associated with PON Port IP Pool name"        
+        ::= { zxAnXpon 7 }
+              
+    zxAnXponIpPoolConjPonEntry OBJECT-TYPE
+            SYNTAX         ZxAnXponIpPoolConjPonEntry 
+            MAX-ACCESS     not-accessible 
+            STATUS         current 
+            DESCRIPTION 
+            "xPON IP Pool associated with PON port."        
+            INDEX    { zxAnXponOltIfIndex } 
+            ::= { zxAnXponIpPoolConjPonTable 1}
+            
+    ZxAnXponIpPoolConjPonEntry ::= 
+        SEQUENCE {  
+            zxAnXponConjPonIpPoolName          OCTET STRING,
+            zxAnXponConjIpPoolRowStatus        RowStatus
+                 }                               
+                 
+    zxAnXponConjPonIpPoolName OBJECT-TYPE 
+        SYNTAX       OCTET STRING(SIZE(1..63))               
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            "xPON IP Pool Name which will conjunction to pon port."        
+        ::= { zxAnXponIpPoolConjPonEntry 1 }    
+        
+    zxAnXponConjIpPoolRowStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "xPON IpPoolConj RowStatus "        
+        ::= { zxAnXponIpPoolConjPonEntry 20}  
+  
+   
+    zxAnXponOnuIpCfgTable  OBJECT-TYPE 
+        SYNTAX         SEQUENCE OF ZxAnXponOnuIpCfgEntry
+        MAX-ACCESS     not-accessible 
+        STATUS         current 
+        DESCRIPTION 
+            "xPON ONU IP Configure table"        
+        ::= { zxAnXpon 8 }
+              
+    zxAnXponOnuIpCfgEntry OBJECT-TYPE
+            SYNTAX         ZxAnXponOnuIpCfgEntry 
+            MAX-ACCESS     not-accessible 
+            STATUS         current 
+            DESCRIPTION 
+            "xPON ONU IP Configure Entry"        
+            INDEX    {zxAnXponOltIfIndex,zxAnXponOnuIfIndex } 
+            ::= { zxAnXponOnuIpCfgTable 1}
+            
+    ZxAnXponOnuIpCfgEntry ::= 
+        SEQUENCE { 
+              zxAnXponOnuIpCfgOperator    INTEGER
+                  } 
+                                                  
+    zxAnXponOnuIpCfgOperator OBJECT-TYPE 
+        SYNTAX       INTEGER{
+                        assign(1),
+                        release(2)
+                        }                     
+        MAX-ACCESS   read-write
+        STATUS       current 
+        DESCRIPTION
+            "xPON ONU IP operator, assign(1) | release(2).When zxAnXponOnuIpCfgOperator value is assign,OLT will choose a unused IP in the IP pool which conjunction the pon port.
+             If zxAnXponOnuIpCfgOperator value is  release,IP will  release to the IP pool"      
+        ::= { zxAnXponOnuIpCfgEntry 1 }     
+        
+    
+    zxAnXponOnuMgmtIpTable OBJECT-TYPE
+        SYNTAX       SEQUENCE OF ZxAnXponOnuMgmtIpEntry
+        MAX-ACCESS   not-accessible 
+        STATUS       current 
+        DESCRIPTION 
+          "ONU Manager IP Config."
+          ::= { zxAnXpon 9 } 
+
+    zxAnXponOnuMgmtIpEntry OBJECT-TYPE 
+        SYNTAX      ZxAnXponOnuMgmtIpEntry
+        MAX-ACCESS  not-accessible 
+        STATUS      current 
+        DESCRIPTION "" 
+        INDEX       { zxAnXponOltIfIndex,zxAnXponOnuIfIndex }
+        ::= { zxAnXponOnuMgmtIpTable 1 } 
+   
+    ZxAnXponOnuMgmtIpEntry ::=
+        SEQUENCE {   
+            zxAnXponMgmtIpAddress               IpAddress,
+            zxAnXponMgmtIpMask                  IpAddress,
+            zxAnXponMgmtPriority                INTEGER,      
+            zxAnXponMgmtCVlan                   INTEGER,
+            zxAnXponMgmtSVlan                   INTEGER,
+            zxAnXponMgmtNetworkIp               IpAddress,
+            zxAnXponMgmtNetworkMask             IpAddress,
+            zxAnXponMgmtNetworkGateway          IpAddress,
+            zxAnXponMgmtIpEnableStatus          INTEGER,
+            zxAnXponMgmtIpAssignationMode       INTEGER
+                }
+
+    zxAnXponMgmtIpAddress OBJECT-TYPE
+        SYNTAX      IpAddress
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "xPON management IP Address"
+        ::= { zxAnXponOnuMgmtIpEntry 1 }
+        
+    zxAnXponMgmtIpMask  OBJECT-TYPE
+        SYNTAX      IpAddress
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "xPon management IP Mask"
+        ::= { zxAnXponOnuMgmtIpEntry 2 }        
+
+    zxAnXponMgmtPriority   OBJECT-TYPE
+        SYNTAX      INTEGER(0..7)
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "xPon management Priority"
+        ::= { zxAnXponOnuMgmtIpEntry 3 } 
+
+    zxAnXponMgmtCVlan  OBJECT-TYPE
+        SYNTAX      INTEGER(1..4094)
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "xPon management CVlan"
+        ::= { zxAnXponOnuMgmtIpEntry 4} 
+        
+    zxAnXponMgmtSVlan  OBJECT-TYPE
+        SYNTAX      INTEGER(1..4094)
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "xPon management SVlan"
+        ::= { zxAnXponOnuMgmtIpEntry 5} 
+
+    zxAnXponMgmtNetworkIp OBJECT-TYPE
+        SYNTAX      IpAddress
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "xPon management Network IP"
+        ::= { zxAnXponOnuMgmtIpEntry 6 }
+
+    zxAnXponMgmtNetworkMask  OBJECT-TYPE
+        SYNTAX      IpAddress
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "xPon management Network Mask"
+        ::= { zxAnXponOnuMgmtIpEntry 7 }
+
+   zxAnXponMgmtNetworkGateway  OBJECT-TYPE
+        SYNTAX      IpAddress
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "xPon management Network Gateway "
+        ::= { zxAnXponOnuMgmtIpEntry 8 }
+        
+   zxAnXponMgmtIpEnableStatus  OBJECT-TYPE
+        SYNTAX      INTEGER
+        {
+             enable(1),
+             disable(2)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "Xpon Management IP Enable Status. When the status is disable, 
+        the management IP do not working."
+        ::= { zxAnXponOnuMgmtIpEntry 9 }
+        
+   zxAnXponMgmtIpAssignationMode  OBJECT-TYPE
+        SYNTAX      INTEGER 
+        {
+             static(1),
+             dhcp(2)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+             "ONU management IP address configuration mode.When 
+             the mode is static,you can configure all the attributes except 
+             zxAnXponMgmtIpDhcpStatus in zxAnXponOnuMgmtIpTable .
+             When the mode is dhcp,you can only configure 
+             zxAnXponMgmtIpEnableStatus,zxAnXponMgmtPriority and 
+             zxAnXponMgmtCVlan in zxAnXponOnuMgmtIpTable.
+             "
+        DEFVAL {static}
+        ::= { zxAnXponOnuMgmtIpEntry 10 }  
+                 
+--Unauthorized ONU Table
+
+    zxAnXponUnauthOnuTable OBJECT-TYPE
+        SYNTAX       SEQUENCE OF ZxAnXponUnauthOnuEntry
+        MAX-ACCESS   not-accessible 
+        STATUS       current 
+        DESCRIPTION 
+          "A table entry containing unauthorized ONU information."
+          ::= { zxAnXpon 10 } 
+
+    zxAnXponUnauthOnuEntry OBJECT-TYPE 
+        SYNTAX      ZxAnXponUnauthOnuEntry
+        MAX-ACCESS  not-accessible 
+        STATUS      current 
+        DESCRIPTION "An entry of zxAnXponUnauthOnuEntry. " 
+        INDEX       { zxAnXponOltIfIndex,zxAnXponOnuIfIndex }
+        ::= { zxAnXponUnauthOnuTable 1 } 
+   
+    ZxAnXponUnauthOnuEntry ::=
+        SEQUENCE {   
+            zxAnXponUnauthOnuMacAddress          MacAddress,
+            zxAnXponUnauthOnuSn                  DisplayString,
+            zxAnXponUnauthOnuPw                  DisplayString,      
+            zxAnXponUnauthOnuLoid                DisplayString,
+            zxAnXponUnauthOnuLoidPw              DisplayString,
+            zxAnXponUnauthOnuType                DisplayString,
+            zxAnXponUnauthOnuSwVersion           DisplayString,
+            zxAnXponUnauthOnuHwVersion           DisplayString,
+            zxAnXponUnAuthOnuRegistrationId      DisplayString,
+            zxAnXponUnauthOnuOnlineTime          DisplayString
+            }
+
+    zxAnXponUnauthOnuMacAddress OBJECT-TYPE
+        SYNTAX      MacAddress
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+        "The MAC address of unauthorized ONU. 
+         It is only valid to EPON ONU. "
+        ::= { zxAnXponUnauthOnuEntry 1 }
+        
+    zxAnXponUnauthOnuSn  OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(0..128))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+         "The SN of unauthorized ONU. "
+        ::= { zxAnXponUnauthOnuEntry 2 }        
+
+    zxAnXponUnauthOnuPw   OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(0..10))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+         "The password of unauthorized ONU. 
+          It is only valid to GPON ONU. "
+        ::= { zxAnXponUnauthOnuEntry 3 } 
+
+    zxAnXponUnauthOnuLoid  OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(0..24))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+         "The LOID of unauthorized ONU. "
+        ::= { zxAnXponUnauthOnuEntry 4} 
+        
+    zxAnXponUnauthOnuLoidPw  OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(0..12))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+        "The LOID password of unauthorized ONU. "
+        ::= { zxAnXponUnauthOnuEntry 5} 
+
+    zxAnXponUnauthOnuType OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(1..64))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+         "The ONU type of unauthorized ONU. "
+        ::= { zxAnXponUnauthOnuEntry 6 }
+
+    zxAnXponUnauthOnuSwVersion  OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(0..64))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+        "The software version of unauthorized ONU. "
+        ::= { zxAnXponUnauthOnuEntry 7 }
+        
+    zxAnXponUnauthOnuHwVersion  OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(0..64))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+        "The hardware version of unauthorized ONU. "
+        ::= { zxAnXponUnauthOnuEntry 8 }        
+
+    zxAnXponUnAuthOnuRegistrationId  OBJECT-TYPE
+        SYNTAX       DisplayString (SIZE(0..36))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+         "The registration ID of unauthorized ONU. 
+          It is only valid for GPON ONU. "
+        ::= { zxAnXponUnauthOnuEntry 9 }         
+        
+    zxAnXponUnauthOnuOnlineTime OBJECT-TYPE
+        SYNTAX      DisplayString (SIZE (0..19))
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+        "The ONU On-line time. The format is 
+              yyyy-mm-dd HH:MM:SS. For example,  2001-01-01 02:22:33. "
+        ::= { zxAnXponUnauthOnuEntry 10 }
+        
+   --XPON ONU POTS calling record table.   
+    zxAnXponOnuPotsCallRecordTable    OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxAnXponOnuPotsCallRecordEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION "XPON ONU POTS calling record table."
+        ::= { zxAnXponOnuVoipMgmt 1 }
+
+    zxAnXponOnuPotsCallRecordEntry OBJECT-TYPE
+        SYNTAX      ZxAnXponOnuPotsCallRecordEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION "An entry in zxAnXponOnuPotsCallRecordTable."
+        INDEX   { zxAnXponOltIfIndex, zxAnXponOnuIfIndex,
+         zxAnXponOnuUniIndex, zxAnXponOnuPotsCdrIndex }
+        ::= { zxAnXponOnuPotsCallRecordTable 1 }
+        
+    ZxAnXponOnuPotsCallRecordEntry ::=
+        SEQUENCE {
+            zxAnXponOnuUniIndex               Integer32,
+            zxAnXponOnuPotsCdrIndex           Integer32,
+            zxAnXponOnuPotsCdrTotalNum        Integer32,
+            zxAnXponOnuPotsCdrSequenceNum     Integer32,
+            zxAnXponOnuPotsCdrTime            DisplayString,
+            zxAnXponOnuPotsCdrDuration        Integer32,
+            zxAnXponOnuPotsCdrCalleeNumber    DisplayString,
+            zxAnXponOnuPotsCdrCallerNumber    DisplayString,
+            zxAnXponOnuPotsCdrTxRtpPkts       Integer32,
+            zxAnXponOnuPotsCdrRxRtpPkts       Integer32,
+            zxAnXponOnuPotsCdrLostRtpPkts     Integer32,
+            zxAnXponOnuPotsCdrDiscardRtpPkts  Integer32,
+            zxAnXponOnuPotsCdrBufOverCount    Integer32,
+            zxAnXponOnuPotsCdrBufEmptyCount   Integer32,
+            zxAnXponOnuPotsCdrRxAvgJitter     Integer32,
+            zxAnXponOnuPotsCdrFarEndRtcp      INTEGER,
+            zxAnXponOnuPotsCdrRxPeakJitter    Integer32,
+            zxAnXponOnuPotsCdrRxAvgJtrBufDep  Integer32,
+            zxAnXponOnuPotsCdrFarEndRtcpXr    INTEGER,
+            zxAnXponOnuPotsCdrPeakRtDelay     Integer32,
+            zxAnXponOnuPotsCdrAvgRtDelay      Integer32,
+            zxAnXponOnuPotsCdrAvgMos          Integer32
+        }
+        
+    zxAnXponOnuUniIndex OBJECT-TYPE
+        SYNTAX       Integer32
+        MAX-ACCESS   not-accessible
+        STATUS       current
+        DESCRIPTION
+            "UNI interface index."
+        ::= {zxAnXponOnuPotsCallRecordEntry 1 }
+            
+    zxAnXponOnuPotsCdrIndex OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION "VoIP calling record index of OLT."
+        ::= { zxAnXponOnuPotsCallRecordEntry 2 }
+
+    zxAnXponOnuPotsCdrTotalNum OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "The total number of the call records."
+        ::= { zxAnXponOnuPotsCallRecordEntry 3 }            
+
+    zxAnXponOnuPotsCdrSequenceNum OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "Sequence number of ONU."
+        ::= { zxAnXponOnuPotsCallRecordEntry 4 }  
+
+    zxAnXponOnuPotsCdrTime OBJECT-TYPE
+        SYNTAX      DisplayString (SIZE(19))
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "The time of one call,
+        format is yyyy-mm-dd HH:MM:SS.For example,2010-12-30 13:06:30."
+        ::= { zxAnXponOnuPotsCallRecordEntry 5 }  
+
+    zxAnXponOnuPotsCdrDuration OBJECT-TYPE
+        SYNTAX      Integer32
+        UNITS       "seconds"
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "The duration of one call."
+        ::= { zxAnXponOnuPotsCallRecordEntry 6 }  
+        
+    zxAnXponOnuPotsCdrCalleeNumber OBJECT-TYPE
+        SYNTAX      DisplayString (SIZE(1..32))
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "Callee number."
+        ::= { zxAnXponOnuPotsCallRecordEntry 7 }  
+        
+    zxAnXponOnuPotsCdrCallerNumber OBJECT-TYPE
+        SYNTAX      DisplayString (SIZE(1..32))
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "Caller number."
+        ::= { zxAnXponOnuPotsCallRecordEntry 8 }  
+        
+    zxAnXponOnuPotsCdrTxRtpPkts OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "The total number of 
+                     RTP packets transmitted during the call."
+        ::= { zxAnXponOnuPotsCallRecordEntry 9 }  
+        
+    zxAnXponOnuPotsCdrRxRtpPkts OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "The total number of 
+                     RTP packets received during the call."
+        ::= { zxAnXponOnuPotsCallRecordEntry 10 } 
+         
+    zxAnXponOnuPotsCdrLostRtpPkts OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "The total number of 
+                     RTP packets lost during the call."
+        ::= { zxAnXponOnuPotsCallRecordEntry 11 }  
+        
+    zxAnXponOnuPotsCdrDiscardRtpPkts OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "The total number of 
+                     RTP packets discarded due to error."
+        ::= { zxAnXponOnuPotsCallRecordEntry 12}  
+        
+    zxAnXponOnuPotsCdrBufOverCount OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "Buffer overflow count."
+        ::= { zxAnXponOnuPotsCallRecordEntry 13}  
+        
+    zxAnXponOnuPotsCdrBufEmptyCount OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "Buffer empty count."
+        ::= { zxAnXponOnuPotsCallRecordEntry 14}  
+        
+    zxAnXponOnuPotsCdrRxAvgJitter OBJECT-TYPE
+        SYNTAX      Integer32
+        UNITS       "milliseconds"
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "The average jitter for received packets."
+        ::= { zxAnXponOnuPotsCallRecordEntry 15}  
+        
+    zxAnXponOnuPotsCdrFarEndRtcp OBJECT-TYPE
+        SYNTAX      INTEGER{
+                        participated(1),
+                        notParticipated(2)
+                        } 
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "Whether or not the 
+                     far end participated in RTCP."
+        ::= { zxAnXponOnuPotsCallRecordEntry 16}  
+        
+    zxAnXponOnuPotsCdrRxPeakJitter OBJECT-TYPE
+        SYNTAX      Integer32
+        UNITS       "milliseconds"
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "The peak jitter for received packets."
+        ::= { zxAnXponOnuPotsCallRecordEntry 17}  
+        
+    zxAnXponOnuPotsCdrRxAvgJtrBufDep OBJECT-TYPE
+        SYNTAX      Integer32
+        UNITS       "milliseconds"
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "The average jitter buffer depth for received packets."
+        ::= { zxAnXponOnuPotsCallRecordEntry 18}  
+        
+    zxAnXponOnuPotsCdrFarEndRtcpXr OBJECT-TYPE
+        SYNTAX      INTEGER{
+                        participated(1),
+                        notParticipated(2)
+                        } 
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "Whether or not the
+                     far end participated in RTCP-XR."
+        ::= { zxAnXponOnuPotsCallRecordEntry 19}  
+        
+    zxAnXponOnuPotsCdrPeakRtDelay OBJECT-TYPE
+        SYNTAX      Integer32
+        UNITS       "milliseconds"
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "The peak round-trip delay for a call."
+        ::= { zxAnXponOnuPotsCallRecordEntry 20}  
+        
+    zxAnXponOnuPotsCdrAvgRtDelay OBJECT-TYPE
+        SYNTAX      Integer32
+        UNITS       "milliseconds"
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "The average round-trip delay for the call."
+        ::= { zxAnXponOnuPotsCallRecordEntry 21}  
+        
+    zxAnXponOnuPotsCdrAvgMos OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION "The average mean opinion score."
+        ::= { zxAnXponOnuPotsCallRecordEntry 22 }                                                                                                  
+-------------------------------------------------------------------------
+   zxAnXponGlobalObjects    OBJECT IDENTIFIER ::= {zxAnXpon 20}
+   zxAnXponCapabilities     OBJECT-TYPE 
+       SYNTAX           BITS 
+           {
+               spanNeProtection(0),
+               onuMgmtIpDhcp(1)
+               
+           } 
+       MAX-ACCESS       read-only
+       STATUS           current
+       DESCRIPTION      "The XPON capabilities of this equipment.
+            The bit value 1 means the function represented by this bit is
+            supported by this equipment.            
+            bit 0: value 1 means support span NE protection.
+            bit 1: value 1 means support ONU Management IP DHCP configuration.
+            NOTE: No recommended to display it in NMS."
+       ::=  {  zxAnXponGlobalObjects 1  }
+       
+--version update by onu type
+    zxAnXponOnuVersionUpdateByType    OBJECT IDENTIFIER 
+                 ::= { zxAnXponOnuVersionMgmt 1 }
+                                  
+    zxAnXponOnuTypeUpdateVerByType OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(1..63))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "This attribute specifies the ONT type who will be told to update the version."
+        ::= { zxAnXponOnuVersionUpdateByType 1 }
+
+    zxAnXponOnuUpdateVersionName OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(0..14))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "This attribute specifies the version file name.
+         When zxAnXponOnuUpdateAction is 'updateAbort' 
+          this attribute's size will be 0."
+        ::= { zxAnXponOnuVersionUpdateByType 2 }
+
+    zxAnXponOnuUpdateAction OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    update(1),
+                    updateAbort(2),    
+                    updateAndReboot(3)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "This attribute specifies the version update action."
+        ::= { zxAnXponOnuVersionUpdateByType 3 }
+        
+ --version update    
+    zxAnXponOnuSwUpdateTable    OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxAnXponOnuSwUpdateEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This managed entity represents a version update management
+             in the ONU."        
+        ::= { zxAnXponOnuVersionMgmt 2 }
+
+    zxAnXponOnuSwUpdateEntry OBJECT-TYPE
+        SYNTAX      ZxAnXponOnuSwUpdateEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the zxAnXponOnuSwUpdateTable."
+        INDEX   { zxAnXponOltIfIndex }
+        ::= { zxAnXponOnuSwUpdateTable 1 }
+
+    ZxAnXponOnuSwUpdateEntry ::=
+        SEQUENCE {
+            zxAnXponOnuSwUpdateAction                  INTEGER,
+            zxAnXponOnuSwUpdateVersionName             OCTET STRING,
+            zxAnXponOnuSwUpdateOnuList                 OCTET STRING,
+            zxAnXponOnuSwUpdateOnuNum                  INTEGER,
+            zxAnXponOnuSwUpdateOnuSlot                 INTEGER
+        }
+
+    zxAnXponOnuSwUpdateAction OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    update(1),
+                    updateAbort(2),    
+                    updateAndReboot(3),
+                    activate(4),
+                    commit(5)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "This attribute initiates the action of version update.
+        In 'update' or 'updateAndReboot', 'zxAnXponOnuSwUpdateVersionName', 
+        'zxAnXponOnuSwUpdateOnuList','zxAnXponOnuSwUpdateOnuNum' 
+        and 'zxAnXponOnuSwUpdateOnuSlot'must be specified. 
+        If no slots exist, specify 'slot' as 0 or do not specify it.
+
+        In 'updateAbort', 'zxAnXponOnuSwUpdateOnuList' and 
+        'zxAnXponOnuSwUpdateOnuNum' must be specified.
+        
+        In 'activate' or 'commit', 'zxAnXponOnuSwUpdateOnuList', 
+        'zxAnXponOnuSwUpdateOnuNum' and 'zxAnXponOnuSwUpdateOnuSlot' 
+        must be specified.
+        If no slots exist, specify 'slot' as 0 or do not specify it."
+        ::= { zxAnXponOnuSwUpdateEntry 1 }
+        
+    zxAnXponOnuSwUpdateVersionName OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(0..14))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "This attribute specifies the version file name.
+         When zxAnXponOnuSwUpdateAction is 'commit(5)' 
+          this attribute's size will be 0."
+        ::= { zxAnXponOnuSwUpdateEntry 2 }
+        
+    zxAnXponOnuSwUpdateOnuList OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(1..256))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "This attribute specifies the ONU list to be updated.
+         To be compatible, value 0 used to indicates ONU ID 256, 
+         while 1~255 indicates 1~255."
+        ::= { zxAnXponOnuSwUpdateEntry 3 }
+
+    zxAnXponOnuSwUpdateOnuNum OBJECT-TYPE
+        SYNTAX      INTEGER(1..256)
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "This attribute specifies the ONU number to be updated."
+        ::= { zxAnXponOnuSwUpdateEntry 4 }
+
+    zxAnXponOnuSwUpdateOnuSlot OBJECT-TYPE
+        SYNTAX      INTEGER(0..255)
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+        "This attribute specifies the ONU slot to be updated.
+         Default as 0, for update the version of ONU itself; 
+         Otherwise, the line card version of such a slot will be updated."
+        ::= { zxAnXponOnuSwUpdateEntry 5 }
+
+--version update status
+    zxAnXponOnuSwUpdateStatusTable    OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxAnXponOnuSwUpdateStatusEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This managed entity represents the version update 
+             status of the onu."
+        ::= { zxAnXponOnuVersionMgmt 3 }
+
+    zxAnXponOnuSwUpdateStatusEntry OBJECT-TYPE
+        SYNTAX      ZxAnXponOnuSwUpdateStatusEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the zxAnXponOnuSwUpdateStatusTable."
+        INDEX   { zxAnXponOltIfIndex,zxAnXponOnuIfIndex }
+        ::= { zxAnXponOnuSwUpdateStatusTable 1 }
+
+    ZxAnXponOnuSwUpdateStatusEntry ::=
+        SEQUENCE {
+            zxAnXponOnuSwUpdateStatus                  INTEGER,
+            zxAnXponOnuSwUpdateAbortReason             INTEGER,
+            zxAnXponOnuSwUpdatePercent                 INTEGER,
+            zxAnXponOnuSwVersionName                   OCTET STRING
+        }
+
+    zxAnXponOnuSwUpdateStatus OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    notStarted(1),
+                    abort(2),
+                    downloading(3),
+                    committing(4),
+                    activating(5),
+                    done(6)
+                    }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+        "This attribute indicates the status of updaing.
+        0xFFFF indicates status of 'NA'."
+        ::= { zxAnXponOnuSwUpdateStatusEntry 1 }
+
+    zxAnXponOnuSwUpdateAbortReason OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    none(1),
+                    downloadError(2),
+                    commitError(3),
+                    activateError(4),
+                    crcError(5),
+                    validCheckError(6),
+                    userAbort(7)
+                    }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+         "This attribute indicates the reason when abort."
+        ::= { zxAnXponOnuSwUpdateStatusEntry 2 }
+
+    zxAnXponOnuSwUpdatePercent OBJECT-TYPE
+        SYNTAX      INTEGER(0..100)
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+         "This attribute indicates the downloaded percent.
+          It is meaningful when 'zxAnXponOnuSwUpdateStatus' is downloading(3)."
+        ::= { zxAnXponOnuSwUpdateStatusEntry 3 }
+
+    zxAnXponOnuSwVersionName OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(0..14))
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+        "This attribute indicates the name of the version file current used.
+         It is meaningful when 'zxAnXponOnuSwUpdateStatus' is downloading(3)."
+        ::= { zxAnXponOnuSwUpdateStatusEntry 4 }
+
+
+--xpon onu update policy
+    zxAnOnuUpdatePolicyTable    OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxAnOnuUpdatePolicyEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This managed entity represents the version update policy."
+        ::= { zxAnXponOnuVersionMgmt 5 }
+
+    zxAnOnuUpdatePolicyEntry OBJECT-TYPE
+        SYNTAX      ZxAnOnuUpdatePolicyEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the zxAnOnuUpdatePolicyTable."
+        INDEX   { zxAnOnuUpdatePolicyId }
+        ::= { zxAnOnuUpdatePolicyTable 1 }
+
+    ZxAnOnuUpdatePolicyEntry ::=
+        SEQUENCE {
+            zxAnOnuUpdatePolicyId                  Integer32,
+            zxAnOnuUpdatePolicyName                DisplayString,
+            zxAnOnuUpdatePolicyPonType             INTEGER,
+            zxAnOnuUpdatePolicyOnuType             DisplayString,
+            zxAnOnuUpdatePolicyCriterioType        INTEGER,
+            zxAnOnuUpdatePolicyCriterioVer         DisplayString,
+            zxAnOnuUpdatePolicySwFileName          DisplayString,
+            zxAnOnuUpdatePolicyRefCnt              Integer32,
+            zxAnOnuUpdatePolicyRowStatus           RowStatus
+        }
+
+    zxAnOnuUpdatePolicyId OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+        "This attribute indicates the index of the update policy."        
+        ::= { zxAnOnuUpdatePolicyEntry 1 }
+
+    zxAnOnuUpdatePolicyName OBJECT-TYPE
+        SYNTAX      DisplayString(SIZE(1..64))
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+        "This attribute indicates the name of the update policy."
+        ::= { zxAnOnuUpdatePolicyEntry 2 }
+
+    zxAnOnuUpdatePolicyPonType OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    gpon(1),
+                    epon(2)
+                    }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+        "This attribute indicates the PON type of the update policy."
+        ::= { zxAnOnuUpdatePolicyEntry 3 }
+
+    zxAnOnuUpdatePolicyOnuType OBJECT-TYPE
+        SYNTAX      DisplayString(SIZE(1..14))
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+        "This attribute indicates the ONU type of the update policy."
+        ::= { zxAnOnuUpdatePolicyEntry 4 }
+
+    zxAnOnuUpdatePolicyCriterioType OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    equal(1),
+                    notEqual(2),
+                    below(3),
+                    upper(4)
+                    }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+        "This attribute indicates the match condition of the update policy."
+        ::= { zxAnOnuUpdatePolicyEntry 5 }
+
+    zxAnOnuUpdatePolicyCriterioVer OBJECT-TYPE
+        SYNTAX      DisplayString(SIZE(1..16))
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+        "This attribute indicates the ONU running version as the base to
+         compare. The maximum byte size of 'zxAnOnuUpdatePolicyCriterionType'
+         is 16 for EPON and 14 for GPON."
+        ::= { zxAnOnuUpdatePolicyEntry 6 }
+
+    zxAnOnuUpdatePolicySwFileName OBJECT-TYPE
+        SYNTAX      DisplayString(SIZE(1..14))
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+        "This attribute indicates the version file used to update."
+        ::= { zxAnOnuUpdatePolicyEntry 7 }
+
+    zxAnOnuUpdatePolicyRefCnt OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+        "This attribute indicates the reference count of policy."
+        ::= { zxAnOnuUpdatePolicyEntry 49 }
+
+    zxAnOnuUpdatePolicyRowStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+        "This attribute indicates the rowstatus of policy."
+        ::= { zxAnOnuUpdatePolicyEntry 50 }
+
+--xpon onu update policy bind
+    zxAnOnuUpdatePolicyBindTable    OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxAnOnuUpdatePolicyBindEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This managed entity represents the update policy binding."
+        ::= { zxAnXponOnuVersionMgmt 6 }
+
+    zxAnOnuUpdatePolicyBindEntry OBJECT-TYPE
+        SYNTAX      ZxAnOnuUpdatePolicyBindEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the zxAnOnuUpdatePolicyBindTable."
+        INDEX   { zxAnXponOltIfIndex, zxAnOnuUpdatePolicyId }
+        ::= { zxAnOnuUpdatePolicyBindTable 1 }
+
+    ZxAnOnuUpdatePolicyBindEntry ::=
+        SEQUENCE {
+            zxAnPonOnuUpdateBindRowStatus           RowStatus
+        }
+
+    zxAnPonOnuUpdateBindRowStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+        "This attribute indicates the rowstatus of policy bind."
+        ::= { zxAnOnuUpdatePolicyBindEntry 50 }
+  
+--------------------------------------------------------------------------------
+-- Configuration Data Copy
+--------------------------------------------------------------------------------
+
+    zxAnXponCfgDataCopy       OBJECT IDENTIFIER ::= { zxAnXponCfgDataMgmt 1}
+
+    zxAnXponCfgDataCopyType OBJECT-TYPE
+        SYNTAX      INTEGER {
+            ponPort(1),
+            onu(2)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the type of configuration data copying.
+            The copying is between PON ports or ONUs."
+        ::= { zxAnXponCfgDataCopy 1 }
+
+    zxAnXponCfgDataCopySrcIfIndex OBJECT-TYPE
+        SYNTAX      ZxAnIfindex
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the source for configuration data
+            copying. When 'zxAnXponCfgDataCopyType' is set to 'ponPort(1)',
+            the field of interface type in ifIndex should be for a PON port.
+            While 'zxAnXponCfgDataCopyType' is set to 'onu(2)', the ifIndex
+            represents an ONU."
+        ::= { zxAnXponCfgDataCopy 2 }
+
+    zxAnXponCfgDataCopyDstIfIndex OBJECT-TYPE
+        SYNTAX      ZxAnIfindex
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the destination for configuration data
+            copying. When 'zxAnXponCfgDataCopyType' is set to 'ponPort(1)',
+            the field of interface type in ifIndex should be for a PON port.
+            While 'zxAnXponCfgDataCopyType' is set to 'onu(2)', the ifIndex
+            represents an ONU."
+        ::= { zxAnXponCfgDataCopy 3 }
+        
+    zxAnXponCfgDataCopyForceEnable   OBJECT-TYPE
+        SYNTAX      INTEGER {
+            noForce(1),
+            force(2)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute indicates whether configuration data will be copied
+            if there are configuration data in the destination PON port or ONU.
+            When 'noForce(1)' is set, the configuration data will not be copied
+            to the destination PON port or ONU if it has been configured. 
+            When 'force(2)' is set, the configuration data will be copied to
+            the destination PON port or ONU even if it has been configured."
+        DEFVAL { noForce }
+        ::= { zxAnXponCfgDataCopy 4 }
+        
+    zxAnXponCfgDataCopyStatus OBJECT-TYPE
+        SYNTAX      INTEGER {
+            notStarted(1),
+            inProgress(2),
+            success(3),
+            failed(4)
+        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "This attribute indicates the status of configuration data
+            copying."
+        ::= { zxAnXponCfgDataCopy 5 }
+
+    zxAnXponCfgDataCopyProgress OBJECT-TYPE
+        SYNTAX      INTEGER(0..100)
+        UNITS       "percent"
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "This attribute indicates the current progress of configuration
+            data copying in terms of percentage."
+        ::= { zxAnXponCfgDataCopy 6 }
+        
+---Security Management---------------------------------------------------------
+
+-- Packets Limit Profile Table
+    zxAnXponProtoPktsLimitProfileTable   OBJECT-TYPE
+        SYNTAX      SEQUENCE  OF  ZxAnXponProtoPktsLimitProfileEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION 
+            "This table includes packets limit profile information. "
+        ::=  { zxAnXponOnuProtocolMgmt  2 }
+        
+    zxAnXponProtoPktsLimitProfileEntry   OBJECT-TYPE
+        SYNTAX      ZxAnXponProtoPktsLimitProfileEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION 
+            "An entry in zxAnXponProtoPktsLimitProfileTable."        
+        INDEX { zxAnXponProtoPktsLimitPrfName }
+        ::=  { zxAnXponProtoPktsLimitProfileTable 1 }
+        
+    ZxAnXponProtoPktsLimitProfileEntry  ::=  SEQUENCE {
+        zxAnXponProtoPktsLimitPrfName              DisplayString,
+        zxAnXponProtoPktsLimitArp                  Integer32, 
+        zxAnXponProtoPktsLimitDhcp                 Integer32,
+        zxAnXponProtoPktsLimitPppoe                Integer32,
+        zxAnXponProtoPktsLimitIgmp                 Integer32,
+        zxAnXponProtoPktsLimitCfm                  Integer32,
+        zxAnXponProtoPktsLimitRowstatus            RowStatus        
+        }                  
+                              
+    zxAnXponProtoPktsLimitPrfName    OBJECT-TYPE
+        SYNTAX      DisplayString  ( SIZE ( 1 .. 64  ) )
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "The profile name."
+        ::= { zxAnXponProtoPktsLimitProfileEntry 1 }
+        
+    zxAnXponProtoPktsLimitArp OBJECT-TYPE
+        SYNTAX      Integer32(0..65535)
+        UNITS       "pps"
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The ARP packets limit.
+             The value 65535 indicates no limit."
+        DEFVAL { 65535 }     
+        ::= { zxAnXponProtoPktsLimitProfileEntry 2 }  
+        
+    zxAnXponProtoPktsLimitDhcp OBJECT-TYPE
+        SYNTAX      Integer32(0..65535)
+        UNITS       "pps"
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The DHCP packets limit.
+             The value 65535 indicates no limit."
+        DEFVAL { 65535 }        
+        ::= { zxAnXponProtoPktsLimitProfileEntry 3 }          
+        
+    zxAnXponProtoPktsLimitPppoe OBJECT-TYPE
+        SYNTAX      Integer32(0..65535)
+        UNITS       "pps"
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The PPPoE packets limit.
+             The value 65535 indicates no limit."
+        DEFVAL { 65535 }     
+        ::= { zxAnXponProtoPktsLimitProfileEntry 4 }          
+        
+    zxAnXponProtoPktsLimitIgmp OBJECT-TYPE
+        SYNTAX      Integer32(0..65535)
+        UNITS       "pps"
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The IGMP packets limit.
+             The value 65535 indicates no limit."
+        DEFVAL { 65535 }     
+        ::= { zxAnXponProtoPktsLimitProfileEntry 5 }          
+        
+    zxAnXponProtoPktsLimitCfm OBJECT-TYPE
+        SYNTAX      Integer32(0..65535)
+        UNITS       "pps"
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The CFM packets limit.
+             The value 65535 indicates no limit."
+        DEFVAL { 65535 }     
+        ::= { zxAnXponProtoPktsLimitProfileEntry 7 }                  
+            
+    zxAnXponProtoPktsLimitRowstatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The row status of this entry."      
+        ::= { zxAnXponProtoPktsLimitProfileEntry 50 }  
+                            
+
+ -- Protocol Enable Profile Table
+
+    zxAnXponProtoEnablePrfTable   OBJECT-TYPE
+        SYNTAX      SEQUENCE  OF  ZxAnXponProtoEnablePrfEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION 
+            "This table includes protocol security enable profile 
+             information."
+        ::=  { zxAnXponOnuProtocolMgmt  3 }
+        
+    zxAnXponProtoEnablePrfEntry   OBJECT-TYPE
+        SYNTAX      ZxAnXponProtoEnablePrfEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION 
+            "An entry in zxAnXponProtoEnablePrfTable."        
+        INDEX { zxAnXponProtoEnablePrfName }
+        ::=  { zxAnXponProtoEnablePrfTable 1 }
+        
+    ZxAnXponProtoEnablePrfEntry  ::=  SEQUENCE {
+        zxAnXponProtoEnablePrfName        DisplayString,
+        zxAnXponDhcpRelayEnable           INTEGER,
+        zxAnXponDhcpOption82Enable        INTEGER,
+        zxAnXponPppoeIntermediaEnable     INTEGER,
+        zxAnXponArpInspectionEnable       INTEGER,
+        zxAnXponIptvAgeByLeaseEnable      INTEGER,  
+        zxAnXponProtoEnableRowstatus      RowStatus        
+        }                  
+                              
+    zxAnXponProtoEnablePrfName    OBJECT-TYPE
+        SYNTAX      DisplayString  ( SIZE ( 1 .. 64  ) )
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "The profile name."
+        ::= { zxAnXponProtoEnablePrfEntry 1 }
+        
+    zxAnXponDhcpRelayEnable OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION 
+            "Enable or disable the DHCP relay function."
+        DEFVAL    { disable }  
+        ::=  {  zxAnXponProtoEnablePrfEntry  2 }  
+        
+    zxAnXponDhcpOption82Enable OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION 
+            "Enable or disable the DHCP-option82 function."
+        DEFVAL    { disable }  
+        ::=  {  zxAnXponProtoEnablePrfEntry  3 }
+        
+    zxAnXponPppoeIntermediaEnable OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION 
+            "Enable or disable the PPPoE intermediate function."
+        DEFVAL    { disable }  
+        ::=  {  zxAnXponProtoEnablePrfEntry  4 }
+        
+    zxAnXponArpInspectionEnable OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION 
+            "Enable or disable the ARP inspection function."
+        DEFVAL    { disable }  
+        ::=  {  zxAnXponProtoEnablePrfEntry  5 }
+        
+     zxAnXponIptvAgeByLeaseEnable OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION 
+            "Enable or disable the IPTV age function by DHCP lease."
+        DEFVAL    { enable }  
+        ::=  {  zxAnXponProtoEnablePrfEntry  6 }                                            
+        
+    zxAnXponProtoEnableRowstatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The row status of this entry."      
+        ::= { zxAnXponProtoEnablePrfEntry 50 }  
+         
+-- ONU protocol Config Table        
+                                            
+    zxAnXponOnuProtoCfgTable OBJECT-TYPE
+        SYNTAX       SEQUENCE OF ZxAnXponOnuProtoCfgEntry
+        MAX-ACCESS   not-accessible 
+        STATUS       current 
+        DESCRIPTION 
+            "This table includes ONU protocol configuration information."
+          ::= { zxAnXponOnuProtocolMgmt 4 } 
+          
+    zxAnXponOnuProtoCfgEntry OBJECT-TYPE 
+        SYNTAX      ZxAnXponOnuProtoCfgEntry
+        MAX-ACCESS  not-accessible 
+        STATUS      current 
+        DESCRIPTION 
+            "An entry in zxAnXponOnuProtoCfgTable." 
+        INDEX       { zxAnXponOltIfIndex,zxAnXponOnuIfIndex }
+        ::= { zxAnXponOnuProtoCfgTable 1 }
+        
+    ZxAnXponOnuProtoCfgEntry  ::=  SEQUENCE {
+        zxAnXponOnuProtoPktsLimitPrfName   DisplayString,
+        zxAnXponOnuProtoEnablePrfName      DisplayString
+        }          
+                
+    zxAnXponOnuProtoPktsLimitPrfName    OBJECT-TYPE
+        SYNTAX      DisplayString  ( SIZE ( 1 .. 64  ) )
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The zxAnXponProtoPktsLimitPrfName profile name."
+        ::= { zxAnXponOnuProtoCfgEntry 1 }
+        
+    zxAnXponOnuProtoEnablePrfName    OBJECT-TYPE
+        SYNTAX      DisplayString  ( SIZE ( 1 .. 64  ) )
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The zxAnXponProtoEnablePrfName profile name."
+        ::= { zxAnXponOnuProtoCfgEntry 2 }
+        
+-- ONU Port protocol Config Table        
+                                            
+    zxAnXponOnuPortProtoCfgTable OBJECT-TYPE
+        SYNTAX       SEQUENCE OF ZxAnXponOnuPortProtoCfgEntry
+        MAX-ACCESS   not-accessible 
+        STATUS       current 
+        DESCRIPTION 
+            "This table includes ONU ports protocol configuration 
+              information."
+          ::= { zxAnXponOnuProtocolMgmt 5 } 
+          
+    zxAnXponOnuPortProtoCfgEntry OBJECT-TYPE 
+        SYNTAX      ZxAnXponOnuPortProtoCfgEntry
+        MAX-ACCESS  not-accessible 
+        STATUS      current 
+        DESCRIPTION 
+            "An entry in zxAnXponOnuPortProtoCfgTable." 
+        INDEX       { zxAnXponOltIfIndex,zxAnXponOnuIfIndex }
+        ::= { zxAnXponOnuPortProtoCfgTable 1 }
+        
+    ZxAnXponOnuPortProtoCfgEntry  ::=  SEQUENCE {
+        zxAnXponOnuPortType                  INTEGER,
+        zxAnXponOnuPortIndex                 Integer32,
+        zxAnXponOnuPortPktsLimitPrfName      DisplayString,
+        zxAnXponOnuPortEnablePrfName         DisplayString
+        }          
+        
+   zxAnXponOnuPortType OBJECT-TYPE
+        SYNTAX      INTEGER        
+        {
+            ethUni(1)                 
+        }
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This attribute indicates the type of onu port."            
+        ::= { zxAnXponOnuPortProtoCfgEntry 1 }
+        
+    zxAnXponOnuPortIndex OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This attribute indicates the port index.
+             For eth UNI:
+             The third byte specifies the slot Id associated with this UNI.
+             The forth byte specifies the port Id associated with this UNI."            
+        ::= { zxAnXponOnuPortProtoCfgEntry 2 }
+            
+    zxAnXponOnuPortPktsLimitPrfName    OBJECT-TYPE
+        SYNTAX      DisplayString  ( SIZE ( 1 .. 64  ) )
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The zxAnXponProtoPktsLimitPrfName profile name."
+        ::= { zxAnXponOnuPortProtoCfgEntry 3 }
+        
+    zxAnXponOnuPortEnablePrfName    OBJECT-TYPE
+        SYNTAX      DisplayString  ( SIZE ( 1 .. 64  ) )
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The zxAnXponProtoEnablePrfName profile name."
+        ::= { zxAnXponOnuPortProtoCfgEntry 4 }
+            
+---OTDR Management---------------------------------------------------------    
+-- OTDR  Bind Table  
+    zxAnXponOtdrBindTable OBJECT-TYPE
+        SYNTAX       SEQUENCE OF ZxAnXponOtdrBindEntry
+        MAX-ACCESS   not-accessible 
+        STATUS       current 
+        DESCRIPTION 
+            "This table includes OTDR test binding configuration 
+              information. "
+          ::= { zxAnXponOnuOtdrMgmt 1 } 
+          
+    zxAnXponOtdrBindEntry OBJECT-TYPE 
+        SYNTAX      ZxAnXponOtdrBindEntry
+        MAX-ACCESS  not-accessible 
+        STATUS      current 
+        DESCRIPTION 
+            "An entry in zxAnXponOtdrBindTable." 
+        INDEX       { zxAnXponOtdrBindIndex }
+        ::= { zxAnXponOtdrBindTable 1 }
+        
+    ZxAnXponOtdrBindEntry  ::=  SEQUENCE {
+        zxAnXponOtdrBindIndex             Integer32,
+        zxAnXponOtdrSlot                  Integer32,
+        zxAnXponOtdrPort                  Integer32,
+        zxAnXponOtdrOpticalSwitch         Integer32,     
+        zxAnXponOtdrPonPortIpAddrType     InetAddressType,
+        zxAnXponOtdrPonPortIpAddress      InetAddress,       
+        zxAnXponOtdrPonPortIfIndex        Integer32,            
+        zxAnXponOtdrRowStatus             RowStatus
+        }
+                     
+    zxAnXponOtdrBindIndex OBJECT-TYPE
+        SYNTAX       Integer32
+        MAX-ACCESS   not-accessible 
+        STATUS       current
+        DESCRIPTION
+            "The OTDR binding index."            
+        ::= { zxAnXponOtdrBindEntry 1 }
+                    
+    zxAnXponOtdrSlot OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The OTDR slot index."            
+        ::= { zxAnXponOtdrBindEntry 2 }
+        
+    zxAnXponOtdrPort OBJECT-TYPE
+        SYNTAX      Integer32(1..8)
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The OTDR port,
+              an OTDR port is a port of OTDR test card."            
+        ::= { zxAnXponOtdrBindEntry 3 }
+        
+    zxAnXponOtdrOpticalSwitch OBJECT-TYPE
+        SYNTAX      Integer32(0..128)
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The optical switch index.
+             Value 0 indicates that PON port binds an OTDR port directly."            
+        ::= { zxAnXponOtdrBindEntry 4 }
+        
+    zxAnXponOtdrPonPortIpAddrType OBJECT-TYPE
+        SYNTAX      InetAddressType
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The type of IP address denoted
+            in zxAnXponOtdrPonPortIpAddress object."
+        DEFVAL { ipv4 }
+        ::= { zxAnXponOtdrBindEntry 5 }
+           
+    zxAnXponOtdrPonPortIpAddress OBJECT-TYPE
+        SYNTAX         InetAddress
+        MAX-ACCESS     read-create
+        STATUS         current
+        DESCRIPTION
+            "The PON port IP address."           
+        ::= { zxAnXponOtdrBindEntry 6 }  
+        
+    zxAnXponOtdrPonPortIfIndex OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The 4 bytes index includes:
+            interface type(bit31~28), shelfId(bit27~24), slotId(bit23~16)
+             , oltId(bit16~8), reserved(bit7~bit0)."
+        ::= { zxAnXponOtdrBindEntry 7 }           
+                 
+    zxAnXponOtdrRowStatus    OBJECT-TYPE 
+        SYNTAX          RowStatus
+        MAX-ACCESS      read-create
+        STATUS          current 
+        DESCRIPTION
+            "The row status of this entry."
+        ::= {zxAnXponOtdrBindEntry 30 } 
+                   
+-- OTDR  Test Table
+    zxAnXponOtdrTestTable OBJECT-TYPE
+        SYNTAX       SEQUENCE OF ZxAnXponOtdrTestEntry
+        MAX-ACCESS   not-accessible 
+        STATUS       current 
+        DESCRIPTION 
+            "This table includes OTDR test configuration 
+              information.
+              "
+          ::= { zxAnXponOnuOtdrMgmt 2 } 
+          
+    zxAnXponOtdrTestEntry OBJECT-TYPE 
+        SYNTAX      ZxAnXponOtdrTestEntry
+        MAX-ACCESS  not-accessible 
+        STATUS      current 
+        DESCRIPTION 
+            "An entry in zxAnXponOtdrTestTable." 
+        INDEX       { zxAnXponOtdrBindIndex }
+        ::= { zxAnXponOtdrTestTable 1 }
+        
+    ZxAnXponOtdrTestEntry  ::=  SEQUENCE {
+        zxAnXponOtdrTestPulseWidth          Integer32,
+        zxAnXponOtdrTestDuration            Integer32,
+        zxAnXponOtdrTestFiberIor            Integer32,
+        zxAnXponOtdrTestAction              INTEGER,
+        zxAnXponOtdrTestFileName            DisplayString,
+        zxAnXponOtdrTestStatus              INTEGER
+        }          
+           
+    zxAnXponOtdrTestPulseWidth OBJECT-TYPE
+        SYNTAX      Integer32(5..20000)
+        UNITS       "ns"
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The OTDR test pulse width."            
+        ::= { zxAnXponOtdrTestEntry 1 }
+   
+   zxAnXponOtdrTestDuration OBJECT-TYPE
+        SYNTAX      Integer32(1..3600)                
+        UNITS       "seconds"
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The OTDR test duration."            
+        ::= { zxAnXponOtdrTestEntry 2 }
+        
+    zxAnXponOtdrTestFiberIor OBJECT-TYPE
+        SYNTAX      Integer32(1400000..1500000)
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Th fiber IOR.
+             The range is from 1.4*(10^6) to 1.5*(10^6)."            
+        ::= { zxAnXponOtdrTestEntry 3 }
+        
+    zxAnXponOtdrTestAction OBJECT-TYPE
+        SYNTAX      INTEGER        
+        {
+            start(1),                 
+            stop(2)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "The OTDR test action."            
+        ::= { zxAnXponOtdrTestEntry 4 }
+        
+    zxAnXponOtdrTestFileName   OBJECT-TYPE
+        SYNTAX      DisplayString (SIZE (1..32))
+        MAX-ACCESS  read-write
+        STATUS      current 
+        DESCRIPTION
+            "The OTDR test file name, such as
+             '211_20110505121212.otr'."
+        ::= { zxAnXponOtdrTestEntry 5 } 
+                        
+    zxAnXponOtdrTestStatus   OBJECT-TYPE
+        SYNTAX  INTEGER 
+        {
+              notStarted(1),           
+              measuring(2),
+              saving(3),
+              success(4), 
+              failed(5)                                      
+        }
+        MAX-ACCESS      read-only
+        STATUS          current 
+        DESCRIPTION
+            "The result status of OTDR test."      
+        ::= {zxAnXponOtdrTestEntry 6 }                              
+-------------------------------------------------------------------------------        
+ --xPON trap begin
+ 
+   zxPonTrapsBindVar          OBJECT IDENTIFIER ::= { zxAnXponTrap 1}    
+ 
+     zxPonOltTransceiverAlarmReason OBJECT-TYPE
+        SYNTAX      INTEGER
+                        {
+                        toohigh(1),
+                        toolow(2)
+                        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                ""
+        ::= { zxPonTrapsBindVar 1 } 
+        
+        
+     zxPonEventType OBJECT-TYPE
+        SYNTAX      INTEGER
+                        {
+                        rxOpticalPower(1),
+                        txOpticalPower(2),
+                        transceiverTemp(3),
+                        transceiverVoltage(4),
+                        transceiverBiasCurrent(5)
+                        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                ""
+        ::= { zxPonTrapsBindVar 2 } 
+        
+     zxPonEventReason OBJECT-TYPE
+        SYNTAX      INTEGER
+                        {
+                        toohigh(1),
+                        toolow(2)
+                        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                ""
+        ::= { zxPonTrapsBindVar 3 } 
+   
+    zxPonGeneralEvent    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,
+                zxPonEventType, 
+                zxPonEventReason
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxAnXponTrap 4}
+             
+    zxPonOltRxPowerAlarmi    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxPonOltTransceiverAlarmReason
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxAnXponTrap 5}
+        
+    zxPonOltRxPowerAlarmiRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxPonOltTransceiverAlarmReason
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxAnXponTrap 6}
+
+    zxPonOltTxPowerAlarm    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxPonOltTransceiverAlarmReason
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxAnXponTrap 7}
+        
+    zxPonOltTxPowerAlarmRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxPonOltTransceiverAlarmReason
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxAnXponTrap 8}
+
+    zxPonOltTransceiverTempAlarm    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxPonOltTransceiverAlarmReason
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxAnXponTrap 9}
+        
+    zxPonOltTransceiverTempRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxPonOltTransceiverAlarmReason
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxAnXponTrap 10}
+    
+    zxPonOltTransceiverVoltageAlarm    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxPonOltTransceiverAlarmReason
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxAnXponTrap 11}
+        
+    zxPonOltTransceiverVoltageRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxPonOltTransceiverAlarmReason
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxAnXponTrap 12}
+     
+    zxPonOltTransceiverBiasCurrentAlarm    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxPonOltTransceiverAlarmReason
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxAnXponTrap 13}
+        
+    zxPonOltTransceiverBiasCurrentRestore    NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex,zxPonOltTransceiverAlarmReason
+                }
+        STATUS current
+        DESCRIPTION 
+            ""
+        ::={zxAnXponTrap 14}  
+
+         
+    
+ --xPON trap end
+ 
+--CFM MNG
+ 
+    zxAnXponOnuCfmGlobalObjects   OBJECT IDENTIFIER ::= { zxAnXponOnuCfmMgmt 1}
+
+    zxAnXponOnuCfmMepAvailableUnis OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(129))
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute is a list of uni IDs with which 
+             this MEP is associated. 
+             The first byte represent the total number of uni ports, 
+             every two bytes represent a uni port. 
+             In these two bytes, the first 4 bits represent iftype and then 
+             4 bits represent slot, the last 8 bits represent uni port.
+             eg: IfType(4 bits)| Slot(4 bits) |Port(uni)(8bits)."
+        ::= { zxAnXponOnuCfmGlobalObjects 1 }      
+ 
+--CFM MA EXT
+ 
+    zxAnXponOnuCfmMaTable    OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxAnXponOnuCfmMaEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This managed entity models an IEEE 802.1 service defined 
+             on a bridge port. A maintenance association (MA) is 
+             a set of endpoints on opposite sides of a network, 
+             all existing at a defined maintenance level."
+        REFERENCE   "G.984.4 9.3.20 Dot1ag maintenance association"
+        ::= { zxAnXponOnuCfmMgmt 2 }
+
+    zxAnXponOnuCfmMaEntry OBJECT-TYPE
+        SYNTAX      ZxAnXponOnuCfmMaEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the zxAnXponOnuCfmMaTable."
+        INDEX   { zxAnXponOnuCfmMdId, zxAnXponOnuCfmMaId }
+        ::= { zxAnXponOnuCfmMaTable 1 }
+        
+    ZxAnXponOnuCfmMaEntry ::=
+        SEQUENCE {
+            zxAnXponOnuCfmMdId                  Integer32,
+            zxAnXponOnuCfmMaId                  Integer32,
+            zxAnXponOnuCfmMaVlans               DisplayString,
+            zxAnXponOnuCfmMaMhfCreation         INTEGER,
+            zxAnXponOnuCfmMaIdPermission        INTEGER,
+            zxAnXponOnuCfmMaRowStatus           RowStatus
+        }
+           
+    zxAnXponOnuCfmMdId   OBJECT-TYPE
+        SYNTAX      Integer32(1..16)
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "MD ID uniquely identifies an instance of this managed entity."
+        ::= { zxAnXponOnuCfmMaEntry 1 }
+        
+    zxAnXponOnuCfmMaId OBJECT-TYPE
+        SYNTAX      Integer32(1..32)
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This attribute uniquely identifies an instance of MA."
+        ::= { zxAnXponOnuCfmMaEntry 2 }
+            
+    zxAnXponOnuCfmMaVlans OBJECT-TYPE
+        SYNTAX      DisplayString(SIZE(1..64))
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute is a list of up to 12 VLAN IDs with which 
+             this MA is associated. 
+             The first entry is understood to be the primary VLAN.
+             eg: 100,15-16 means that the primary VLAN is 100, MA is associated
+             with VLAN 15,16,100."
+        ::= { zxAnXponOnuCfmMaEntry 3 }
+
+    zxAnXponOnuCfmMaMhfCreation OBJECT-TYPE
+        SYNTAX      INTEGER {
+                    defMHFnone(1),
+                    defMHFdefault(2),
+                    defMHFexplicit(3),
+                    defMHFdefer(4)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute determines whether the bridge creates a MHF or not, 
+             under circumstances defined in IEEE 802.1ag clause 22.2.3.
+             defMHFnone(1), No MHFs can be created for this VID.
+             defMHFdefault(2),  MHFs can be created on this VID on any
+                                Bridge port through which this VID can pass.
+             defMHFexplicit(3), MHFs can be created for this VID only on
+                                Bridge ports through which this VID can
+                                pass, and only if a MEP is created at some
+                                lower MD Level.
+             defMHFdefer(4),    The creation of MHFs is determined by the
+                                corresponding Maintenance Domain variable
+                                (dot1agCfmMaCompMhfCreation)."
+        DEFVAL { defMHFdefer }
+        ::= { zxAnXponOnuCfmMaEntry 4 }
+
+    zxAnXponOnuCfmMaSenderId OBJECT-TYPE
+        SYNTAX      INTEGER {
+                    sendIdNone(1),
+                    sendIdChassis(2),
+                    sendIdManage(3),
+                    sendIdChassisManage(4),
+                    sendIdDefer(5)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute determines the content of the sender ID TLV included
+             in CFM messages transmitted by MP controlled by this MA.
+             sendIdNone(1),     The Sender ID TLV is not to be sent.
+             sendIdChassis(2),  The Chassis ID Length, Chassis ID
+                                Subtype, and Chassis ID fields of  the
+                                Sender ID TLV are to be sent.
+             sendIdManage(3),    The Management Address Length and
+                                Management Address of the Sender ID TLV
+                                are to be sent.
+             sendIdChassisManage(4), The Chassis ID Length, Chassis ID
+                                Subtype, Chassis ID, Management Address
+                                Length and Management Address fields are
+                                all to be sent.
+             sendIdDefer(5),    The contents of the Sender ID TLV are
+                                determined by the corresponding
+                                Maintenance Domain variable
+                                (dot1agCfmMaCompIdPermission)."
+        DEFVAL { sendIdDefer }
+        ::= { zxAnXponOnuCfmMaEntry 5 }
+        
+    zxAnXponOnuCfmMaRowStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute indicates the operation of the entry."
+        ::= { zxAnXponOnuCfmMaEntry 55 } 
+        
+--CFM MEP EXT  
+
+    zxAnXponOnuCfmMepTable    OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxAnXponOnuCfmMepEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This managed entity models a maintenance association end point 
+             (MEP) as defined primarily in IEEE 802.1ag and 
+             secondarily in ITU-T Y.1731."
+        REFERENCE   "G.984.4 9.3.22 Dot1ag MEP"
+        ::= { zxAnXponOnuCfmMgmt 3 }
+
+    zxAnXponOnuCfmMepEntry OBJECT-TYPE
+        SYNTAX      ZxAnXponOnuCfmMepEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the zxAnXponOnuCfmMepTable."
+        INDEX   { zxAnXponOnuCfmMdId, zxAnXponOnuCfmMaId, zxAnXponOnuCfmMepId }
+        ::= { zxAnXponOnuCfmMepTable 1 }
+        
+    ZxAnXponOnuCfmMepEntry ::=
+        SEQUENCE {
+            zxAnXponOnuCfmMepId                      Integer32,
+            zxAnXponOnuCfmMepServerEnable            TruthValue,
+            zxAnXponOnuCfmMepEgressId                OCTET STRING,
+            zxAnXponOnuCfmMepRmepIds                 DisplayString,
+            zxAnXponOnuCfmMepAisEnable               TruthValue,
+            zxAnXponOnuCfmMepAisPeriod               INTEGER,
+            zxAnXponOnuCfmMepAisPriority             Integer32,
+            zxAnXponOnuCfmMepAisLevel                Integer32,
+            zxAnXponOnuCfmMepAlarmThreshold          INTEGER,
+            zxAnXponOnuCfmMepAlarmDeSoakTime         Integer32,
+            zxAnXponOnuCfmMepAlarmCSoakTime          Integer32,
+            zxAnXponOnuCfmMepLbTestResult            INTEGER,
+            zxAnXponOnuCfmMepLbStopTestAct           TruthValue,
+            zxAnXponOnuCfmMepLbrDelay                Integer32,
+            zxAnXponOnuCfmMepLtTestResult            INTEGER,
+            zxAnXponOnuCfmMepLtStopTestAct           TruthValue,
+            zxAnXponOnuCfmMepLmTargetMac             MacAddress,
+            zxAnXponOnuCfmMepLmTargetMepId           Integer32,
+            zxAnXponOnuCfmMepLmTargetIsMepId         TruthValue,
+            zxAnXponOnuCfmMepLmEndType               INTEGER,
+            zxAnXponOnuCfmMepLmInterval              INTEGER,
+            zxAnXponOnuCfmMepLmTransmitMsgs          Integer32,
+            zxAnXponOnuCfmMepLmPriority              Unsigned32,
+            zxAnXponOnuLmDropEligibility             TruthValue,
+            zxAnXponOnuLmStatus                      TruthValue,
+            zxAnXponOnuLmNearendLossRatio            Integer32,
+            zxAnXponOnuLmNearendLoss                 Integer32,
+            zxAnXponOnuLmFarendLossRatio             Integer32,
+            zxAnXponOnuLmFarendLoss                  Integer32,
+            zxAnXponOnuLmAvgNearendLossRatio         Integer32,
+            zxAnXponOnuLmAvgNearendLoss              Integer32,
+            zxAnXponOnuLmAvgFarendLossRatio          Integer32,
+            zxAnXponOnuLmAvgFarendLoss               Integer32,
+            zxAnXponOnuCfmMepDmTargetMac             MacAddress,
+            zxAnXponOnuCfmMepDmTargetMepId           Integer32,
+            zxAnXponOnuCfmMepDmTargetIsMepId         TruthValue,
+            zxAnXponOnuCfmMepDmWayType               INTEGER,
+            zxAnXponOnuCfmMepDmInterval              INTEGER,
+            zxAnXponOnuCfmMepDmTransmitMsgs          Integer32,
+            zxAnXponOnuCfmMepDmPriority              Unsigned32,
+            zxAnXponOnuDmDropEligibility             TruthValue,
+            zxAnXponOnuDmStatus                      TruthValue,
+            zxAnXponOnuDmLastDelay                   OCTET STRING,
+            zxAnXponOnuDmCurrentDelay                OCTET STRING, 
+            zxAnXponOnuDmDelayStat                   OCTET STRING, 
+            zxAnXponOnuDmDelayDiffStat               OCTET STRING, 
+            zxAnXponOnuDmDelayAvgStat                OCTET STRING, 
+            zxAnXponOnuDmDelayAvgDiffStat            OCTET STRING,                        
+            zxAnXponOnuCfmMepRowStatus               RowStatus
+        }
+
+    zxAnXponOnuCfmMepId OBJECT-TYPE
+        SYNTAX      Integer32(1..8191)
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the MEP¡¯s own identity in the MA."
+        ::= { zxAnXponOnuCfmMepEntry 1 }
+                      
+    zxAnXponOnuCfmMepServerEnable OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies that wether to 
+             enable Y.1731 server MEP function."
+        DEFVAL { false }
+        ::= { zxAnXponOnuCfmMepEntry 2 }
+
+    zxAnXponOnuCfmMepEgressId OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(8))
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute comprises 8 bytes to be included in LTMs. 
+             They allow received LTRs to be directed to the correct originator.
+             The attribute includes the originator MAC address and a 
+             locally-defined identifier. If this field is 0 (default), 
+             the ONT uses the MEP¡¯s MAC address, with 0 as the locally-defined 
+             identifier."
+        ::= { zxAnXponOnuCfmMepEntry 3 }
+
+    zxAnXponOnuCfmMepRmepIds OBJECT-TYPE
+        SYNTAX      DisplayString(SIZE(1..64))
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute lists up to 12 expected peer MEPs for CCMs."
+        ::= { zxAnXponOnuCfmMepEntry 4 }
+
+    zxAnXponOnuCfmMepAisEnable OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute enable generation of Ethernet AIS."
+        DEFVAL { false }
+        ::= { zxAnXponOnuCfmMepEntry 5 }
+
+    zxAnXponOnuCfmMepAisPeriod OBJECT-TYPE
+        SYNTAX      INTEGER {
+                    time1s(1),
+                    time1min(2)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies ethernet AIS transmission period."
+        DEFVAL { time1s }
+        ::= { zxAnXponOnuCfmMepEntry 6 }
+
+    zxAnXponOnuCfmMepAisPriority OBJECT-TYPE
+        SYNTAX      Integer32(0..7)
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies priority of transmitted ETH AIS frames."
+        DEFVAL { 7 }
+        ::= { zxAnXponOnuCfmMepEntry 7 }
+
+    zxAnXponOnuCfmMepAisLevel OBJECT-TYPE
+        SYNTAX      Integer32(0..7)
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the maintenance
+             level at which the client MEP exists."
+        DEFVAL { 0 }
+        ::= { zxAnXponOnuCfmMepEntry 8 }
+
+    zxAnXponOnuCfmMepAlarmThreshold OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    mode1(1),
+                    mode2(2),
+                    mode3(3),
+                    mode4(4),
+                    mode5(5),
+                    mode6(6)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the lowest priority alarm 
+             that is allowed to generate a fault alarm.
+             mode1, All defects generate alarms after suitable soaking, 
+                    including AIS and RDICCM.
+             mode2, Alarm generated only by one of: MACstatus, RemoteCCM, 
+                    ErrorCCM, XconCCM.
+             mode3, Alarm generated only by one of: RemoteCCM, ErrorCCM, XconCCM
+             mode4, Alarm generated only by one of: ErrorCCM, XconCCM.
+             mode5, Alarm generated only by: XconCCM.
+             mode6, No alarms are to be reported."
+        DEFVAL { mode2 }
+        ::= { zxAnXponOnuCfmMepEntry 9 }
+
+    zxAnXponOnuCfmMepAlarmDeSoakTime OBJECT-TYPE
+        SYNTAX      Integer32(250..1000)
+        UNITS       "10ms"
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute defines the defect soak time 
+             that must elapse before the MEP declares an alarm."
+        DEFVAL { 250 }
+        ::= { zxAnXponOnuCfmMepEntry 10 }
+
+    zxAnXponOnuCfmMepAlarmCSoakTime OBJECT-TYPE
+        SYNTAX      Integer32(250..1000)
+        UNITS       "10ms"
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute defines the defect-free soak time 
+             that must elapse before the MEP clears an alarm."
+        DEFVAL { 1000 }
+        ::= { zxAnXponOnuCfmMepEntry 11 }
+
+    zxAnXponOnuCfmMepLbTestResult OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    success(1),
+                    failed(2)
+        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The result status of loopback test."
+        ::= { zxAnXponOnuCfmMepEntry 12 }
+
+    zxAnXponOnuCfmMepLbStopTestAct      OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+           "A boolean flag set to true by an MIB manager to indicate 
+            that ONU is forced to stop the loopback test.
+            Reset to false by the MEP test initiator state machine."
+        DEFVAL     { false }
+        ::= { zxAnXponOnuCfmMepEntry 13 }
+
+    zxAnXponOnuCfmMepLbrDelay OBJECT-TYPE
+        SYNTAX      Integer32(0..10000)
+        UNITS       "ms"
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "This is the delay from LBM transmission to LBR reception."
+        ::= { zxAnXponOnuCfmMepEntry 14 }
+        
+    zxAnXponOnuCfmMepLtTestResult OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    success(1),
+                    failed(2)
+        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The result status of linktrace test."
+        ::= { zxAnXponOnuCfmMepEntry 15 }
+
+    zxAnXponOnuCfmMepLtStopTestAct      OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+           "A boolean flag set to true by an MIB manager to indicate 
+            that ONU is forced to stop the linktrace test.
+            Reset to false by the MEP test initiator state machine."
+        DEFVAL     { false }
+        ::= { zxAnXponOnuCfmMepEntry 16 }
+
+    zxAnXponOnuCfmMepLmTargetMac OBJECT-TYPE
+        SYNTAX      MacAddress
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The target MAC address field to be transmitted: a unicast
+             destination MAC address.
+             This address will be used if the value of the column
+             zxAnXponOnuCfmMepLmTargetIsMepId is 'false'."
+        ::= { zxAnXponOnuCfmMepEntry 17 }
+
+    zxAnXponOnuCfmMepLmTargetMepId OBJECT-TYPE
+        SYNTAX      Integer32(1..8191)
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "An indication of the target MAC address field to be
+             transmitted:
+             The MEP ID of another MEP in the same MA.
+             This address will be used if the value of the column
+             zxAnXponOnuCfmMepLmTargetIsMepId is 'true'."
+        ::= { zxAnXponOnuCfmMepEntry 18 }
+
+    zxAnXponOnuCfmMepLmTargetIsMepId OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "'True' indicates that MEP ID of the target MEP MAC is used for
+             LM transmission.
+             'False' indicates that unicast destination MAC address of the
+             target MEP is used for LM transmission."
+        ::= { zxAnXponOnuCfmMepEntry 19 }
+           
+     zxAnXponOnuCfmMepLmEndType OBJECT-TYPE
+        SYNTAX     INTEGER{ 
+             oneEnded(1), 
+             twoEnded(2) 
+        } 
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This value indicates the end type of ETH-LM, which should be 
+             one-ended or two-ended."
+        ::= { zxAnXponOnuCfmMepEntry 20 }
+    
+    zxAnXponOnuCfmMepLmInterval OBJECT-TYPE
+        SYNTAX     INTEGER{ 
+             t100ms(1), 
+             t1sec(2),
+             t10sec(3),
+             t1min(4),
+             t10min(5)
+        } 
+        MAX-ACCESS  read-create  
+        STATUS      current
+        DESCRIPTION
+            "The interval at which LMMs are sent by a MEP, the default 
+             value is 100 ms."
+        DEFVAL { t100ms }             
+        ::= { zxAnXponOnuCfmMepEntry 21 }
+    
+    zxAnXponOnuCfmMepLmTransmitMsgs  OBJECT-TYPE
+        SYNTAX      Integer32 (1..1024)
+        MAX-ACCESS  read-create  
+        STATUS      current
+        DESCRIPTION
+            "This value indicates how many LM messages are generated."
+        ::= { zxAnXponOnuCfmMepEntry 22 }
+         
+    zxAnXponOnuCfmMepLmPriority OBJECT-TYPE
+        SYNTAX      Unsigned32 (0..7)
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The priority value for LMMs transmitted by the MEP.
+             Default value is the highest priority value allowed to pass
+             through the bridge port for any of this MEPs VIDs.
+             The management entity can obtain the default value for this 
+             variable from the priority regeneration table by extracting the 
+             highest priority value in this table on this MEPs bridge port."
+        ::= { zxAnXponOnuCfmMepEntry 23 }
+        
+    zxAnXponOnuLmDropEligibility OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the drop eligibility fields of LMM.
+             It identifies the eligibility of frames with Unicast ETH-LM 
+             information to be discarded when congestion 
+             conditions are encountered."
+        ::= { zxAnXponOnuCfmMepEntry 24 }        
+
+    zxAnXponOnuLmStatus OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "A Boolean flag set to true by the MEP LM Initiator State
+             Machine or an MIB manager to indicate
+             that another LM is being transmitted.
+             Reset to false by the MEP LM Initiator State Machine."
+        DEFVAL { false }
+        ::= { zxAnXponOnuCfmMepEntry 25 }
+
+    zxAnXponOnuLmNearendLossRatio  OBJECT-TYPE
+        SYNTAX      Integer32 (0..100)
+        MAX-ACCESS  read-create  
+        STATUS      current
+        DESCRIPTION
+            "The value of near-end frame loss ratio in percent."
+        ::= { zxAnXponOnuCfmMepEntry 26 }
+        
+    zxAnXponOnuLmNearendLoss  OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-create  
+        STATUS      current
+        DESCRIPTION
+            "The number of near-end frame loss."
+        ::= { zxAnXponOnuCfmMepEntry 27 }
+        
+    zxAnXponOnuLmFarendLossRatio  OBJECT-TYPE
+        SYNTAX      Integer32 (0..100)
+        MAX-ACCESS  read-create  
+        STATUS      current
+        DESCRIPTION
+            "The value of far-end frame loss ratio in percent."
+        ::= { zxAnXponOnuCfmMepEntry 28 }
+        
+    zxAnXponOnuLmFarendLoss  OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-create  
+        STATUS      current
+        DESCRIPTION
+            "The number of far-end frame loss."
+        ::= { zxAnXponOnuCfmMepEntry 29 }
+        
+    zxAnXponOnuLmAvgNearendLossRatio  OBJECT-TYPE
+        SYNTAX      Integer32 (0..100)
+        MAX-ACCESS  read-create  
+        STATUS      current
+        DESCRIPTION
+            "The average value of near-end frame loss ratio in percent"
+        ::= { zxAnXponOnuCfmMepEntry 30 }
+        
+    zxAnXponOnuLmAvgNearendLoss  OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-create  
+        STATUS      current
+        DESCRIPTION
+            "The average number of near-end frame loss."
+        ::= { zxAnXponOnuCfmMepEntry 31 }                                        
+
+    zxAnXponOnuLmAvgFarendLossRatio  OBJECT-TYPE
+        SYNTAX      Integer32 (0..100)
+        MAX-ACCESS  read-create  
+        STATUS      current
+        DESCRIPTION
+            "The average value of far-end frame loss ratio in percent."
+        ::= { zxAnXponOnuCfmMepEntry 32 }
+        
+    zxAnXponOnuLmAvgFarendLoss  OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  read-create  
+        STATUS      current
+        DESCRIPTION
+            "The average number of far-end frame loss."
+        ::= { zxAnXponOnuCfmMepEntry 33 }        
+
+    zxAnXponOnuCfmMepDmTargetMac OBJECT-TYPE
+        SYNTAX      MacAddress
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The target MAC address field to be transmitted: a unicast
+             destination MAC address.
+             This address will be used if the value of the column
+             zxAnXponOnuCfmMepLmTargetIsMepId is 'false'."
+        ::= { zxAnXponOnuCfmMepEntry 34 }
+
+    zxAnXponOnuCfmMepDmTargetMepId OBJECT-TYPE
+        SYNTAX      Integer32(1..8191)
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "An indication of the target MAC address field to be
+             transmitted:
+             The MEP ID of another MEP in the same MA.
+             This address will be used if the value of the column
+             zxAnXponOnuCfmMepLmTargetIsMepId is 'true'."
+        ::= { zxAnXponOnuCfmMepEntry 35 }
+
+    zxAnXponOnuCfmMepDmTargetIsMepId OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "'True' indicates that MEP ID of the target MEP MAC is used for
+             DM transmission.
+             'False' indicates that unicast destination MAC address of the
+             target MEP is used for DM transmission."
+        ::= { zxAnXponOnuCfmMepEntry 36 }
+           
+     zxAnXponOnuCfmMepDmWayType OBJECT-TYPE
+        SYNTAX      INTEGER{ 
+             oneWay(1), 
+             twoWay(2) 
+        } 
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This value indicates the DM way type, which should be 
+             one-way DM test or two-way DM test."
+        ::= { zxAnXponOnuCfmMepEntry 37 }
+    
+    zxAnXponOnuCfmMepDmInterval OBJECT-TYPE
+        SYNTAX      INTEGER{
+             t100ms(1) , 
+             t1sec(2),
+             t10sec(3),
+             t1min(4),
+             t10min(5)
+        } 
+        MAX-ACCESS  read-create  
+        STATUS      current
+        DESCRIPTION
+            "The interval at which DMMs are sent by a MEP, the default 
+             value is 100 ms."
+        DEFVAL { t100ms }             
+        ::= { zxAnXponOnuCfmMepEntry 38 }
+    
+    zxAnXponOnuCfmMepDmTransmitMsgs  OBJECT-TYPE
+        SYNTAX      Integer32 (1..1024)
+        MAX-ACCESS  read-create  
+        STATUS      current
+        DESCRIPTION
+            "This value indicates how many DM messages are generated"
+        ::= { zxAnXponOnuCfmMepEntry 39 }
+         
+    zxAnXponOnuCfmMepDmPriority OBJECT-TYPE
+        SYNTAX      Unsigned32 (0..7)
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The priority value for DMMs transmitted by the MEP.
+             Default Value is the highest priority value allowed to pass
+             through the bridge port for any of this MEPs VIDs.
+             The management entity can obtain the default value for this 
+             variable from the priority regeneration table by extracting the 
+             highest priority value in this table on this MEPs bridge port."
+        ::= { zxAnXponOnuCfmMepEntry 40 }
+        
+    zxAnXponOnuDmDropEligibility OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the drop eligibility fields of DMM.
+             It identifies the eligibility of frames with Unicast ETH-DM 
+             information to be discarded when congestion 
+             conditions are encountered."
+        ::= { zxAnXponOnuCfmMepEntry 41 } 
+
+    zxAnXponOnuDmStatus OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+           "A Boolean flag set to true by the MEP DM Initiator State
+            Machine or an MIB manager to indicate that another LBM is 
+            being transmitted.
+            Reset to false by the MEP DM Initiator State Machine."
+        DEFVAL     { false }
+        ::= { zxAnXponOnuCfmMepEntry 42 }
+
+    zxAnXponOnuDmLastDelay OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(4))
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The value of last frame delay in millisecond.The first bits 
+             representative value of second and the last four bits 
+             representative value of nanosecond, 
+             the final value is value of second plus value of nanosecond."
+        ::= { zxAnXponOnuCfmMepEntry 43 }
+
+    zxAnXponOnuDmCurrentDelay OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(4))
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The value of current frame delay in nanosecond. The first bits 
+             representative value of second and the last four bits 
+             representative value of millisecond, 
+             the final value is value of second plus value of nanosecond."
+        ::= { zxAnXponOnuCfmMepEntry 44 }
+        
+    zxAnXponOnuDmDelayStat OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(4))
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The statistic of frame delay in nanosecond. The first bits 
+             representative value of second and the last four bits 
+             representative value of millisecond, 
+             the final value is value of second plus value of nanosecond"
+        ::= { zxAnXponOnuCfmMepEntry 45 }
+        
+    zxAnXponOnuDmDelayDiffStat OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(4))
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The difference statistic of frame delay in nanosecond.
+             The first bits 
+             representative value of second and the last four bits 
+             representative value of millisecond, 
+             the final value is value of second plus value of nanosecond."
+        ::= { zxAnXponOnuCfmMepEntry 46 }
+        
+    zxAnXponOnuDmDelayAvgStat OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(4))
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The average statistic frame delay in nanosecond. The first bits 
+             representative value of second and the last four bits 
+             representative value of millisecond, 
+             the final value is value of second plus value of nanosecond"
+        ::= { zxAnXponOnuCfmMepEntry 47 }
+        
+    zxAnXponOnuDmDelayAvgDiffStat OBJECT-TYPE
+        SYNTAX      OCTET STRING(SIZE(4))
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The average difference statistic frame delay in nanosecond. 
+             The first bits 
+             representative value of second and the last four bits 
+             representative value of millisecond, 
+             the final value is value of second plus value of nanosecond."
+        ::= { zxAnXponOnuCfmMepEntry 48 }                                
+
+    zxAnXponOnuCfmMepRowStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute indicates the operation of the entry."
+        ::= { zxAnXponOnuCfmMepEntry 61 }
+        
+        
+                              
+--Xpon ONU Configuration Management zxAnXponOnuCfgMgmt
+
+    zxAnXponOnuExtCfgTable    OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxAnXponOnuExtCfgEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This managed entity models the extend attributes of ONU."
+        ::= { zxAnXponOnuCfgMgmt 1 }
+
+    zxAnXponOnuExtCfgEntry OBJECT-TYPE
+        SYNTAX      ZxAnXponOnuExtCfgEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the zxAnXponOnuExtCfgTable."
+        INDEX   { zxAnXponOltIfIndex,zxAnXponOnuIfIndex }
+        ::= { zxAnXponOnuExtCfgTable 1 }
+        
+    ZxAnXponOnuExtCfgEntry ::=
+        SEQUENCE {
+            zxAnXponOnuUniLoopDisablePeriod        Integer32,
+            zxAnXponOnuUniLoopEnablePeriod         Integer32
+        }
+        
+    zxAnXponOnuUniLoopDisablePeriod OBJECT-TYPE
+        SYNTAX      Integer32(60..86400)
+        UNITS       "Seconds"
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the UNI disabled period due to loop.
+             ONU must keep UNI(due to loop) disabled for this period."
+        DEFVAL { 60 }
+        ::= { zxAnXponOnuExtCfgEntry 1 }
+
+    zxAnXponOnuUniLoopEnablePeriod OBJECT-TYPE
+        SYNTAX      Integer32(15..86400)
+        UNITS       "Seconds"
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the UNI enabled period due to loop.
+             Once UNI(due to loop) disabled period is reached, ONU re-enable 
+             the disabled UNI(due to loop) for this period. Once no loop is 
+             detected during this period, ONU keeps the UNI enabled,  
+             else ONU disables the UNI again."
+        DEFVAL { 15 }
+        ::= { zxAnXponOnuExtCfgEntry 2 }
+
+END
+

@@ -1,0 +1,271 @@
+
+--------------------------------------------------------------------------------
+-- File Name : ZTE-AN-CES-PROTECTION-MIB.mib
+-- Date      : 2008-07-18
+-- Author    : ZTE Nms dept.
+
+--
+-- Zte Ces Protection Mib for Access Node
+-- 
+-- 
+--------------------------------------------------------------------------------
+
+
+ZTE-AN-CES-PROTECTION-MIB    DEFINITIONS ::= BEGIN
+    IMPORTS     
+        MODULE-IDENTITY, OBJECT-TYPE,
+        Integer32, Unsigned32                           FROM SNMPv2-SMI
+        RowStatus                                       FROM SNMPv2-TC
+        DisplayString                                   FROM RFC1213-MIB
+        ZxAnIfindex,zxAn                                FROM ZTE-AN-TC-MIB;
+
+
+    zxAnCesProtectionMib    MODULE-IDENTITY
+        LAST-UPDATED    "200807181630Z"
+        ORGANIZATION    "ZTE Corporation"
+        CONTACT-INFO    "Guo Jingwen
+                        Mail: guo.jingwen@zte.com.cn
+                        Tel : 021-68897124"
+        DESCRIPTION     "This MIB defines CES protection managed objects of ZTE access node."
+        ::=  {  zxAnCesMib  11  }  
+    
+    zxAnCesMib                      OBJECT IDENTIFIER   ::= { zxAn 1013}       
+    zxAnCesProtectionObjects        OBJECT IDENTIFIER   ::=  {  zxAnCesProtectionMib  1  }
+    zxAnCesProtectionEnd            OBJECT IDENTIFIER   ::=  {  zxAnCesProtectionMib 100 }
+
+--------------------------------------------------------------------------------
+-- Following objects are defined.
+-- 1.zxAnCesProtectionGroupTable
+-- 2.zxAnCesProtectionGroupPropTable
+-- 3.zxAnCesProtectionActionTable
+--------------------------------------------------------------------------------
+
+
+    zxAnCesProtectionAdminStatus        OBJECT-TYPE
+        SYNTAX         INTEGER{
+                     enable(1),
+                     disable(2)
+                     }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+             "It indicate CES protection administrate status,If status is disable,
+             proection does not work."
+        DEFVAL       { disable }
+          ::= { zxAnCesProtectionObjects 1 }
+      
+    zxAnCesProtectionNextGroupId OBJECT-TYPE
+        SYNTAX            Unsigned32
+        MAX-ACCESS        read-only
+        STATUS            current
+        DESCRIPTION
+          "This object contains the value to be used for
+           zxAnCesProtectionGroupId when creating entries in the
+           zxAnCesProtectionGroupTable. The value 0 indicates that no
+           unassigned entries are available.  To obtain the
+           value of zxAnCesProtectionNextGroupId for a new entry in the
+           zxAnCesProtectionGroupTable, the manager issues a management
+           protocol retrieval operation. The agent will
+           determine through its local policy when this
+           index value will be made available for reuse."
+        ::= { zxAnCesProtectionObjects 2 }
+        
+--------------------------------------------------------------------------------
+-- 1.zxAnCesProtectionGroupTable
+--------------------------------------------------------------------------------
+    zxAnCesProtectionGroupTable      OBJECT-TYPE
+        SYNTAX          SEQUENCE OF ZxAnCesProtectionGroupEntry
+        MAX-ACCESS      not-accessible
+        STATUS          current
+        DESCRIPTION
+            "Define CES protection group."
+        ::= { zxAnCesProtectionObjects 21 }
+
+    zxAnCesProtectionGroupEntry     OBJECT-TYPE
+        SYNTAX         ZxAnCesProtectionGroupEntry
+        MAX-ACCESS     not-accessible
+        STATUS         current
+        DESCRIPTION
+            "Define CES protection group."
+        INDEX     { zxAnCesProtectionGroupId }
+        ::= { zxAnCesProtectionGroupTable 1 }
+        
+    ZxAnCesProtectionGroupEntry ::= SEQUENCE {
+        zxAnCesProtectionGroupId              Unsigned32, 
+        zxAnCesProtectionGroupName            DisplayString,
+        zxAnCesProtectionGroupType            INTEGER, 
+         zxAnCesProtectionGroupMasterPort      ZxAnIfindex,
+         zxAnCesProtectionGroupStandbyPort       ZxAnIfindex,
+         zxAnCesProtectionGroupActiveChannel   INTEGER,
+        zxAnCesProtectionGroupRowStatus       RowStatus                 
+      }
+
+    zxAnCesProtectionGroupId    OBJECT-TYPE
+        SYNTAX                 Unsigned32 (1..65535)
+        MAX-ACCESS             not-accessible
+        STATUS                 current
+        DESCRIPTION
+            "Identifier of a CES protection group."
+         ::= {zxAnCesProtectionGroupEntry 1}
+         
+    zxAnCesProtectionGroupName  OBJECT-TYPE
+        SYNTAX         DisplayString ( SIZE(1..127) )
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+          "Name of a CES protection group. "
+        ::= { zxAnCesProtectionGroupEntry 2 }
+        
+    zxAnCesProtectionGroupType      OBJECT-TYPE
+        SYNTAX         INTEGER  (1..2)             
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+            " XPon protection structure type.
+             1    -   1+1 protection
+             2    -   1:1 proteciton
+            "                   
+        ::= {zxAnCesProtectionGroupEntry 3}   
+        
+    zxAnCesProtectionGroupMasterPort      OBJECT-TYPE
+        SYNTAX         ZxAnIfindex
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+        "identifier of master interface.InterfaceType = 0x1 - General interface,
+         Detail info refer to ZTE-AN-TC-MIB."
+        ::= {zxAnCesProtectionGroupEntry 5}
+
+    zxAnCesProtectionGroupStandbyPort      OBJECT-TYPE
+        SYNTAX         ZxAnIfindex
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+        "identifier of standby interface.InterfaceType = 0x1 - General interface,
+         Detail info refer to ZTE-AN-TC-MIB."
+        ::= {zxAnCesProtectionGroupEntry 6}
+        
+    zxAnCesProtectionGroupActiveChannel    OBJECT-TYPE
+        SYNTAX         INTEGER{
+                         none(1),
+                         work-channel(2),
+                         protect-channel(3)
+                    }
+        MAX-ACCESS             read-only
+        STATUS                 current
+        DESCRIPTION
+            " "
+         ::= {zxAnCesProtectionGroupEntry 7}        
+                  
+    zxAnCesProtectionGroupRowStatus      OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            " "
+        ::= {zxAnCesProtectionGroupEntry 21}
+        
+--------------------------------------------------------------------------------
+-- 2.zxAnCesProtectionGroupPropTable
+--------------------------------------------------------------------------------
+    zxAnCesProtectionGroupPropTable      OBJECT-TYPE
+        SYNTAX          SEQUENCE OF ZxAnCesProtectionGroupPropEntry
+        MAX-ACCESS      not-accessible
+        STATUS          current
+        DESCRIPTION
+            "Property of a CES protection group."
+        ::= { zxAnCesProtectionObjects 22 }
+
+    zxAnCesProtectionGroupPropEntry     OBJECT-TYPE
+        SYNTAX         ZxAnCesProtectionGroupPropEntry
+        MAX-ACCESS     not-accessible
+        STATUS         current
+        DESCRIPTION
+            "Property of a CES protection group."
+        INDEX     { zxAnCesProtectionGroupId }
+        ::= { zxAnCesProtectionGroupPropTable 1 }
+        
+    ZxAnCesProtectionGroupPropEntry ::= SEQUENCE {
+         zxAnCesProtectionGroupPropMode                  INTEGER,
+        zxAnCesProtectionGroupPropHoldOffInterval    Integer32,         
+         zxAnCesProtectionGroupPropWtrInterval        Integer32           
+      }
+
+
+    zxAnCesProtectionGroupPropMode  OBJECT-TYPE
+        SYNTAX         INTEGER{
+                         revertive(1),
+                         non-revertive(2)
+                    }
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+          " "
+        ::= { zxAnCesProtectionGroupPropEntry 1 }
+              
+    zxAnCesProtectionGroupPropHoldOffInterval      OBJECT-TYPE
+        SYNTAX         Integer32
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+        ""
+        ::= {zxAnCesProtectionGroupPropEntry 2}
+
+    zxAnCesProtectionGroupPropWtrInterval      OBJECT-TYPE
+        SYNTAX         Integer32
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+        " "
+        ::= {zxAnCesProtectionGroupPropEntry 3}
+
+--------------------------------------------------------------------------------
+-- 3.zxAnCesProtectionActionTable
+--------------------------------------------------------------------------------
+    zxAnCesProtectionActionTable      OBJECT-TYPE
+        SYNTAX          SEQUENCE OF ZxAnCesProtectionActionEntry
+        MAX-ACCESS      not-accessible
+        STATUS          current
+        DESCRIPTION
+            "Actions of a CES protection group."
+        ::= { zxAnCesProtectionObjects 23 }
+
+    zxAnCesProtectionActionEntry     OBJECT-TYPE
+        SYNTAX         ZxAnCesProtectionActionEntry
+        MAX-ACCESS     not-accessible
+        STATUS         current
+        DESCRIPTION
+            "Actions of a CES protection group."
+        INDEX     { zxAnCesProtectionGroupId }
+        ::= { zxAnCesProtectionActionTable 1 }
+        
+    ZxAnCesProtectionActionEntry ::= SEQUENCE {
+         zxAnCesProtectionSwitchCmd          INTEGER                      
+      }
+         
+    zxAnCesProtectionSwitchCmd  OBJECT-TYPE
+        SYNTAX         INTEGER{
+                         force-p2w(1),
+                         force-w2p(2),
+                         manual-p2w(3),
+                         manual-w2p(4),
+                         clearAll(5),
+                         lockoutProtection (6)                                             
+                    }
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+          " "
+        ::= { zxAnCesProtectionActionEntry 1 } 
+      
+      
+      
+    zxAnCesProtectionDummy OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                "The dummy object indicats the termination of protection mibs."
+        ::= { zxAnCesProtectionEnd 1 }              
+        
+END

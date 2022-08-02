@@ -1,0 +1,601 @@
+-- *****************************************************************
+-- ZTE XPON TRANSCEIVER MIB
+--
+-- 08-09-2007
+--
+-- Copyright(c) 2008 ZTE Corporation
+-- All rights reserved.
+-- *****************************************************************
+
+ZXAN-TRANSCEIVER-MIB DEFINITIONS ::= BEGIN
+    IMPORTS 
+        enterprises                      FROM RFC1155-SMI
+        Integer32                        FROM SNMPv2-SMI
+        Unsigned32                       FROM SNMPv2-SMI
+        MODULE-IDENTITY                  FROM SNMPv2-SMI
+        OBJECT-TYPE                      FROM SNMPv2-SMI
+        TruthValue                       FROM SNMPv2-TC
+        DisplayString                    FROM RFC1213-MIB
+        zxAnPonMib                       FROM ZTE-MASTER-MIB;
+
+zxAnTransceiver        MODULE-IDENTITY
+    LAST-UPDATED "200807100000Z"  -- Jun 10, 2008"
+    ORGANIZATION "ZTE Corp."
+    CONTACT-INFO 
+        "ZTE GPON Working Group: 
+        http://www.zte.com.cn
+        e-mail:
+        ouyang.haiming@zte.com.cn
+        "
+    DESCRIPTION
+        ""
+    ::= { zxAnPonMib 11 }
+
+
+zxAnOLTOpticalDiagTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF ZxAnOLTOpticalDiagEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+        " "
+    ::= { zxAnTransceiver 1 }
+
+zxAnOLTOpticalDiagEntry OBJECT-TYPE
+    SYNTAX      ZxAnOLTOpticalDiagEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            ""
+    INDEX   { zxAnOltIndex }
+    ::= { zxAnOLTOpticalDiagTable 1 }
+        
+ZxAnOLTOpticalDiagEntry ::= SEQUENCE {
+    zxAnOltIndex                                Integer32,
+    zxAnTransceiverTemp                         Integer32,
+    zxAnTransceiverVoltage                      Integer32,
+    zxAnTxBiasCurrent                           Integer32,
+    zxAnTxOpticalPower   Integer32,
+    zxAnRxOpticalPower              Integer32, 
+    zxAnTransceiverLinkRate         Integer32, 
+    zxAnTransceiverWaveLength       Integer32, 
+    zxAnTransceiverVendorName       OCTET STRING,  
+    zxAnTransceiverVendorPn         OCTET STRING
+    }
+    
+    zxAnOltIndex OBJECT-TYPE 
+        SYNTAX       Integer32                          
+        MAX-ACCESS   not-accessible 
+        STATUS       current 
+        DESCRIPTION
+            "|-------------+-----------|---------|---------|----------|
+             |InterfaceType| Shelf No. | Slot No.| Pon No. | Reserved |
+             |  1 (4bits)  | (4bits)   | (8bits) | (8bits) | (8bits)  |
+             +-------------+-----------+---------+---------+----------+"        
+        ::= { zxAnOLTOpticalDiagEntry 1 }    
+        
+    zxAnTransceiverTemp OBJECT-TYPE 
+        SYNTAX       Integer32 
+        UNITS        "0.001 Celsius"                         
+        MAX-ACCESS   read-only 
+        STATUS       current 
+        DESCRIPTION
+            "Internally measured transceiver temperature. Represented as a 16 bit signed twos 
+            complement value in increments of 1/256 degrees Celsius, yielding a total range of
+            -128C to +128C. Temperature accuracy is vendor specific but must be better than ¡À3 
+            degrees Celsius over specified operating temperature and voltage. Please see vendor 
+            specification for details on location of temperature sensor. The temperature in degrees 
+            Celsius is given by the signed twos complement value with LSB equal to 1/256 C. "        
+        ::= { zxAnOLTOpticalDiagEntry 2 }
+
+    zxAnTransceiverVoltage OBJECT-TYPE 
+        SYNTAX       Integer32  
+        UNITS        "0.001 Volts"                        
+        MAX-ACCESS   read-only 
+        STATUS       current 
+        DESCRIPTION
+            "Internally measured transceiver supply voltage, total range of 0 to +6.55 Volts."        
+        ::= { zxAnOLTOpticalDiagEntry 3 }
+
+    zxAnTxBiasCurrent OBJECT-TYPE 
+        SYNTAX       Integer32
+        UNITS        "0.001 uA"                            
+        MAX-ACCESS   read-only 
+        STATUS       current 
+        DESCRIPTION
+            "Measured TX bias current in uA. "        
+        ::= { zxAnOLTOpticalDiagEntry 4 }
+     
+    zxAnTxOpticalPower OBJECT-TYPE 
+        SYNTAX       Integer32   
+        UNITS        "0.001 dbm"                               
+        MAX-ACCESS   read-only 
+        STATUS       current 
+        DESCRIPTION
+            "Measured TX output optical power in dbm."  
+        ::= { zxAnOLTOpticalDiagEntry 5 }
+zxAnRxOpticalPower OBJECT-TYPE
+        SYNTAX       Integer32
+        UNITS        "0.001 dBm"
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "Measured RX output optical power in dbm."
+        ::= { zxAnOLTOpticalDiagEntry 6 }
+
+zxAnTransceiverLinkRate OBJECT-TYPE
+        SYNTAX       Integer32
+        UNITS        "mbps"
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "This object indicates the optical rate."
+        ::= { zxAnOLTOpticalDiagEntry 7 }
+
+zxAnTransceiverWaveLength OBJECT-TYPE
+        SYNTAX       Integer32
+        UNITS        "nm"
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "This object indicates laser wavelength. "
+        ::= { zxAnOLTOpticalDiagEntry 8 }
+
+zxAnTransceiverVendorName OBJECT-TYPE
+        SYNTAX       OCTET STRING(SIZE (16))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "This object indicates the vendor name."
+        ::= { zxAnOLTOpticalDiagEntry 9 }
+
+zxAnTransceiverVendorPn OBJECT-TYPE
+        SYNTAX       OCTET STRING(SIZE (16))
+        MAX-ACCESS   read-only
+        STATUS       current
+        DESCRIPTION
+            "This object indicates vendor part number. "
+        ::= { zxAnOLTOpticalDiagEntry 10 }
+        
+        
+zxAnOLTRxOpticalPowerTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF ZxAnOLTRxOpticalPowerEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+        " "
+    ::= { zxAnTransceiver 2 }
+
+zxAnOLTRxOpticalPowerEntry OBJECT-TYPE
+    SYNTAX      ZxAnOLTRxOpticalPowerEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            ""
+    INDEX   {zxAnOltIndex, zxAnOnuIndex }
+    ::= { zxAnOLTRxOpticalPowerTable 1 }
+        
+ZxAnOLTRxOpticalPowerEntry ::= SEQUENCE {
+    zxAnOnuIndex                                            Integer32,
+    zxAnOLTRxOpticalPower                                   Integer32,
+    zxAnOLTAverageRxPower                                   Integer32,
+    zxAnOLTMaxRxPower                                       Integer32,
+    zxAnOLTMinRxPower                                       Integer32
+    }
+    
+    zxAnOnuIndex OBJECT-TYPE 
+      SYNTAX       Integer32                          
+      MAX-ACCESS   not-accessible 
+      STATUS       current 
+      DESCRIPTION
+          ""        
+      ::= { zxAnOLTRxOpticalPowerEntry 1 }
+       
+    zxAnOLTRxOpticalPower OBJECT-TYPE 
+        SYNTAX       Integer32 
+        UNITS        "0.001 dbm"                         
+        MAX-ACCESS   read-only 
+        STATUS       current 
+        DESCRIPTION
+            "Measured the received optical power in dbm."
+        ::= { zxAnOLTRxOpticalPowerEntry 2 }
+        
+    zxAnOLTAverageRxPower OBJECT-TYPE 
+        SYNTAX       Integer32
+        UNITS        "0.001 dbm"                          
+        MAX-ACCESS   read-only 
+        STATUS       current 
+        DESCRIPTION
+            "Measured the average optical power from a specified ONU in dbm."        
+        ::= { zxAnOLTRxOpticalPowerEntry 3 }
+        
+    zxAnOLTMaxRxPower OBJECT-TYPE 
+        SYNTAX       Integer32  
+        UNITS        "0.001 dbm"                         
+        MAX-ACCESS   read-only 
+        STATUS       current 
+        DESCRIPTION
+            "Measured the average optical power from a specified ONU in dbm."        
+        ::= { zxAnOLTRxOpticalPowerEntry 4 }
+        
+    zxAnOLTMinRxPower OBJECT-TYPE 
+        SYNTAX       Integer32  
+        UNITS        "0.001 dbm"                         
+        MAX-ACCESS   read-only 
+        STATUS       current 
+        DESCRIPTION
+            "Measured the max optical power from a specified ONU in dbm."        
+        ::= { zxAnOLTRxOpticalPowerEntry 5 }
+        
+zxAnTransceiverThreshTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF ZxAnTransceiverThreshEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+        " "
+    ::= { zxAnTransceiver 3 }
+
+zxAnTransceiverThreshEntry OBJECT-TYPE
+    SYNTAX      ZxAnTransceiverThreshEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            ""
+    INDEX   { zxAnOltIndex }
+    ::= { zxAnTransceiverThreshTable 1 }
+        
+ZxAnTransceiverThreshEntry ::= SEQUENCE {
+    zxAnTxPowerRisingAlarmThresh                            Integer32,
+    zxAnTxPowerFallingAlarmThresh                           Integer32,
+    zxAnTxPowerRisingWarningThresh                          Integer32,
+    zxAnTxPowerFallingWarningThresh                         Integer32,
+    zxAnTransTempRisingAlarmThresh                          Integer32,
+    zxAnTransTempFallingAlarmThresh                         Integer32,
+    zxAnTransTempRisingWarningThresh                        Integer32,
+    zxAnTransTempFallingWarningThresh                       Integer32,
+    zxAnTransVoltRisingAlarmThresh                          Integer32,
+    zxAnTransVoltFallingAlarmThresh                         Integer32,
+    zxAnTransVoltRisingWarningThresh                        Integer32,
+    zxAnTransVoltFallingWarningThresh                       Integer32,
+    zxAnTransBiasCurrRisingAlarmThresh                      Integer32,
+    zxAnTransBiasCurrFallingAlarmThresh                     Integer32,
+    zxAnTransBiasCurrRisingWarningThresh                    Integer32,
+    zxAnTransBiasCurrFallingWarningThresh                   Integer32
+    }   
+        
+    zxAnTxPowerRisingAlarmThresh OBJECT-TYPE 
+        SYNTAX                Integer32  
+        UNITS                 "0.001 dbm"                   
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 1 }
+        
+    zxAnTxPowerFallingAlarmThresh OBJECT-TYPE 
+        SYNTAX                Integer32 
+        UNITS                 "0.001 dbm"                        
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 2 }
+
+    zxAnTxPowerRisingWarningThresh OBJECT-TYPE 
+        SYNTAX                Integer32 
+        UNITS                 "0.001 dbm"                      
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 3 }
+        
+    zxAnTxPowerFallingWarningThresh OBJECT-TYPE 
+        SYNTAX                Integer32  
+        UNITS                 "0.001 dbm"                       
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 4 } 
+         
+      zxAnTransTempRisingAlarmThresh OBJECT-TYPE 
+        SYNTAX                Integer32    
+        UNITS                 "0.001 Celsius"                
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 5 }
+        
+    zxAnTransTempFallingAlarmThresh OBJECT-TYPE 
+        SYNTAX                Integer32  
+        UNITS                 "0.001 Celsius"                    
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 6 }
+
+    zxAnTransTempRisingWarningThresh OBJECT-TYPE 
+        SYNTAX                Integer32  
+        UNITS                 "0.001 Celsius"                    
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 7 }
+        
+    zxAnTransTempFallingWarningThresh OBJECT-TYPE 
+        SYNTAX                Integer32  
+        UNITS                 "0.001 Celsius"                    
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 8 }  
+        
+    zxAnTransVoltRisingAlarmThresh OBJECT-TYPE 
+        SYNTAX                Integer32   
+        UNITS                 "0.001 Volts"              
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 9 }
+        
+    zxAnTransVoltFallingAlarmThresh OBJECT-TYPE 
+        SYNTAX                Integer32  
+        UNITS                 "0.001 Volts"                 
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 10 }
+
+    zxAnTransVoltRisingWarningThresh OBJECT-TYPE 
+        SYNTAX                Integer32    
+        UNITS                 "0.001 Volts"                
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 11 }
+        
+    zxAnTransVoltFallingWarningThresh OBJECT-TYPE 
+        SYNTAX                Integer32  
+        UNITS                 "0.001 Volts"                   
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 12 }  
+        
+    zxAnTransBiasCurrRisingAlarmThresh OBJECT-TYPE 
+        SYNTAX                Integer32  
+        UNITS                 "0.001 uA"                 
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 13 }
+        
+    zxAnTransBiasCurrFallingAlarmThresh OBJECT-TYPE 
+        SYNTAX                Integer32   
+        UNITS                 "0.001 uA"                    
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 14 }
+
+    zxAnTransBiasCurrRisingWarningThresh OBJECT-TYPE 
+        SYNTAX                Integer32 
+        UNITS                 "0.001 uA"                       
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 15 }
+        
+    zxAnTransBiasCurrFallingWarningThresh OBJECT-TYPE 
+        SYNTAX                Integer32     
+        UNITS                 "0.001 uA"             
+        MAX-ACCESS            read-write
+        STATUS                current 
+        DESCRIPTION
+            " "        
+        ::= { zxAnTransceiverThreshEntry 16 }  
+              
+zxAnTransceiverRxThreshTable OBJECT-TYPE
+    SYNTAX     SEQUENCE OF ZxAnTransceiverRxThreshEntry
+    MAX-ACCESS not-accessible
+    STATUS     current
+    DESCRIPTION
+        " "
+    ::= { zxAnTransceiver 4 }
+
+zxAnTransceiverRxThreshEntry OBJECT-TYPE
+    SYNTAX      ZxAnTransceiverRxThreshEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+            ""
+    INDEX   {zxAnOltIndex, zxAnOnuIndex }
+    ::= { zxAnTransceiverRxThreshTable 1 }
+        
+ZxAnTransceiverRxThreshEntry ::= SEQUENCE {
+    zxAnRxPowerRisingAlarmThresh                            Integer32,
+    zxAnRxPowerFallingAlarmThresh                           Integer32,
+    zxAnRxPowerRisingWaringThresh                           Integer32,
+    zxAnRxPowerFallingWarningThresh                         Integer32,
+    zxAnRxPowerDetectPeriod                                 Unsigned32
+    }
+       
+    zxAnRxPowerRisingAlarmThresh OBJECT-TYPE 
+        SYNTAX       Integer32     
+        UNITS        "0.001 dbm"                 
+        MAX-ACCESS   read-write
+        STATUS       current 
+        DESCRIPTION
+            ""        
+        ::= { zxAnTransceiverRxThreshEntry 1 }
+        
+    zxAnRxPowerFallingAlarmThresh OBJECT-TYPE 
+        SYNTAX       Integer32
+        UNITS        "0.001 dbm"                              
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            ""        
+        ::= { zxAnTransceiverRxThreshEntry 2 }
+
+    zxAnRxPowerRisingWaringThresh OBJECT-TYPE 
+        SYNTAX       Integer32
+        UNITS        "0.001 dbm"                                 
+        MAX-ACCESS   read-write
+        STATUS       current 
+        DESCRIPTION
+            ""        
+        ::= { zxAnTransceiverRxThreshEntry 3 }
+        
+    zxAnRxPowerFallingWarningThresh OBJECT-TYPE 
+        SYNTAX       Integer32   
+        UNITS        "0.001 dbm"                             
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            ""        
+        ::= { zxAnTransceiverRxThreshEntry 4 }
+        
+    zxAnRxPowerDetectPeriod OBJECT-TYPE 
+        SYNTAX       Unsigned32                      
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            ""        
+        ::= { zxAnTransceiverRxThreshEntry 5 }
+------------------------------------------------------------------------------
+-- Rogue Onu Control Group 
+------------------------------------------------------------------------------        
+   zxAnRogueOnuCtrlObjects    OBJECT IDENTIFIER ::= { zxAnTransceiver 5 }  
+  
+   zxAnRogueOnuOltIndex OBJECT-TYPE 
+      SYNTAX       Integer32                          
+      MAX-ACCESS   read-write
+      STATUS       current 
+      DESCRIPTION
+          "|-------------+-----------|---------|---------|----------|
+           |InterfaceType| Shelf No. | Slot No.| Pon No. | Reserved |
+           |  1 (4bits)  | (4bits)   | (8bits) | (8bits) | (8bits)  |
+           +-------------+-----------+---------+---------+----------+"        
+      ::= { zxAnRogueOnuCtrlObjects 1 }
+      
+    zxAnRogueOnuIndex OBJECT-TYPE 
+      SYNTAX       INTEGER(1..128)                          
+      MAX-ACCESS   read-write
+      STATUS       current 
+      DESCRIPTION
+          ""        
+      ::= { zxAnRogueOnuCtrlObjects 2 }     
+      
+  zxAnRogueOnuState OBJECT-TYPE
+     SYNTAX          INTEGER
+     {
+        rogueon(1),                 
+        rogueoff(2),                      
+        shutdown(3)
+     }
+     MAX-ACCESS      read-write
+     STATUS          current
+     DESCRIPTION
+        "This object indicates the control action."
+      ::= { zxAnRogueOnuCtrlObjects 3 }
+
+   zxAnRogueOnuRecoverTime OBJECT-TYPE
+        SYNTAX      INTEGER(0..255)
+        UNITS       "minutes"
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This object indicates the     recovery time(minutes)."
+        
+        ::= { zxAnRogueOnuCtrlObjects 4}           
+--RogueOnuCtrl end
+
+------------------------------------------------------------------------------
+-- Rogue Onu Detect Group 
+------------------------------------------------------------------------------  
+    zxAnRogueOnuDetectInfoTable OBJECT-TYPE
+        SYNTAX     SEQUENCE OF ZxAnRogueOnuDetectInfoEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            " This table is defined to control rogue ONU."
+        ::= { zxAnTransceiver 6 }
+    
+    zxAnRogueOnuDetectInfoEntry OBJECT-TYPE
+        SYNTAX      ZxAnRogueOnuDetectInfoEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+                ""
+        INDEX   { zxAnSlotIndex } 
+        ::= { zxAnRogueOnuDetectInfoTable 1 }
+            
+    ZxAnRogueOnuDetectInfoEntry ::=
+        SEQUENCE {
+            zxAnSlotIndex                        INTEGER,
+            zxAnRogueOnuDetectEnable             TruthValue,
+            zxAnRogueOnuAutoCloseEnable          TruthValue,
+            zxAnRogueOnuLocatingEnable           TruthValue
+            }
+            
+    zxAnSlotIndex OBJECT-TYPE 
+      SYNTAX       INTEGER
+      MAX-ACCESS   not-accessible
+      STATUS       current 
+      DESCRIPTION
+          "Slot ID"        
+      ::= { zxAnRogueOnuDetectInfoEntry 1 }      
+            
+    zxAnRogueOnuDetectEnable OBJECT-TYPE 
+        SYNTAX       TruthValue                      
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            "This object indicates the rogue onu detection mode ,'true' 
+            indicates that enable the rogue ONU detection and 'false' 
+            indicates that disable the rogue ONU detection."        
+        ::= { zxAnRogueOnuDetectInfoEntry 2 }
+        
+    zxAnRogueOnuAutoCloseEnable OBJECT-TYPE 
+        SYNTAX       TruthValue                      
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            "This object indicates the rogue onu shutdown mode ,
+            'true' indicates shutdown the rogue ONU automatically
+             and 'false' indicates shutdown the rogue ONU anually."               
+        ::= { zxAnRogueOnuDetectInfoEntry 3 }
+        
+    zxAnRogueOnuLocatingEnable OBJECT-TYPE 
+        SYNTAX       TruthValue                      
+        MAX-ACCESS   read-write 
+        STATUS       current 
+        DESCRIPTION
+            "This object indicates the rogue onu locating mode ,'true' 
+            indicates locating the rogue ONU  and 'false' indicates not 
+            locating the rogue ONU.
+                When zxAnRogueOnuDetectEnable is 'true',you can configure
+             zxAnRogueOnuLocatingEnable 'true' or 'false'.When 
+             zxAnRogueOnuDetectEnable is 'false',you can not configure 
+             zxAnRogueOnuLocatingEnable.
+                When zxAnRogueOnuLocatingEnable is 'true',you can configure
+             zxAnRogueOnuAutoCloseEnable 'true' or 'false'.When 
+             zxAnRogueOnuLocatingEnable is 'false',you can notconfigure 
+             zxAnRogueOnuAutoCloseEnable."               
+        ::= { zxAnRogueOnuDetectInfoEntry 4 }
+                    
+--RogueOnuDetect end  
+END
+

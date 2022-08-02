@@ -1,0 +1,631 @@
+--------------------------------------------------------------------------------
+-- File Name : ZTE-AN-PON-WIFI-MIB.mib
+-- Date      : 2011-05-18 
+-- Author    : ZTE Shanghai NMS Dept.
+--
+-- ZTE PON WIFI MIB for Access Node.
+-- 
+--------------------------------------------------------------------------------
+
+ZTE-AN-PON-WIFI-MIB    DEFINITIONS ::= BEGIN
+    IMPORTS
+        MODULE-IDENTITY, OBJECT-TYPE, 
+        IpAddress, Integer32                    FROM SNMPv2-SMI
+        RowStatus, TruthValue, DisplayString,
+        MacAddress, TEXTUAL-CONVENTION          FROM SNMPv2-TC
+        zxAnPonMib                              FROM ZTE-MASTER-MIB;
+        
+    zxAnPonWifiMib    MODULE-IDENTITY
+        LAST-UPDATED    "201105181500Z"
+        ORGANIZATION    "ZTE Corporation"
+        CONTACT-INFO    "zhangzhikun
+                         Mail: zhang.zhikun@zte.com.cn
+                         Tel : 021-68896247"
+        DESCRIPTION     "The MIB module for the management of PON WIFI."
+        REVISION        "201105181500Z"
+        DESCRIPTION
+            "Initial version of this MIB module."
+        ::=  {  zxAnPonMib 12  }
+
+-------------------------------------------------------------------------------
+-- Following management objects are defined.
+-- 1.ONU WIFI Interface Capability Table
+-- 2.ONU WIFI Interface Table
+-- 3.ONU WIFI SSID Table
+-- 4.ONU WIFI SSID VLAN Tagging Table
+-------------------------------------------------------------------------------
+
+zxAnWifiObjects     OBJECT IDENTIFIER ::= {zxAnPonWifiMib 2}
+
+-------------------------------------------------------------------------------
+-- 1.ONU WIFI Interface Capability Table
+-------------------------------------------------------------------------------
+    zxAnOnuWifiIfCapabilityTable    OBJECT-TYPE
+        SYNTAX      SEQUENCE  OF  ZxAnOnuWifiIfCapabilityEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION 
+            "ONU WIFI interface capability table. "
+        ::=  { zxAnWifiObjects  1 }
+        
+    zxAnOnuWifiIfCapabilityEntry   OBJECT-TYPE
+        SYNTAX      ZxAnOnuWifiIfCapabilityEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION 
+            "ONU WIFI interface capability entry. "
+        INDEX { zxAnOnuWifiOltIfIndex, zxAnOnuWifiOnuIndex,
+                zxAnOnuWifiIfIndex }
+        ::=  { zxAnOnuWifiIfCapabilityTable 1 }
+        
+    ZxAnOnuWifiIfCapabilityEntry  ::=  SEQUENCE {
+        zxAnOnuWifiOltIfIndex                 Integer32,
+        zxAnOnuWifiOnuIndex                   Integer32,
+        zxAnOnuWifiIfIndex                    Integer32,
+        zxAnOnuWifiIfSsidNumber               Integer32,                
+        zxAnOnuWifiIfAuthAlgorithm            BITS,
+        zxAnOnuWifiIfRegulatoryDomains        BITS,
+        zxAnOnuWifiWirelessWorkMode           BITS
+        }  
+        
+    zxAnOnuWifiOltIfIndex OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "The 4 bytes index includes:
+             interface type(bit31~28); shelfId(bit27~24);
+             slotId(bit23~16); oltId(bit16~8); reserved(bit7~bit0)."
+        ::= { zxAnOnuWifiIfCapabilityEntry 1}
+
+    zxAnOnuWifiOnuIndex OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "The index of ONU, from 1 to M."
+        ::= { zxAnOnuWifiIfCapabilityEntry 2}                    
+
+    zxAnOnuWifiIfIndex OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "The ONU WIFI interface index. The 4 bytes index includes:             
+             slotId(bit15~8); wifiinterface(bit7~0)."            
+        ::= { zxAnOnuWifiIfCapabilityEntry 3 }
+        
+    zxAnOnuWifiIfSsidNumber OBJECT-TYPE
+        SYNTAX      Integer32(1..8)
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The number of WIFI interface SSID ."            
+        ::= { zxAnOnuWifiIfCapabilityEntry 4 }         
+                                                 
+    zxAnOnuWifiIfAuthAlgorithm   OBJECT-TYPE
+        SYNTAX  BITS {
+            openSystem(0),
+            sharedKey(1),
+            wpaPsk(2),
+            wpa2Psk(3)            
+        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION 
+            "This attribute indicates all of the authentication algorithms
+            supported by the STAs. The attribute is a bit map,             
+            format as follows:
+            Bit 0 indicates 'Open System'
+            Bit 1 indicates 'Shared Key'
+            Bit 2 indicates 'WPA-PSK'
+            Bit 3 indicates 'WPA2-PSK'            
+            Each bit,0 indicates not supported, 1 indicates supportd."            
+        ::= { zxAnOnuWifiIfCapabilityEntry 5 }
+                                                                              
+    zxAnOnuWifiIfRegulatoryDomains   OBJECT-TYPE         
+        SYNTAX  BITS {
+            fcc(0),
+            doc(1),
+            etsi(2),
+            spain(3),
+            france(4),
+            mkk(5),
+            china(6)
+        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION 
+            "Operational requirements differ, depending on the regulatory 
+             domain. This attribute list describes the regulatory domains 
+             that the PLCP and PMD support in this implementation. 
+             The attribute is a bit map, formatted as follows:      
+             Bit 0 indicates 'FCC (USA)'
+             Bit 1 indicates 'DOC (Canada)'
+             Bit 2 indicates 'ETSI (most of Europe)'
+             Bit 3 indicates 'Spain'
+             Bit 4 indicates 'France'
+             Bit 5 indicates 'MKK'
+             Bit 6 indicates 'China'.
+             Each bit,0 indicates not supported, 1 indicates supportd."                              
+        ::= { zxAnOnuWifiIfCapabilityEntry 6 }
+        
+    zxAnOnuWifiWirelessWorkMode OBJECT-TYPE        
+        SYNTAX  BITS {
+            ieee802for11b(0),
+            ieee802for11g(1),
+            ieee802for11n(2)       
+        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION 
+            "The wireless work mode of WIFI interface.
+             The attribute is a bit map,             
+             format as follows:
+             Bit 0 indicates '802.11b'
+             Bit 1 indicates '802.11g'
+             Bit 2 indicates '802.11n'.             
+             Each bit,0 indicates not supported, 1 indicates supportd." 
+        ::=  {  zxAnOnuWifiIfCapabilityEntry  7 }    
+-------------------------------------------------------------------------------
+-- 2.ONU WIFI Interface Table
+-------------------------------------------------------------------------------
+    zxAnOnuWifiInterfaceTable    OBJECT-TYPE
+        SYNTAX      SEQUENCE  OF  ZxAnOnuWifiInterfaceEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION 
+            "ONU WIFI interface table. "
+        ::=  { zxAnWifiObjects  2 }
+        
+    zxAnOnuWifiInterfaceEntry   OBJECT-TYPE
+        SYNTAX      ZxAnOnuWifiInterfaceEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION 
+            "ONU WIFI interface entry."        
+        INDEX { zxAnOnuWifiOltIfIndex, zxAnOnuWifiOnuIndex,
+                zxAnOnuWifiIfIndex }
+        ::=  { zxAnOnuWifiInterfaceTable 1 }
+        
+    ZxAnOnuWifiInterfaceEntry  ::=  SEQUENCE {        
+        zxAnOnuWifiIfAdminStatus            INTEGER,
+        zxAnOnuWifiIfRadioMeasEnable        INTEGER,
+        zxAnOnuWifiIfIsolationEnable        INTEGER,
+        zxAnOnuWifiIfWirelessWorkMode       BITS,
+        zxAnOnuWifiIfRegulatoryDomain       INTEGER,
+        zxAnOnuWifiIfArcEnable              INTEGER,
+        zxAnOnuWifiIfArcInterval             Integer32,
+        zxAnOnuWifiIfOperationalStatus      INTEGER
+        }                  
+
+    zxAnOnuWifiIfAdminStatus OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION 
+            "Enable or disable the WIFI interface function."   
+        DEFVAL    { enable }                 
+        ::= { zxAnOnuWifiInterfaceEntry 1 }  
+                
+    zxAnOnuWifiIfRadioMeasEnable OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION 
+            "Enable or disable the radio measurement function."
+        DEFVAL    { disable }  
+        ::=  {  zxAnOnuWifiInterfaceEntry  2 }
+        
+    zxAnOnuWifiIfIsolationEnable OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION 
+            "Enable or disable the SSID isolation function."
+        DEFVAL    { enable }  
+        ::=  {  zxAnOnuWifiInterfaceEntry  3 }
+        
+    zxAnOnuWifiIfWirelessWorkMode OBJECT-TYPE        
+        SYNTAX  BITS {
+            ieee802for11b(0),
+            ieee802for11g(1),
+            ieee802for11n(2)       
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION 
+            "The wireless work mode of WIFI interface.
+             The attribute is a bit map,             
+             format as follows:
+             Bit 0 indicates '802.11b'
+             Bit 1 indicates '802.11g'
+             Bit 2 indicates '802.11n'.             
+             Each bit,0 indicates not supported, 1 indicates supportd." 
+        ::=  {  zxAnOnuWifiInterfaceEntry  4 }
+        
+    zxAnOnuWifiIfRegulatoryDomain OBJECT-TYPE
+        SYNTAX      INTEGER{
+            other(1),
+            fcc(2),
+            doc(3),
+            etsi(4),
+            spain(5),
+            france(6),
+            mkk(7),
+            china(8)            
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION 
+            "The current regulatory domain."
+        DEFVAL    { china } 
+        ::=  {  zxAnOnuWifiInterfaceEntry  5 }       
+                     
+    zxAnOnuWifiIfArcEnable OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION 
+            "Enable or disable the ARC function.
+             This attribute allows the activation of alarm reporting 
+             control(ARC) for this PPTP. The attribute works in concert
+             with the ARC_interval attribute."
+        DEFVAL    { disable }  
+        ::=  {  zxAnOnuWifiInterfaceEntry  6 }                     
+                
+    zxAnOnuWifiIfArcInterval OBJECT-TYPE
+        SYNTAX      Integer32(0..255)
+        UNITS       "minutes"
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute defines the interval to be used with the ARC 
+             function for this WIFI interface. This attribute is valid when
+             zxAnOnuWifiIfArcEnable is enable, the values 0 through 254
+             give the duration in minutes for the timer. 
+             The special value 255 means that the timer never expires. "
+        DEFVAL    { 60 }  
+        ::= { zxAnOnuWifiInterfaceEntry 7 }
+        
+    zxAnOnuWifiIfOperationalStatus OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION 
+            "The operational status of WIFI interface."              
+        ::= { zxAnOnuWifiInterfaceEntry 8 }
+        
+-------------------------------------------------------------------------------
+-- 3.ONU WIFI SSID Table
+-------------------------------------------------------------------------------                          
+    zxAnOnuWifiSsidTable    OBJECT-TYPE
+        SYNTAX      SEQUENCE  OF  ZxAnOnuWifiSsidEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION 
+            "ONU WIFI SSID table. "
+        ::=  { zxAnWifiObjects  3 }
+        
+    zxAnOnuWifiSsidEntry   OBJECT-TYPE
+        SYNTAX      ZxAnOnuWifiSsidEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION 
+            "ONU WIFI SSID entry.
+             Entries in the zxAnOnuWifiSsidTable are created and
+             deleted using the zxAnOnuWifiSsidRowStatus object."        
+        INDEX { zxAnOnuWifiOltIfIndex, zxAnOnuWifiOnuIndex,
+                zxAnOnuWifiIfIndex, zxAnOnuWifiSsid }
+        ::=  { zxAnOnuWifiSsidTable 1 }
+        
+    ZxAnOnuWifiSsidEntry  ::=  SEQUENCE {
+        zxAnOnuWifiSsid                       Integer32,        
+        zxAnOnuWifiSsidName                   DisplayString,    
+        zxAnOnuWifiSsidAdminStatus            INTEGER,
+        zxAnOnuWifiSsidHideEnable             INTEGER,    
+        zxAnOnuWifiSsidIsolationEnable        INTEGER,    
+        zxAnOnuWifiSsidMaxUserNum             Integer32,
+        zxAnOnuWifiSsidCurrentUserNum         Integer32,        
+        zxAnOnuWifiSsidMacAddress             MacAddress,
+        zxAnOnuWifiSsidAuthAlgorithm          INTEGER,
+        zxAnOnuWifiSsidWepEncryEnable         INTEGER,
+        zxAnOnuWifiSsidWepEncryKeyLen         INTEGER,        
+        zxAnOnuWifiSsidWepEncryKeyFormat      INTEGER,
+        zxAnOnuWifiSsidWepEncryKeyValue       DisplayString,
+        zxAnOnuWifiSsidWepEncryDefKey         Integer32,
+        zxAnOnuWifiSsidWpaEncryInterval       Integer32,
+        zxAnOnuWifiSsidWpaEncryAlgorithm      BITS,
+        zxAnOnuWifiSsidWpaEncryKeyValue       DisplayString,
+        zxAnOnuWifiSsidRowStatus              RowStatus        
+        }                  
+
+    zxAnOnuWifiSsid OBJECT-TYPE
+        SYNTAX      Integer32(1..8)
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "ONU WIFI SSID(Service Set Identifier)."            
+        ::= { zxAnOnuWifiSsidEntry 1 }         
+                
+    zxAnOnuWifiSsidName   OBJECT-TYPE
+        SYNTAX      DisplayString (SIZE (1..32))
+        MAX-ACCESS  read-create
+        STATUS      current 
+        DESCRIPTION
+            "The SSID name."
+        ::= { zxAnOnuWifiSsidEntry 2 }       
+        
+    zxAnOnuWifiSsidAdminStatus OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION 
+            "Enable or disable the SSID."
+        DEFVAL    { enable }  
+        ::=  {  zxAnOnuWifiSsidEntry 3 }    
+        
+    zxAnOnuWifiSsidHideEnable OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION 
+            "Enable or disable the SSID hide function."
+        DEFVAL    { disable }  
+        ::=  {  zxAnOnuWifiSsidEntry  4 }      
+        
+    zxAnOnuWifiSsidIsolationEnable OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION 
+            "Enable or disable the SSID user isolation function."
+        DEFVAL    { enable }  
+        ::=  {  zxAnOnuWifiSsidEntry  5 }
+        
+    zxAnOnuWifiSsidMaxUserNum OBJECT-TYPE
+        SYNTAX      Integer32(1..65535)
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The maximum SSID user number."
+        DEFVAL    { 32 }        
+        ::= { zxAnOnuWifiSsidEntry 6 }                   
+        
+    zxAnOnuWifiSsidCurrentUserNum OBJECT-TYPE
+        SYNTAX      Integer32(0..65535)
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "The current SSID user number."
+        ::= { zxAnOnuWifiSsidEntry 7 } 
+        
+    zxAnOnuWifiSsidMacAddress OBJECT-TYPE
+        SYNTAX      MacAddress
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "This MAC address associated with this SSID."        
+        ::= { zxAnOnuWifiSsidEntry 8 } 
+                
+    zxAnOnuWifiSsidAuthAlgorithm   OBJECT-TYPE         
+        SYNTAX  INTEGER {
+            openSystem(1),
+            sharedKey(2),
+            wpaPsk(3),
+            wpa2Psk(4),
+            wpaPskAndWpa2Psk(5)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION 
+            "The SSID authentication algorithms."
+        ::= { zxAnOnuWifiSsidEntry 9 }   
+        
+    zxAnOnuWifiSsidWepEncryEnable OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION 
+            "Enable or disable the WEP encryption function.
+             The attribute is valid when zxAnOnuWifiSsidAuthAlgorithm is
+             openSystem or sharedKey."
+        ::=  {  zxAnOnuWifiSsidEntry  10 }
+
+    zxAnOnuWifiSsidWepEncryKeyLen OBJECT-TYPE
+        SYNTAX      INTEGER{
+            for64(1),
+            for128(2)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION 
+            "The WEP encryption key bits length.
+             The attribute is valid when zxAnOnuWifiSsidWepEncryEnable is
+             enable."
+        DEFVAL { for64 }       
+        ::=  {  zxAnOnuWifiSsidEntry  11 }
+                                
+    zxAnOnuWifiSsidWepEncryKeyFormat OBJECT-TYPE
+        SYNTAX      INTEGER{
+            ascii(1),
+            hex(2)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION 
+            "The WEP encryption key format.
+             The attribute is valid when zxAnOnuWifiSsidWepEncryEnable is
+             enable."
+        DEFVAL { ascii }       
+        ::=  {  zxAnOnuWifiSsidEntry  12 }
+                        
+    zxAnOnuWifiSsidWepEncryKeyValue   OBJECT-TYPE
+        SYNTAX      DisplayString (SIZE (20..104))
+        MAX-ACCESS  read-create
+        STATUS      current 
+        DESCRIPTION
+            "The WEP encryption key value that consists of four groups 
+             ASCII or hex value,format as follows:
+             for64 and ascii -- each group consists of 5 bytes string;
+             for128 and ascii -- each group consists of 10 bytes string;
+             for64 and hex -- each group consists of 13 bytes hex string;
+             for128 and hex -- each group consists of 26 bytes hex string;
+             The attribute is valid when zxAnOnuWifiSsidWepEncryEnable is
+             enable."             
+        ::= { zxAnOnuWifiSsidEntry 13 }  
+          
+    zxAnOnuWifiSsidWepEncryDefKey OBJECT-TYPE
+        SYNTAX      Integer32(1..4)
+        MAX-ACCESS  read-create
+        STATUS      current        
+        DESCRIPTION
+            "The default WEP encryption key.
+             The attribute is valid when zxAnOnuWifiSsidWepEncryEnable is
+             enable."
+        DEFVAL      { 1 }    
+        ::= { zxAnOnuWifiSsidEntry 14 }           
+              
+    zxAnOnuWifiSsidWpaEncryInterval OBJECT-TYPE
+        SYNTAX      Integer32(100..1000)
+        UNITS       "seconds"
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The WPA encryption key updating interal.
+             The attribute is valid when zxAnOnuWifiSsidAuthAlgorithm is
+             wpaPsk or wpa2Psk or wpaPskAndWpa2Psk."
+        DEFVAL    { 600 }  
+        ::= { zxAnOnuWifiSsidEntry 15 }           
+      
+     zxAnOnuWifiSsidWpaEncryAlgorithm OBJECT-TYPE             
+        SYNTAX  BITS {
+            aes(0),
+            tkip(1),            
+            wep(2)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION 
+            "The WPA encryption Algorithm.
+             The attribute is valid when zxAnOnuWifiSsidAuthAlgorithm is
+             wpaPsk or wpa2Psk or wpaPskAndWpa2Psk.
+             The attribute is a bit map,             
+             format as follows:
+             Bit 0 indicates 'AES'
+             Bit 1 indicates 'TKIP'
+             Bit 2 indicates 'WEP'.             
+             Each bit,0 indicates not supported, 1 indicates supportd."                
+        ::=  {  zxAnOnuWifiSsidEntry  16 }
+              
+    zxAnOnuWifiSsidWpaEncryKeyValue   OBJECT-TYPE
+        SYNTAX      DisplayString (SIZE (8..63))
+        MAX-ACCESS  read-create
+        STATUS      current 
+        DESCRIPTION
+            "The WPA encryption key value that consists of 8-63 bytes string;
+             The attribute is valid when zxAnOnuWifiSsidAuthAlgorithm is
+             wpaPsk or wpa2Psk or wpaPskAndWpa2Psk."         
+        ::= { zxAnOnuWifiSsidEntry 17 } 
+        
+    zxAnOnuWifiSsidRowStatus    OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "The status of this conceptual row.
+             To create a row in this table, a manager must
+             set this object to createAndGo(4).          
+             In particular, a newly created row cannot be created
+             until the corresponding attributes from zxAnOnuWifiSsidName
+             to zxAnOnuWifiSsidWpaEncryKeyValue have been set.             
+             To delete a row in this table, a manager must
+             set this object to destroy(6). "
+        ::= {zxAnOnuWifiSsidEntry 50 }                       
+        
+-------------------------------------------------------------------------------
+-- 4.ONU WIFI SSID VLAN Tagging Table
+-------------------------------------------------------------------------------                          
+    zxAnOnuWifiSsidVlanTaggingTable    OBJECT-TYPE
+        SYNTAX      SEQUENCE  OF  ZxAnOnuWifiSsidVlanTaggingEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION 
+            "ONU WIFI SSID VLAN tagging configuration table. "
+        ::=  { zxAnWifiObjects  4 }
+        
+    zxAnOnuWifiSsidVlanTaggingEntry   OBJECT-TYPE
+        SYNTAX      ZxAnOnuWifiSsidVlanTaggingEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION 
+            "ONU WIFI SSID VLAN tagging configuration entry. "        
+        INDEX { zxAnOnuWifiOltIfIndex, zxAnOnuWifiOnuIndex,
+                zxAnOnuWifiIfIndex, zxAnOnuWifiSsid }
+        ::=  { zxAnOnuWifiSsidVlanTaggingTable 1 }
+        
+    ZxAnOnuWifiSsidVlanTaggingEntry  ::=  SEQUENCE {        
+        zxAnOnuWifiSsidVlanTaggingEnable      INTEGER,
+        zxAnOnuWifiSsidVlan                   Integer32,
+        zxAnOnuWifiSsidPriority               Integer32
+        }                  
+                        
+    zxAnOnuWifiSsidVlanTaggingEnable OBJECT-TYPE
+        SYNTAX      INTEGER{
+            enable(1),
+            disable(2)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION 
+            "Enable or disable the VLAN tag function."
+        DEFVAL    { disable }  
+        ::=  {  zxAnOnuWifiSsidVlanTaggingEntry  1 }               
+                
+    zxAnOnuWifiSsidVlan OBJECT-TYPE
+        SYNTAX      Integer32(1..4094)
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "VLAN ID.
+             The attribute is valid when zxAnOnuWifiSsidVlanTaggingEnable 
+             is enable."   
+        DEFVAL    { 1 }               
+        ::= { zxAnOnuWifiSsidVlanTaggingEntry 2 }                 
+                     
+    zxAnOnuWifiSsidPriority OBJECT-TYPE
+        SYNTAX      Integer32(0..7)
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "Priority."            
+        DEFVAL    { 0 }                   
+        ::= { zxAnOnuWifiSsidVlanTaggingEntry 3 }                          
+END

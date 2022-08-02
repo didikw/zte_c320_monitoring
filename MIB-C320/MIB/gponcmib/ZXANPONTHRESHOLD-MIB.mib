@@ -1,0 +1,248 @@
+ZXANPONTHRESHOLD-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+        MODULE-IDENTITY, OBJECT-TYPE, Integer32, NOTIFICATION-TYPE
+                                         FROM SNMPv2-SMI
+        RowStatus                        FROM SNMPv2-TC
+        zxAnPonMib                       FROM ZTE-MASTER-MIB;
+
+zxAnPonThreshold        MODULE-IDENTITY
+    LAST-UPDATED "200704040000Z"
+    ORGANIZATION    "Zhongxing Telcom Co. Ltd."
+    CONTACT-INFO    "Zhongxing Telcom Co. Ltd.
+                     E-mail: info@mail.zte.com.cn
+                     http  : www.zte.com.cn or www.zhongxing.com"
+
+    DESCRIPTION
+         ""
+    ::= { zxAnPonMib 4 }
+
+    zxAnPonThresholdAlarm   OBJECT IDENTIFIER ::= { zxAnPonThreshold 1}
+    zxAnPonThresholdTrap   OBJECT IDENTIFIER ::= { zxAnPonThreshold 2}
+
+--zxAnPonThresholdAlarm
+
+zxAnPonThresholdAlarmTable OBJECT-TYPE
+     SYNTAX     SEQUENCE OF ZxAnPonThresholdAlarmEntry
+     MAX-ACCESS not-accessible
+     STATUS     current
+     DESCRIPTION
+         "A list of alarm entries."
+     ::= { zxAnPonThresholdAlarm 1 }
+
+ zxAnPonThresholdAlarmEntry OBJECT-TYPE
+     SYNTAX     ZxAnPonThresholdAlarmEntry
+     MAX-ACCESS not-accessible
+     STATUS     current
+     DESCRIPTION
+         "A list of parameters that set up a periodic checking
+         for alarm conditions.  For example, an instance of the
+         alarmValue object might be named alarmValue.8"
+     INDEX { zxAnPonThresholdAlarmIndex }
+     ::= { zxAnPonThresholdAlarmTable 1 }
+
+ ZxAnPonThresholdAlarmEntry ::= SEQUENCE {
+     zxAnPonThresholdAlarmIndex                    Integer32,
+     zxAnPonThresholdAlarmInterval                 Integer32,
+     zxAnPonThresholdAlarmVariable                 OBJECT IDENTIFIER,
+     zxAnPonThresholdAlarmSampleType               INTEGER,
+     zxAnPonThresholdAlarmValue                    OCTET STRING,
+     zxAnPonThresholdAlarmRisingThreshold          OCTET STRING,
+     zxAnPonThresholdAlarmFallingThreshold         OCTET STRING,
+     zxAnPonThresholdAlarmStatus                   RowStatus
+ }
+
+ zxAnPonThresholdAlarmIndex OBJECT-TYPE
+     SYNTAX     Integer32
+     MAX-ACCESS not-accessible
+     STATUS     current
+     DESCRIPTION
+         "An index that uniquely identifies an entry in the
+         alarm table.  Each such entry defines a
+         diagnostic sample at a particular interval
+         for an object on the device."
+     ::= { zxAnPonThresholdAlarmEntry 1 }
+
+ zxAnPonThresholdAlarmInterval OBJECT-TYPE
+     SYNTAX     Integer32
+     UNITS      "Seconds"
+     MAX-ACCESS read-create
+     STATUS     current
+     DESCRIPTION
+         "The interval in seconds over which the data is
+         sampled and compared with the rising and falling
+         thresholds.  When setting this variable, care
+         should be taken in the case of deltaValue
+         sampling - the interval should be set short enough
+         that the sampled variable is very unlikely to
+         increase or decrease by more than 2^31 - 1 during
+         a single sampling interval.
+
+         This object may not be modified if the associated
+         alarmStatus object is equal to valid(1)."
+     ::= { zxAnPonThresholdAlarmEntry 2 }
+
+ zxAnPonThresholdAlarmVariable OBJECT-TYPE
+     SYNTAX     OBJECT IDENTIFIER
+     MAX-ACCESS read-create
+     STATUS     current
+     DESCRIPTION
+         "The object identifier of the particular variable to be
+         sampled.  Only variables that resolve to an ASN.1 primitive
+         type of INTEGER (INTEGER, Integer32, Counter32, Counter64,
+         Gauge, or TimeTicks) may be sampled.
+
+         Because SNMP access control is articulated entirely
+         in terms of the contents of MIB views, no access
+         control mechanism exists that can restrict the value of
+         this object to identify only those objects that exist
+         in a particular MIB view.  Because there is thus no
+         acceptable means of restricting the read access that
+         could be obtained through the alarm mechanism, the
+         probe must only grant write access to this object in
+         those views that have read access to all objects on
+         the probe.
+
+         During a set operation, if the supplied variable name is
+         not available in the selected MIB view, a badValue error
+         must be returned.  If at any time the variable name of
+         an established alarmEntry is no longer available in the
+         selected MIB view, the probe must change the status of
+         this alarmEntry to invalid(4).
+
+         This object may not be modified if the associated
+         alarmStatus object is equal to valid(1)."
+     ::= { zxAnPonThresholdAlarmEntry 3 }
+
+ zxAnPonThresholdAlarmSampleType OBJECT-TYPE
+     SYNTAX     INTEGER {
+                  absoluteValue(1),
+                  deltaValue(2)
+                }
+     MAX-ACCESS read-create
+     STATUS     current
+     DESCRIPTION
+         "The method of sampling the selected variable and
+         calculating the value to be compared against the
+         thresholds.  If the value of this object is
+         absoluteValue(1), the value of the selected variable
+         will be compared directly with the thresholds at the
+         end of the sampling interval.  If the value of this
+         object is deltaValue(2), the value of the selected
+         variable at the last sample will be subtracted from
+         the current value, and the difference compared with
+         the thresholds.
+
+         This object may not be modified if the associated
+         alarmStatus object is equal to valid(1)."
+     ::= { zxAnPonThresholdAlarmEntry 4 }
+
+ zxAnPonThresholdAlarmValue OBJECT-TYPE
+     SYNTAX     OCTET STRING (SIZE (0..32))
+     MAX-ACCESS read-only
+     STATUS     current
+     DESCRIPTION
+         "The value of the statistic during the last sampling
+         period.  For example, if the sample type is deltaValue,
+         this value will be the difference between the samples
+         at the beginning and end of the period.  If the sample
+         type is absoluteValue, this value will be the sampled
+         value at the end of the period.
+         This is the value that is compared with the rising and
+         falling thresholds.
+
+         The value during the current sampling period is not
+         made available until the period is completed and will
+         remain available until the next period completes."
+     ::= { zxAnPonThresholdAlarmEntry 5 }
+
+ zxAnPonThresholdAlarmRisingThreshold OBJECT-TYPE
+     SYNTAX     OCTET STRING (SIZE (0..32))
+     MAX-ACCESS read-create
+     STATUS     current
+     DESCRIPTION
+         "A threshold for the sampled statistic.  When the current
+         sampled value is greater than or equal to this threshold,
+         and the value at the last sampling interval was less than
+         this threshold, a single event will be generated.
+         A single event will also be generated if the first
+         sample after this entry becomes valid is greater than or
+         equal to this threshold and the associated
+         alarmStartupAlarm is equal to risingAlarm(1) or
+         risingOrFallingAlarm(3).
+
+         After a rising event is generated, another such event
+         will not be generated until the sampled value
+         falls below this threshold and reaches the
+         alarmFallingThreshold.
+
+         This object may not be modified if the associated
+         alarmStatus object is equal to valid(1)."
+     ::= { zxAnPonThresholdAlarmEntry 6 }
+
+ zxAnPonThresholdAlarmFallingThreshold OBJECT-TYPE
+     SYNTAX     OCTET STRING (SIZE (0..32))
+     MAX-ACCESS read-create
+     STATUS     current
+     DESCRIPTION
+         "A threshold for the sampled statistic.  When the current
+         sampled value is less than or equal to this threshold,
+         and the value at the last sampling interval was greater than
+         this threshold, a single event will be generated.
+         A single event will also be generated if the first
+         sample after this entry becomes valid is less than or
+         equal to this threshold and the associated
+         alarmStartupAlarm is equal to fallingAlarm(2) or
+         risingOrFallingAlarm(3).
+
+         After a falling event is generated, another such event
+         will not be generated until the sampled value
+         rises above this threshold and reaches the
+         alarmRisingThreshold.
+
+         This object may not be modified if the associated
+         alarmStatus object is equal to valid(1)."
+     ::= { zxAnPonThresholdAlarmEntry 7 }
+
+ 
+ zxAnPonThresholdAlarmStatus OBJECT-TYPE
+     SYNTAX     RowStatus
+     MAX-ACCESS read-create
+     STATUS     current
+     DESCRIPTION
+         "The status of this alarm entry."
+     ::= { zxAnPonThresholdAlarmEntry 8 }
+
+zxAnPonThresholdAlarmSpareIndex OBJECT-TYPE
+     SYNTAX     Integer32
+     MAX-ACCESS read-only
+     STATUS     current
+     DESCRIPTION
+         "Query free zxAnPonThresholdAlarmIndex"
+     ::= { zxAnPonThresholdAlarm 2 }
+
+--zxAnPonThresholdTrap
+
+zxAnPonThresholdRisingAlarm NOTIFICATION-TYPE
+     OBJECTS  { zxAnPonThresholdAlarmVariable, zxAnPonThresholdAlarmSampleType,
+                zxAnPonThresholdAlarmValue, zxAnPonThresholdAlarmRisingThreshold }
+     STATUS   current
+     DESCRIPTION
+         "The SNMP trap that is generated when an alarm
+         entry crosses its rising threshold and generates
+         an event that is configured for sending SNMP
+         traps."
+     ::= { zxAnPonThresholdTrap 1}
+
+ zxAnPonThresholdFallingAlarm NOTIFICATION-TYPE
+     OBJECTS { zxAnPonThresholdAlarmVariable, zxAnPonThresholdAlarmSampleType,
+               zxAnPonThresholdAlarmValue, zxAnPonThresholdAlarmFallingThreshold }
+     STATUS    current
+     DESCRIPTION
+         "The SNMP trap that is generated when an alarm
+         entry crosses its falling threshold and generates
+         an event that is configured for sending SNMP
+         traps."
+     ::= { zxAnPonThresholdTrap 2}  
+     
+END

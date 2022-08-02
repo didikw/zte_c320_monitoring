@@ -1,0 +1,726 @@
+-- *****************************************************************
+-- ZTE CLOCK MIB
+--
+-- 09-19-2006
+--
+-- Copyright(c) 2005 ZTE Corporation
+-- All rights reserved.
+-- *****************************************************************
+
+ZTE-AN-CLOCK-MIB DEFINITIONS ::= BEGIN 
+    IMPORTS 
+        enterprises                      FROM RFC1155-SMI
+        NOTIFICATION-TYPE                FROM SNMPv2-SMI
+        ifIndex                          FROM RFC1213-MIB
+        MODULE-IDENTITY                  FROM SNMPv2-SMI
+        OBJECT-TYPE                      FROM SNMPv2-SMI
+        Integer32                        FROM SNMPv2-SMI
+        RowStatus                        FROM SNMPv2-TC;
+
+    zxClockMib MODULE-IDENTITY 
+        LAST-UPDATED "200609190000Z"  -- September 19, 2006"
+        ORGANIZATION 
+            "ZTE Corp."
+        CONTACT-INFO 
+            "ZTE GPON Working Group: 
+            http://www.zte.com.cn
+            e-mail:
+            min.zhu@zte.com.cn
+            "
+        DESCRIPTION
+          "The MIB module for defining clock service MIB. "
+
+        REVISION
+          "200609281200Z"
+          
+        DESCRIPTION
+          " Hello"   
+        ::= {zxPON 4}
+
+    zxEnterpriseMib   OBJECT IDENTIFIER ::= { enterprises 3902}
+    zxPON             OBJECT IDENTIFIER ::= { zxEnterpriseMib 1012}  
+    
+    zxClockSourceTable OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxClockSourceEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "" 
+        REFERENCE
+            ""
+        ::= { zxClockMib 1 }
+
+    zxClockSourceEntry OBJECT-TYPE
+        SYNTAX      ZxClockSourceEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            ""
+        INDEX  {zxClockSourceIndex }
+        ::= { zxClockSourceTable 1 }
+
+     ZxClockSourceEntry ::=
+        SEQUENCE {
+            zxClockSourceIndex INTEGER,
+            zxClockSourceType INTEGER,
+            zxClockSourcePriority INTEGER,
+            zxClockSourceTxS1 INTEGER,           
+            zxClockSourceRxS1 INTEGER,
+            zxClockSourceState INTEGER,
+            zxClockSourceAlarm INTEGER, 
+            zxClockSourceIsActive INTEGER,
+            zxClockSourceExtInQuality INTEGER,
+            zxClockSourceExtInMode INTEGER,                                                                                                                  
+            zxClockSourceEntryStatus RowStatus,
+            zxClockSourceSwitchMode     INTEGER
+        }
+
+   zxClockSourceIndex OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            " 
+             4bits  4bits       8bits          8bits         8bits
+            -------------------------------------------------------------
+            | type | shelf |     slot    |     port     |   reserverd   |
+            -------------------------------------------------------------  
+             "
+        ::= { zxClockSourceEntry 1}
+
+   zxClockSourceType OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    internalClock(0),
+                    maintainClock(1),
+                    externalClock(2),
+                    e1Clock(3),
+                    stm1Clock(4),
+                    stm4Clock(5),
+                    syncEth(6),
+                    sdhClock(7),
+                    ptpClock(8)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            " reference source type:
+              0            internal clock
+              1            maintain clock
+              2            external clock
+              3            E1 clock
+              4            STM-1 clock
+              5            STM-4 clock
+              6            ethernet physical layer synchronization
+              7            SDH equipment clock
+              8            PTP/1588 clock."
+        ::= { zxClockSourceEntry 2}
+
+   zxClockSourcePriority OBJECT-TYPE
+        SYNTAX      INTEGER(1..255)
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            " 1 has the highest priority. "
+        ::= { zxClockSourceEntry 3}
+
+   zxClockSourceTxS1 OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            " transmitted s1 "
+        ::= { zxClockSourceEntry 4}
+
+   zxClockSourceRxS1 OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            " received s1 "
+        ::= { zxClockSourceEntry 5}
+
+   zxClockSourceState OBJECT-TYPE
+        SYNTAX      INTEGER{
+                     pllNormal(1),
+                     pllWrong(11),
+                     preLocked(6),
+                     preLocked2(5),
+                     locked(4),
+                     outOfPhase(7),
+                     maintain(2)
+                    }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            " state of this clock reference source. "
+        ::= { zxClockSourceEntry 6}        
+
+   zxClockSourceAlarm OBJECT-TYPE
+        SYNTAX      INTEGER {
+                    normal(1),
+                    abnormal(2),
+                    los(3),
+                    lockAlam(4),
+                    s1Mismatch(5),
+                    lockout(6),
+                    qlFail(7),
+                    lostEsmc(8),
+                    waitToRecover(9),
+                    noAlarm(255)
+                    
+        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies alarm of this clock reference source.
+             normal, the alarm status is normal, this value is disuse.
+             abnormal, the alarm status is abnormal, this value is disuse.
+             los, loss of signal status.
+             lockAlam, exceed of frequency status.
+             s1Mismatch, S1 mismatch status.
+             lockout, lockout status.
+             qlFail, quality level fail status.
+             lostEsmc, loss of ESMC status.
+             waitToRecover, wait the clock source to recover.
+             noAlarm, no alarm, the normal status."
+        ::= { zxClockSourceEntry 7}
+
+   zxClockSourceIsActive OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    active(1),
+                    notAtctive(2)
+                    }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+            " if this clock source is active or not."
+        ::= { zxClockSourceEntry 8}
+    
+    zxClockSourceExtInQuality OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    level1(2),
+                    level2(4),
+                    level3(8),
+                    level4(11)
+                    }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+                "The quality level of external input clock. If zxClockSourceType
+                 is external clock, this object must be set."
+        DEFVAL  { level3 }                
+        ::= { zxClockSourceEntry 9}       
+
+    zxClockSourceExtInMode OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    hz(1),
+                    readableSsm(2),
+                    unreadableSsm(3)
+                    }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+                "The mode of external input clock.If zxClockSourceType
+                 is external clock, this object must be set."
+        DEFVAL  { hz }                
+        ::= { zxClockSourceEntry 10}
+             
+    zxClockSourceEntryStatus OBJECT-TYPE
+      SYNTAX      RowStatus
+      MAX-ACCESS  read-create
+      STATUS      current 
+      DESCRIPTION 
+        "This attribute can be create and delete."
+      REFERENCE   "N/A"
+      ::= {zxClockSourceEntry 11}
+
+    zxClockSourceSwitchMode OBJECT-TYPE
+        SYNTAX      INTEGER {
+                    none(1),
+                    force(2),
+                    manual(3),
+                    lockout(4)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies clock source switch mode in G.781.
+             none, no switch mode.
+             force, forced switch. 
+             manual, manual switch.
+             lockout, lockout."
+        ::= { zxClockSourceEntry 12 }
+
+    zxClockExternalOutputSsmThreshold OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    extOutSsmNULL(0),
+                    primaryClock(2),
+                    enhancedLevel2Clock(4),
+                    enhancedLevel3Clock(8),
+                    secClock(11)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+                "The ssm threshold of external output clock.
+                extOutSsmNULL -- not cfged"
+        DEFVAL  { secClock }                
+        ::= { zxClockMib 2}       
+
+    zxClockExternalOutputMode OBJECT-TYPE
+        SYNTAX      INTEGER{
+                    clkNULL(0),
+                    hz(1),
+                    readableSsm(2),
+                    unreadableSsm(3)
+                    }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+                "The mode of external output clock.
+                 clkNULL -- not cfged"
+        DEFVAL  { hz }                
+        ::= { zxClockMib 3}
+        
+    zxClockGlobalObjects   OBJECT IDENTIFIER ::= { zxClockMib 4 }
+    
+    zxClockWorkMode OBJECT-TYPE
+        SYNTAX      INTEGER {
+                    qlenable(1),
+                    qldisable(2)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the clock work mode, and now just support
+             quality level enable."
+        ::= { zxClockGlobalObjects 1 }
+    
+    zxClockWaitToRestoreTime OBJECT-TYPE
+        SYNTAX      Integer32(0..15)
+        UNITS       "minutes"
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the clock source wait to restore time."
+        DEFVAL { 5 }
+        ::= { zxClockGlobalObjects 2 } 
+        
+    zxClockHoldOffTime OBJECT-TYPE
+        SYNTAX      Integer32(300..1800)
+        UNITS       "ms"
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies the clock source hold-off Time."
+        ::= { zxClockGlobalObjects 3 }
+        
+    zxClockOperationStatus OBJECT-TYPE
+        SYNTAX      INTEGER {
+                    freerunPhaselockedNormal(1),
+                    holdOver(2),
+                    locked(4),
+                    prelocked2LostPhase(5),
+                    prelocked(6),
+                    lostPhase(7),                                                            
+                    freerun2PhaselockedAbnormal(11),
+                    directPass(14),
+                    destroyFreerunOrHoldOver(21),
+                    unknown(255)                                                         
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "This attribute specifies clock operation status.Only freerun and 
+             holdover status can be writed. Other enumeration just can be read.
+             freerunPhaselockedNormal, free-running status, 
+                                       the phase-locked loop is normal.
+             freerun2PhaselockedAbnormal,  free-running2 status, 
+                                          the phase-locked loop is abnormal.
+             prelocked, pre-locked status.
+             prelockedLostPhase, pre-locked2 status, the clock try to pre-locked 
+                                 in lost Phase status.
+             locked, locked status.
+             lostPhase, lost Phase status.
+             holdOver, holdover status.
+             directPass, direct pass status.
+             unknown, it means can not get the clock operation status."
+        ::= { zxClockGlobalObjects 4 } 
+        
+    zxClockSsmTable    OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxClockSsmEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This managed entity represents the SSM parameter."
+        ::= { zxClockMib 5 }
+
+    zxClockSsmEntry OBJECT-TYPE
+        SYNTAX      ZxClockSsmEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the zxClockSsmTable."
+        INDEX   { zxClockSourceIndex }
+        ::= { zxClockSsmTable 1 }
+        
+    ZxClockSsmEntry ::=
+        SEQUENCE {
+            zxClockSsmSentBytes           Integer32,
+            zxClockSsmRowStatus           RowStatus
+        }                          
+
+    zxClockSsmSentBytes OBJECT-TYPE
+        SYNTAX      Integer32(0..15)
+        UNITS       "byte"
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute defines the SSM sent bytes."
+        ::= { zxClockSsmEntry 1 } 
+
+    zxClockSsmRowStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute indicates the operation of the entry."
+        ::= { zxClockSsmEntry 51 } 
+
+    zxClockEsmcTable    OBJECT-TYPE
+        SYNTAX      SEQUENCE OF ZxClockEsmcEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "This managed entity represents the EMSC parameter."
+        ::= { zxClockMib 6 }
+
+    zxClockEsmcEntry OBJECT-TYPE
+        SYNTAX      ZxClockEsmcEntry
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "It is entry in the zxClockEsmcTable."
+        INDEX   { zxClockSourceIndex }
+        ::= { zxClockEsmcTable 1 }
+        
+    ZxClockEsmcEntry ::=
+        SEQUENCE {
+            zxClockEsmcEnable              INTEGER,
+            zxClockEsmcRowStatus           RowStatus
+        }
+        
+    zxClockEsmcEnable OBJECT-TYPE
+        SYNTAX      INTEGER {
+                    enable(1),
+                    disable(2)
+        }
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute defines the ESMC enable status."
+        ::= { zxClockEsmcEntry 1 }
+
+    zxClockEsmcRowStatus OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-create
+        STATUS      current
+        DESCRIPTION
+            "This attribute indicates the operation of the entry."
+        ::= { zxClockEsmcEntry 51 }        
+
+------------------------------------------------------------------------------
+------                   clk alm mib 
+------------------------------------------------------------------------------
+    zxClkSrcSwitchReason OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "clock source switch reason:
+              1,  CLOCKSOURCE_SWITCH_ABMNORMAL,
+              2,  CLOCKSOURCE_SWITCH_S1CHANGE,
+              3,  CLOCKSOURCE_SWITCH_ALMCHANGE,
+              4,  CLOCKSOURCE_SWITCH_PRICHANGE,
+              5,  CLOCKSOURCE_SWITCH_OUTOFLOCK,
+              6,  CLOCKSOURCE_SWITCH_DEGRADE,
+              7,  LOCKSOURCE_SWITCH_PLLFAIL,
+              8,  CLOCKSOURCE_SWITCH_PRELOCKFAIL,
+              9,  CLOCKSOURCE_SWITCH_HOLDOVESTOP,
+              10, CLOCKSOURCE_SWITCH_LOADCFG,
+              11, CLOCKSOURCE_SWITCH_ALMRESTORE,
+              12, CLOCKSOURCE_SWITCH_PROTECT,
+              13, CLOCKSOURCE_SWITCH_PROTECT_CANCEL,
+              14, CLOCKSOURCE_SWITCH_BACKUP_PLLFAIL,"          
+        ::= { zxClockMib 30}       
+
+    zxClkSrcSwitchOldInfo OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "OldInfo:old clk src position and clk type:shelf,slot,port,clkType"          
+        ::= { zxClockMib 31}    
+
+    zxClkSrcSwitchNewInfo OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "NewInfo:new clk src position and clk type:shelf,slot,port,clkType"          
+        ::= { zxClockMib 32}    
+                               
+   zxClkAlmTraps          OBJECT IDENTIFIER ::= { zxClockMib 45}    
+
+    zxClkSrcSwitch NOTIFICATION-TYPE
+        OBJECTS {
+                zxClkSrcSwitchReason,
+                zxClkSrcSwitchOldInfo,
+                zxClkSrcSwitchNewInfo
+                }
+        STATUS current
+        DESCRIPTION 
+            "clock source switch.
+             reason:1-Abnormal,2-S1Changed,...;
+             OldInfo:old clk src position and clk type:shelf,slot,port,clkType;
+             NewInfo:new clk src position and clk type:shelf,slot,port,clkType"
+        ::={zxClkAlmTraps 1} 
+    
+                                                                                               
+    zxClkLti        NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Lti is Loss of signal for ONUi. Generate notification."
+        ::={zxClkAlmTraps 21}
+    zxClkLtiRestore  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "LOSi is Loss of signal for ONUi.When the OLT receives 
+            a valid optical signal from ONUi, Alarm is restored"
+        ::={zxClkAlmTraps 22}
+
+    zxClkLto        NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Lti is Loss of signal for ONUi. Generate notification."
+        ::={zxClkAlmTraps 23}             
+    zxClkLtoRestore  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "LOSi is Loss of signal for ONUi.When the OLT receives 
+            a valid optical signal from ONUi, Alarm is restored"
+        ::={zxClkAlmTraps 24}
+        
+    zxClkTimingDeg        NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Lti is Loss of signal for ONUi. Generate notification."
+        ::={zxClkAlmTraps 25}                
+    zxClkTimingDegRestore  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "LOSi is Loss of signal for ONUi.When the OLT receives 
+            a valid optical signal from ONUi, Alarm is restored"
+        ::={zxClkAlmTraps 26}
+
+    zxClkSsmMismatch        NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Lti is Loss of signal for ONUi. Generate notification."
+        ::={zxClkAlmTraps 27}             
+    zxClkSsmMismatchRestore  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "LOSi is Loss of signal for ONUi.When the OLT receives 
+            a valid optical signal from ONUi, Alarm is restored"
+        ::={zxClkAlmTraps 28}
+
+    zxClkClockAlarm        NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Alarm reporting Exceeded frequency deviation of clock signal"
+        ::={zxClkAlmTraps 29}
+    zxClkClockAlarmRestore  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Alarm restoring Exceeded frequency deviation of clock signal"
+        ::={zxClkAlmTraps 30}
+
+    zxClkTimingLoop        NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Lti is Loss of signal for ONUi. Generate notification."
+        ::={zxClkAlmTraps 31}
+    zxClkTimingLoopRestore  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "LOSi is Loss of signal for ONUi.When the OLT receives 
+            a valid optical signal from ONUi, Alarm is restored"
+        ::={zxClkAlmTraps 32}
+
+    zxClkPllError        NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Lti is Loss of signal for ONUi. Generate notification."
+        ::={zxClkAlmTraps 33}             
+    zxClkPllErrorRestore  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "LOSi is Loss of signal for ONUi.When the OLT receives 
+            a valid optical signal from ONUi, Alarm is restored"
+        ::={zxClkAlmTraps 34}
+
+    zxClkNoClkCfg        NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Lti is Loss of signal for ONUi. Generate notification."
+        ::={zxClkAlmTraps 35}             
+    zxClkNoClkCfgRestore  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "LOSi is Loss of signal for ONUi.When the OLT receives 
+            a valid optical signal from ONUi, Alarm is restored"
+        ::={zxClkAlmTraps 36}
+
+    zxClkNoClkAvailable        NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Loss of timing inputs of clock signal alarm."
+        ::={zxClkAlmTraps 37}    
+                 
+    zxClkNoClkAvailableRestore  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Loss of timing inputs of clock signal alarm restore."
+        ::={zxClkAlmTraps 38}
+
+    zxClkClockLosLof        NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Lti is Loss of signal for ONUi. Generate notification."
+        ::={zxClkAlmTraps 39}             
+    zxClkClockLosLofRestore  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "LOSi is Loss of signal for ONUi.When the OLT receives 
+            a valid optical signal from ONUi, Alarm is restored"
+        ::={zxClkAlmTraps 40}
+        
+    zxClkClockLockOut        NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Locked out of clock signal alarm."
+        ::={zxClkAlmTraps 41}
+
+    zxClkClockLockOutRestore  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Locked out of clock signal alarm restore."
+        ::={zxClkAlmTraps 42}
+
+    zxClkClockQlFail       NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Quality level fail of clock signal alarm."
+        ::={zxClkAlmTraps 43}    
+        
+    zxClkClockQlFailRestore  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Quality level fail of clock signal alarm restore."
+        ::={zxClkAlmTraps 44}  
+        
+    zxClkClockLosEsmc      NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Loss of ESMC of clock signal alarm."
+        ::={zxClkAlmTraps 45}
+        
+    zxClkClockLosEsmcRestore  NOTIFICATION-TYPE
+        OBJECTS {
+                ifIndex
+                }
+        STATUS  current
+        DESCRIPTION 
+            "Loss of ESMC of clock signal alarm restore."
+        ::={zxClkAlmTraps 46}  
+                         
+-------------------------------------------------------------------------------
+-- Not define set flag, just set two times.
+                      
+END

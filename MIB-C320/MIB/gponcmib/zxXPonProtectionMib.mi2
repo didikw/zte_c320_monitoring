@@ -1,0 +1,630 @@
+-- *****************************************************************
+-- ZTE XPON PROTECTION MIB
+--
+-- 09-19-2006
+--
+-- Copyright(c) 2005 ZTE Corporation
+-- All rights reserved.
+-- *****************************************************************
+
+ZXXPON-PROTECTION-MIB DEFINITIONS ::= BEGIN 
+    IMPORTS 
+        MODULE-IDENTITY, OBJECT-TYPE,
+        Integer32, Unsigned32
+                                         FROM SNMPv2-SMI
+        enterprises                      FROM RFC1155-SMI
+        InetAddress,InetAddressType,InetAddressPrefixLength     FROM INET-ADDRESS-MIB
+        RowStatus                        FROM SNMPv2-TC
+        ;
+   
+    zxEnterpriseMib   OBJECT IDENTIFIER ::= { enterprises 3902}
+    zxPON             OBJECT IDENTIFIER ::= { zxEnterpriseMib 1012}      
+
+zxXPonProtection MODULE-IDENTITY
+    LAST-UPDATED "200611300000Z"  -- Nov. 30, 2006
+    ORGANIZATION    "Zhongxing Telcom Co. Ltd."
+    CONTACT-INFO    "Zhongxing Telcom Co. Ltd.
+                     E-mail: info@mail.zte.com.cn
+                     http  : www.zte.com.cn or www.zhongxing.com"
+
+    DESCRIPTION
+        "The MIB module for defining XPon protection service MIB. 
+        "
+  ::= { zxPON 9 }
+
+    zxXPonProtectionTrap    OBJECT IDENTIFIER ::= { zxXPonProtection 99}
+    zxXPonProtectionEnd    OBJECT IDENTIFIER ::= { zxXPonProtection 100}
+  
+    zxCponProtectionDummy OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                "The dummy object indicats the termination of protection mibs."
+        ::= { zxXPonProtectionEnd 1 }
+        
+    zxXPonProtectionStatus        OBJECT-TYPE
+        SYNTAX         INTEGER{
+                     enable(1),
+                     disable(2)
+                     }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+             "Default is enable"
+          ::= { zxXPonProtection 1 }
+      
+    zxXPonProtectionGroupIndexNext OBJECT-TYPE
+        SYNTAX            Unsigned32
+        MAX-ACCESS        read-only
+        STATUS            current
+        DESCRIPTION
+          "This object contains the value to be used for
+           zxXPonProtectionGroupId when creating entries in the
+           zxXPonProtectionGroupTable. The value 0 indicates that no
+           unassigned entries are available.  To obtain the
+           value of zxXPonProtectionGroupIndexNext for a new entry in the
+           zxXPonProtectionGroupTable, the manager issues a management
+           protocol retrieval operation. The agent will
+           determine through its local policy when this
+           index value will be made available for reuse."
+        ::= { zxXPonProtection 2 }        
+        
+--------------------------------------------------------------------------------
+-- 3 zxXPonProtectionGroupTable
+-- 4 zxXPonProtectionGroupPropTable
+-- 5 zxXPonProtectionActionTable
+-- 6 zxXPonDataSyncProgressBar
+-- 7 zxXPonProtectionGroupExtPropTable
+-- 8 zxProtectionOnuLinkStatusTable
+--------------------------------------------------------------------------------        
+            
+            
+--------------------------------------------------------------------------------
+-- 3 zxXPonProtectionGroupTable
+--------------------------------------------------------------------------------
+    zxXPonProtectionGroupTable      OBJECT-TYPE
+        SYNTAX          SEQUENCE OF ZxXPonProtectionGroupEntry
+        MAX-ACCESS      not-accessible
+        STATUS          current
+        DESCRIPTION
+            ""
+        ::= { zxXPonProtection 3 }
+
+    zxXPonProtectionGroupEntry     OBJECT-TYPE
+        SYNTAX         ZxXPonProtectionGroupEntry
+        MAX-ACCESS     not-accessible
+        STATUS         current
+        DESCRIPTION
+            "configuration of a XPon protection group."
+        INDEX     { zxXPonProtectionGroupId }
+        ::= { zxXPonProtectionGroupTable 1 }
+        
+    ZxXPonProtectionGroupEntry ::= SEQUENCE {
+        zxXPonProtectionGroupId              Unsigned32, 
+        zxXPonProtectionGroupName            OCTET STRING,
+        zxXPonWorkPonId                      Unsigned32,
+        zxXPonProtectionPonId                Unsigned32,
+        zxXPonProtectionType                 INTEGER,         
+        zxXPonProtectionSubType              INTEGER,                 
+        zxXPonProtectionGroupRowStatus       RowStatus,
+        zxXPonProtectionSystemMode           INTEGER,
+        zxXPonProtectionPeerAddrType         InetAddressType, 
+        zxXPonProtectionPeerIpAddr           InetAddress
+      }
+
+    zxXPonProtectionGroupId    OBJECT-TYPE
+        SYNTAX                 Unsigned32 (1..65535)
+        MAX-ACCESS             not-accessible
+        STATUS                 current
+        DESCRIPTION
+            "identifier of a XPon protection group."
+         ::= {zxXPonProtectionGroupEntry 1}
+         
+    zxXPonProtectionGroupName  OBJECT-TYPE
+        SYNTAX         OCTET STRING ( SIZE(1..32) )
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+          "name of a XPon protection group. "
+        ::= { zxXPonProtectionGroupEntry 2 }
+              
+    zxXPonWorkPonId      OBJECT-TYPE
+        SYNTAX         Unsigned32
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+        "identifier of a working pon interface.
+        
+          4bits     4bits   8bits   8bits    8bits   
+         -------------------------------------------
+         | type | | shelf | slot  | port  | reserved |
+         ------------------------------------------- "
+        ::= {zxXPonProtectionGroupEntry 3}
+
+    zxXPonProtectionPonId      OBJECT-TYPE
+        SYNTAX         Unsigned32
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+        "identifier of a protection pon interface.
+        
+          4bits     4bits   8bits   8bits    8bits   
+         -------------------------------------------
+         | type | | shelf | slot  | port  | reserved |
+         ------------------------------------------- "
+        ::= {zxXPonProtectionGroupEntry 4}
+
+    zxXPonProtectionType      OBJECT-TYPE
+        SYNTAX        INTEGER{
+                typeA(0),    
+                typeB(1),
+                typeC(2),
+                typeD(3)
+                }
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+            " XPon protection type.
+            0   -   TYPE A protection
+            1   -   TYPE B protection
+            2   -   TYPE C proteciton
+            3   -   TYPE D proteciton
+            "                   
+        ::= {zxXPonProtectionGroupEntry 5}
+        
+    zxXPonProtectionSubType      OBJECT-TYPE
+        SYNTAX         INTEGER  (1..3)
+        MAX-ACCESS     read-write
+        STATUS         deprecated
+        DESCRIPTION
+            " XPon protection structure type.
+             1    -   1+1 protection
+             2    -   1:1 proteciton
+             3    -   protection supportting load balance. 
+            "                   
+        ::= {zxXPonProtectionGroupEntry 6}                     
+                  
+    zxXPonProtectionGroupRowStatus      OBJECT-TYPE
+        SYNTAX      RowStatus
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            " "
+        ::= {zxXPonProtectionGroupEntry 7}
+            
+    zxXPonProtectionSystemMode    OBJECT-TYPE
+        SYNTAX  INTEGER {
+            sameNe(1),          
+            spanNeAsWorkPort(2), 
+            spanNeAsProtectionPort(3)                                  
+        }
+        MAX-ACCESS      read-write
+        STATUS          current 
+        DESCRIPTION
+            "The system mode of PON protection."
+        ::= {zxXPonProtectionGroupEntry 8 }    
+
+    zxXPonProtectionPeerAddrType OBJECT-TYPE
+        SYNTAX       InetAddressType
+        MAX-ACCESS   read-write
+        STATUS       current
+        DESCRIPTION
+            "IP address type to be used by a peer IP host.
+             When zxXPonProtectionSystemMode is 'spanNeAsWorkPort' or 
+             'spanNeAsProtectionPort' then this attribute is valid."
+        DEFVAL { ipv4 }            
+        ::= { zxXPonProtectionGroupEntry 9 }         
+        
+    zxXPonProtectionPeerIpAddr     OBJECT-TYPE
+        SYNTAX      InetAddress
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+            "IP address to be used by a peer IP host.
+             When zxXPonProtectionSystemMode is 'spanNeAsWorkPort' or 
+             'spanNeAsProtectionPort' then this attribute is valid."
+        ::= { zxXPonProtectionGroupEntry 10 } 
+
+--------------------------------------------------------------------------------
+-- 4 zxXPonProtectionGroupPropTable
+--------------------------------------------------------------------------------
+    zxXPonProtectionGroupPropTable      OBJECT-TYPE
+        SYNTAX          SEQUENCE OF ZxXPonProtectionGroupPropEntry
+        MAX-ACCESS      not-accessible
+        STATUS          current
+        DESCRIPTION
+            ""
+        ::= { zxXPonProtection 4 }
+
+    zxXPonProtectionGroupPropEntry     OBJECT-TYPE
+        SYNTAX         ZxXPonProtectionGroupPropEntry
+        MAX-ACCESS     not-accessible
+        STATUS         current
+        DESCRIPTION
+            "property of a XPon protection group."
+        INDEX     { zxXPonProtectionGroupId }
+        ::= { zxXPonProtectionGroupPropTable 1 }
+        
+    ZxXPonProtectionGroupPropEntry ::= SEQUENCE {
+        zxXPonProtectionActiveChannel      INTEGER,
+        zxXPonProtectionMode               INTEGER,
+        zxXPonProtectionHoldOffInterval    Integer32,         
+        zxXPonProtectionWtrInterval        Integer32,             
+        zxXPonProtectionApsAlarmInterval   Integer32,
+        zxXPonProtectionLastApsRequest     INTEGER                   
+      }
+
+    zxXPonProtectionActiveChannel    OBJECT-TYPE
+        SYNTAX         INTEGER{
+                         none(0),
+                         work-channel(1),
+                         protect-channel(2)
+                    }
+        MAX-ACCESS             read-only
+        STATUS                 current
+        DESCRIPTION
+            " "
+         ::= {zxXPonProtectionGroupPropEntry 1}
+         
+    zxXPonProtectionMode  OBJECT-TYPE
+        SYNTAX         INTEGER{
+                         revertive(1),
+                         non-revertive(2)
+                    }
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+          " "
+        ::= { zxXPonProtectionGroupPropEntry 2 }
+              
+    zxXPonProtectionHoldOffInterval      OBJECT-TYPE
+        SYNTAX         Integer32
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+        ""
+        ::= {zxXPonProtectionGroupPropEntry 3}
+
+    zxXPonProtectionWtrInterval      OBJECT-TYPE
+        SYNTAX         Integer32
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+        " "
+        ::= {zxXPonProtectionGroupPropEntry 4}
+
+    zxXPonProtectionApsAlarmInterval      OBJECT-TYPE
+        SYNTAX         Integer32
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+            " "                   
+        ::= {zxXPonProtectionGroupPropEntry 5}
+        
+    zxXPonProtectionLastApsRequest      OBJECT-TYPE
+         SYNTAX        INTEGER {
+            noRequest(1),
+            doNotRevert(2),
+            reverseRequest(3),
+            exercise(4),
+            waitToRestore(5),
+            manualSwitchToProtection(6),
+            manualSwitchToWork(7),
+            workSignalDegrade(8),
+            protectionSignalDegrade(9),
+            workSignalFail(10),
+            protectionSignalFail(11),
+            forcedSwitchToWork (12),
+            forcedSwitchToProtection(13),
+            lockoutOfProtection(14)
+        }
+        MAX-ACCESS     read-only
+        STATUS         current
+        DESCRIPTION
+            "The last automatic protection switch request status."                   
+        ::= {zxXPonProtectionGroupPropEntry 6}
+         
+
+--------------------------------------------------------------------------------
+-- 5 zxXPonProtectionActionTable
+--------------------------------------------------------------------------------
+    zxXPonProtectionActionTable      OBJECT-TYPE
+        SYNTAX          SEQUENCE OF ZxXPonProtectionActionEntry
+        MAX-ACCESS      not-accessible
+        STATUS          current
+        DESCRIPTION
+            ""
+        ::= { zxXPonProtection 5 }
+
+    zxXPonProtectionActionEntry     OBJECT-TYPE
+        SYNTAX         ZxXPonProtectionActionEntry
+        MAX-ACCESS     not-accessible
+        STATUS         current
+        DESCRIPTION
+            "property of a XPon protection group."
+        INDEX     { zxXPonProtectionGroupId }
+        ::= { zxXPonProtectionActionTable 1 }
+        
+    ZxXPonProtectionActionEntry ::= SEQUENCE {
+         zxXPonProtectionSwitchCommand          INTEGER,
+         zxXPonSyncData                       Integer32,
+         zxXPonProtectionSwitchOnuList        OCTET STRING                      
+      }
+         
+    zxXPonProtectionSwitchCommand  OBJECT-TYPE
+        SYNTAX         INTEGER{
+                         force-p2w(1),
+                         force-w2p(2),
+                         manual-p2w(3),
+                         manual-w2p(4),
+                         clearAll(5),
+                         lockoutProtection (6)                                             
+                    }
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+          " "
+        ::= { zxXPonProtectionActionEntry 1 } 
+    
+    zxXPonSyncData     OBJECT-TYPE
+        SYNTAX         Integer32
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+          " "
+        ::= { zxXPonProtectionActionEntry 2 }                
+        
+    zxXPonProtectionSwitchOnuList   OBJECT-TYPE 
+        SYNTAX    OCTET STRING (SIZE(0 .. 32))          
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION " ONU list, in order to switch onu protection.
+                      First to find out the work PON port by 
+                      'zxXPonProtectionGroupId',then the ONUs all 
+                      belong to the work PON port.
+                      The use of 32-octet specifies 256 ONU. Each octet
+                      within this field specifies a set of eight ONUs, 
+                      with the first octet specifying ONU 1 through 8,
+                      the second octet specifying ONU 9 through 16, etc.
+                      If that bit has a value of '1' then indicates
+                      ONU is existed.
+                      "
+        ::= { zxXPonProtectionActionEntry 3}             
+        
+        
+--------------------------------------------------------------------------------
+-- 6 zxXPonDataSyncProgressBar
+--------------------------------------------------------------------------------        
+    zxXPonDataSyncProgressBar     OBJECT-TYPE
+        SYNTAX         Integer32
+        MAX-ACCESS     read-only
+        STATUS         current
+        DESCRIPTION
+          "This object indicates the executing percentage of the 
+          dataSynchronizing procedure."
+        ::= { zxXPonProtection 6 }  
+        
+        
+--------------------------------------------------------------------------------
+-- 7 zxXPonProtectionGroupExtPropTable
+--------------------------------------------------------------------------------
+    zxXPonProtectionGroupExtPropTable      OBJECT-TYPE
+        SYNTAX          SEQUENCE OF ZxXPonProtectionGroupExtPropEntry
+        MAX-ACCESS      not-accessible
+        STATUS          current
+        DESCRIPTION
+            "XPON protection group extend property table,only for type C and Type D protection."
+        ::= { zxXPonProtection 7 }
+
+    zxXPonProtectionGroupExtPropEntry     OBJECT-TYPE
+        SYNTAX         ZxXPonProtectionGroupExtPropEntry
+        MAX-ACCESS     not-accessible
+        STATUS         current
+        DESCRIPTION
+            "XPON protection group extend property entry,only for type C and Type D protection."
+        INDEX     { zxXPonProtectionGroupId,zxXPonProtectWorkChannelOnuId }
+        ::= { zxXPonProtectionGroupExtPropTable 1 }
+        
+    ZxXPonProtectionGroupExtPropEntry ::= SEQUENCE {
+         zxXPonProtectWorkChannelOnuId        INTEGER,
+         zxXPonProtectProtectChannelOnuId     INTEGER,
+         zxXPonProtectOnuActiveChannel        INTEGER,
+         zxXPonProtectOnuLastApsRequest       INTEGER,
+         zxXPonProtectMemberRowStatus         RowStatus                
+      }
+
+    zxXPonProtectWorkChannelOnuId    OBJECT-TYPE
+        SYNTAX         INTEGER(1..256)
+        MAX-ACCESS     not-accessible
+        STATUS         current
+        DESCRIPTION
+            "Work channel ONU ID."
+         ::= {zxXPonProtectionGroupExtPropEntry 1}
+         
+    zxXPonProtectProtectChannelOnuId    OBJECT-TYPE
+        SYNTAX         INTEGER(1..256)
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+            "Protection channel ONU ID."
+         ::= {zxXPonProtectionGroupExtPropEntry 2}
+         
+    zxXPonProtectOnuActiveChannel    OBJECT-TYPE
+        SYNTAX         INTEGER{
+                         na(0),
+                         work-channel(1),
+                         protect-channel(2)                                             
+                    }
+        MAX-ACCESS     read-only
+        STATUS         current
+        DESCRIPTION
+            "active channel."
+         ::= {zxXPonProtectionGroupExtPropEntry 3}            
+         
+     zxXPonProtectOnuLastApsRequest    OBJECT-TYPE
+        SYNTAX        INTEGER {
+            noRequest(1),
+            doNotRevert(2),
+            reverseRequest(3),
+            exercise(4),
+            waitToRestore(5),
+            manualSwitchToProtection(6),
+            manualSwitchToWork(7),
+            workSignalDegrade(8),
+            protectionSignalDegrade(9),
+            workSignalFail(10),
+            protectionSignalFail(11),
+            forcedSwitchToWork (12),
+            forcedSwitchToProtection(13),
+            lockoutOfProtection(14)
+        }
+        MAX-ACCESS     read-only
+        STATUS         current
+        DESCRIPTION
+            "ONU last automatic protection switch request status."
+         ::= {zxXPonProtectionGroupExtPropEntry 4}
+                   
+    zxXPonProtectMemberRowStatus    OBJECT-TYPE
+        SYNTAX         RowStatus
+        MAX-ACCESS     read-write
+        STATUS         current
+        DESCRIPTION
+            ""
+         ::= {zxXPonProtectionGroupExtPropEntry 30}                
+        
+
+--------------------------------------------------------------------------------
+-- 8 zxProtectionOnuLinkStatusTable
+--------------------------------------------------------------------------------
+    zxProtectionOnuLinkStatusTable      OBJECT-TYPE
+        SYNTAX          SEQUENCE OF ZxProtectionOnuLinkStatusEntry
+        MAX-ACCESS      not-accessible
+        STATUS          current
+        DESCRIPTION
+            "ONU link status information table."
+        ::= { zxXPonProtection 8 }
+
+    zxProtectionOnuLinkStatusEntry     OBJECT-TYPE
+        SYNTAX         ZxProtectionOnuLinkStatusEntry
+        MAX-ACCESS     not-accessible
+        STATUS         current
+        DESCRIPTION
+            "ONU link status information entry."
+        INDEX     { zxProtectionOltIndex, zxProtectionOnuIndex }
+        ::= { zxProtectionOnuLinkStatusTable 1 }
+        
+    ZxProtectionOnuLinkStatusEntry ::= SEQUENCE {   
+         zxProtectionOltIndex                 Integer32,
+         zxProtectionOnuIndex                 Integer32,
+         zxProtectionConfigStatus             INTEGER,
+         zxProtectionWorkStatus               INTEGER,   
+         zxProtectionLinkStatus               BITS, 
+         zxProtectionPeerLinkStatus           BITS,
+         zxProtectionGroupId                  Integer32
+      }
+            
+    zxProtectionOltIndex OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "The 4 bytes index includes:
+            interface type(bit31~28);shelfId(bit27~24);slotId(bit23~16);
+                      oltId(bit16~8);reserved(bit7~bit0)"
+        ::= { zxProtectionOnuLinkStatusEntry 1}
+
+    zxProtectionOnuIndex OBJECT-TYPE
+        SYNTAX      Integer32
+        MAX-ACCESS  not-accessible
+        STATUS      current
+        DESCRIPTION
+            "The index of ONU."
+        ::= { zxProtectionOnuLinkStatusEntry 2}
+                          
+    zxProtectionConfigStatus   OBJECT-TYPE
+        SYNTAX  INTEGER {
+                    work(1),           
+                    protection(2)                                 
+        }
+        MAX-ACCESS      read-only
+        STATUS          current 
+        DESCRIPTION
+            "The ONU's configuration status about protection."
+        ::= {zxProtectionOnuLinkStatusEntry 3 } 
+                
+    zxProtectionWorkStatus   OBJECT-TYPE
+        SYNTAX  INTEGER {
+                    active(1),           
+                    inactive(2)                                 
+        }
+        MAX-ACCESS      read-only
+        STATUS          current 
+        DESCRIPTION
+            "The ONU's work status about protection.
+             When work status is active then switch protection,and
+             work status will become inactive.
+             "
+        ::= {zxProtectionOnuLinkStatusEntry 4 }            
+         
+    zxProtectionLinkStatus   OBJECT-TYPE         
+        SYNTAX  BITS {
+            noDefect(1),           
+            signalFail(2),
+            powerOff(3),
+            unknown(8)
+        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION 
+           "The ONU's link status about protection."                                        
+        ::= { zxProtectionOnuLinkStatusEntry 5 }   
+        
+
+    zxProtectionPeerLinkStatus   OBJECT-TYPE         
+        SYNTAX  BITS {
+            noDefect(1),           
+            signalFail(2),
+            powerOff(3),
+            unknown(8)
+        }
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION 
+           "The ONU's peer link status about protection."                                        
+        ::= { zxProtectionOnuLinkStatusEntry 6 }                              
+        
+    zxProtectionGroupId    OBJECT-TYPE
+        SYNTAX                 Integer32
+        MAX-ACCESS             read-only
+        STATUS                 current
+        DESCRIPTION
+            "The protection group ID of ONU."
+         ::= {zxProtectionOnuLinkStatusEntry 7}
+        
+                                                 
+ --zxXPonProtectionTrap begin
+ 
+    zxXPonProtectionTrapObj    OBJECT IDENTIFIER ::= { zxXPonProtectionTrap 1}
+    zxXPonProtectionTrapEvent    OBJECT IDENTIFIER ::= { zxXPonProtectionTrap 2}
+ 
+     zxXPonProtectionActivePort OBJECT-TYPE
+        SYNTAX      INTEGER
+        MAX-ACCESS  read-only
+        STATUS      current
+        DESCRIPTION
+                ""
+        ::= { zxXPonProtectionTrapObj 1 }
+ 
+    zxAnXponProtectionSwitchEvent        NOTIFICATION-TYPE
+        OBJECTS {
+                zxXPonProtectionGroupName,zxXPonProtectionActivePort
+                }
+        STATUS  current
+        DESCRIPTION 
+            ""
+        ::={zxXPonProtectionTrapEvent 1}
+        
+ --zxXPonProtectionTrap end
+ 
+END

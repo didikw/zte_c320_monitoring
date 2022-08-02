@@ -1,0 +1,79 @@
+
+--------------------------------------------------------------------------------
+-- File Name : ZTE-AN-XGPON-SERVICE-MIB.mib
+-- Date   : 2010-12-31
+-- Author : ZTE NMS Dept.
+-- ZTE XGPON Mib for Access Node 
+-- Copyright(c) 2010 ZTE Corporation
+-- All rights reserved.
+--------------------------------------------------------------------------------
+
+
+ZTE-AN-XGPON-SERVICE-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS 
+   MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    IpAddress, TimeTicks, Integer32, Counter32,
+    Gauge32, Counter64                              FROM SNMPv2-SMI
+    RowStatus, TruthValue, DisplayString,
+    TEXTUAL-CONVENTION                              FROM SNMPv2-TC
+    SnmpAdminString                                 FROM SNMP-FRAMEWORK-MIB
+    zxAn                                            FROM ZTE-AN-TC-MIB
+    ifIndex                                         FROM RFC1213-MIB
+    zxGponOntDevMgmtName,
+    zxGponOntDevMgmtTypeName,
+    zxGponOntDevMgmtDescription,
+    zxGponOnuRegistrationInfo                       FROM ZXGPON-SERVICE-MIB;
+
+zxAnXGponServiceMib MODULE-IDENTITY
+    LAST-UPDATED "201012311000Z"
+    ORGANIZATION "ZTE Corporation"
+    CONTACT-INFO "chenghaixia
+                  Mail: cheng.haixia@zte.com.cn
+                  Tel : 021-68895526"
+    DESCRIPTION  "The MIB module for the management of XGPON service"
+    ::= {zxAnPonMib 12} 
+    
+zxAnPonMib             OBJECT IDENTIFIER ::= { zxAn 1010}
+    
+--------------------------------------------------------------------------------
+
+-- 50. zxAnXGponOnuTraps
+--------------------------------------------------------------------------------  
+zxAnXGponTrapObjects  OBJECT IDENTIFIER ::= {zxAnXGponServiceMib 3}
+zxAnXGponOnuTraps OBJECT IDENTIFIER ::= {zxAnXGponTrapObjects 1}  
+--------------------------------------------------------------------------------
+-- 50. zxAnXGponOnuTraps
+--------------------------------------------------------------------------------
+    zxAnXGponOltLobi NOTIFICATION-TYPE
+        OBJECTS {
+           ifIndex,
+           zxGponOntDevMgmtName,
+           zxGponOntDevMgmtTypeName,
+           zxGponOntDevMgmtDescription,
+           zxGponOnuRegistrationInfo}
+        STATUS  current
+        DESCRIPTION
+            "Failure to delineate, to any reason, four consecutive scheduled
+           bursts from ONU i.when not exempt by power management state machine.
+          (Replaces conditions previously known as LOSi and LOFi)"
+        REFERENCE  
+          "Section 14.2.1 ITU G.987.3"
+        ::= { zxAnXGponOnuTraps 1 }
+        
+    zxAnXGponOltLobiRestore NOTIFICATION-TYPE
+        OBJECTS {
+           ifIndex,
+           zxGponOntDevMgmtName,
+           zxGponOntDevMgmtTypeName,
+           zxGponOntDevMgmtDescription,
+           zxGponOnuRegistrationInfo}
+        STATUS  current
+        DESCRIPTION
+           "A zxXGponOltLOBiRestore trap is sent when a scheduled
+          burst from ONUi successfully received."
+        REFERENCE  
+           "Section 14.2.1 ITU G.987.3"
+        ::= { zxAnXGponOnuTraps 2 }  
+
+END

@@ -1,0 +1,27 @@
+ZXANPONPOWER-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+        MODULE-IDENTITY, OBJECT-TYPE    FROM SNMPv2-SMI
+        zxAnPonMib                                     FROM ZTE-MASTER-MIB;
+
+zxAnPonPower        MODULE-IDENTITY
+    LAST-UPDATED "200704040000Z"
+    ORGANIZATION    "Zhongxing Telcom Co. Ltd."
+    CONTACT-INFO    "Zhongxing Telcom Co. Ltd.
+                     E-mail: info@mail.zte.com.cn
+                     http  : www.zte.com.cn or www.zhongxing.com"
+
+    DESCRIPTION
+         ""
+    ::= { zxAnPonMib 6 }
+
+zxAnPonPowerNum   OBJECT-TYPE
+    SYNTAX  INTEGER
+    MAX-ACCESS  read-write
+    STATUS  current
+    DESCRIPTION
+    ""
+    ::= { zxAnPonPower 1 }
+
+END
+
